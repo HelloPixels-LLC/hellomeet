@@ -22,6 +22,7 @@ LibreBooking documentation
    :caption: Getting Started:
 
    INSTALLATION
+   COOLIFY
    CONFIGURATION
    BASIC-CONFIGURATION
    ADVANCED-CONFIGURATION
