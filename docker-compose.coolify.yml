@@ -26,6 +26,9 @@ services:
         condition: service_healthy
     expose:
       - "8080"
+    configs:
+      - source: public-url-redirect
+        target: /etc/apache2/conf-enabled/public-url-redirect.conf
     environment:
       LB_DATABASE_HOSTSPEC: db
       LB_DATABASE_NAME: librebooking
@@ -78,6 +81,11 @@ services:
     volumes:
       - configuration:/config
       - uploads:/var/www/html/Web/uploads
+
+configs:
+  public-url-redirect:
+    content: |
+      RedirectMatch 302 "^/$" "${LB_SCRIPT_URL:?Set the public URL ending in /Web}/"
 
 volumes:
   database:

@@ -4,6 +4,9 @@ Deploying with Coolify
 The repository includes ``docker-compose.coolify.yml`` for deploying the
 official LibreBooking 7.0.0 image, MariaDB 11.4, and the background scheduler.
 The database, configuration, and uploaded files use persistent named volumes.
+An Apache configuration redirects the site root to ``LB_SCRIPT_URL`` while
+preserving HTTPS behind Coolify's proxy. This requires Docker Compose 2.23.1
+or newer for inline configuration support.
 This stack uses a published application image; it does not build application
 code from your fork. PHP or template changes in the fork require a separate
 image build workflow.
