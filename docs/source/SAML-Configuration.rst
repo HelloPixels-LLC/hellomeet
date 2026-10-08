@@ -7,10 +7,10 @@ SAML (Security Assertion Markup Language) Configuration
    set to false in Application Configuration. If email activation is enabled
    users will never be able to log in.
 
-LibreBooking SAML Introduction
+HelloMeet SAML Introduction
 ------------------------------
 
-LibreBooking comes with multiple Single Sign On plugins out of the box.
+HelloMeet comes with multiple Single Sign On plugins out of the box.
 There are many benefits to SSO over standard authentication. For
 administrators, having a single point of account credential and access
 administration is very valuable. If someone leaves the organization they
@@ -19,11 +19,11 @@ user, the benefit is not having to register and remember yet another set
 of application credentials.
 
 In this post we’ll cover how to set up SSO with SAML. Most SSO
-configurations for LibreBooking are pretty straightforward – you just
+configurations for HelloMeet are pretty straightforward – you just
 update the configuration options for the plugin. But SAML is different.
 SAML requires a 3rd party application called
 `SimpleSAMLphp <http://web.archive.org/web/20210303172340/https://simplesamlphp.org/>`__
-to be running on the same server as LibreBooking.
+to be running on the same server as HelloMeet.
 
 Install SimpleSAMLphp
 ---------------------
@@ -33,9 +33,9 @@ Our first step is to download the latest version of
 and install it on your web server. I recommend installing it outside
 your publicly visible directories and set up a subdomain pointing to the
 www directory. For example, if you install it to
-``/home/username/simplesamlphp`` and you have LibreBooking running out
-of ``/home/username/public\_html/librebooking``, then you’d create a
-subdomain such as ``saml.librebooking.xpto`` pointing to
+``/home/username/simplesamlphp`` and you have HelloMeet running out
+of ``/home/username/public\_html/HelloMeet``, then you’d create a
+subdomain such as ``saml.HelloMeet.xpto`` pointing to
 ``/home/username/simplesamlphp/www``. The reason we do this is because
 the only files which need to be publicly visible in SimpleSAMLphp are
 located in the www directory. Exposing more than that opens unnecessary
@@ -46,7 +46,7 @@ Configure SimpleSAMLphp
 
 SimpleSAMLphp has a lot of configuration options. If you’re like me and
 far from an expert in SAML, it’s overwhelming. Luckily, since
-LibreBooking is a Service Provider it doesn’t need anything special.
+HelloMeet is a Service Provider it doesn’t need anything special.
 I’ll go through each of the settings that need to be updated
 individually.
 
@@ -76,16 +76,16 @@ use this to access the admin page of the web UI for SimpleSAML.
 
 ``trusted.url.domains`` - This should be set to an array of domains that
 will participate in the SSO handshake. I use
-``array('saml.librebooking.com', 'librebooking.com')``
+``array('saml.HelloMeet.com', 'HelloMeet.com')``
 
 ``session.cookie.domain`` - This should be set to the wildcard subdomain
-of your primary domain. For example, I use ``.librebooking.com``
+of your primary domain. For example, I use ``.HelloMeet.com``
 
 ``session.cookie.secure`` - This should be set to true, assuming all
 traffic is sent over https.
 
 ``store.type`` - Set this to ``sql``. This ensures that PHP sessions
-from LibreBooking and sessions from SimpleSAMLphp do not conflict.
+from HelloMeet and sessions from SimpleSAMLphp do not conflict.
 
 ``store.sql.dsn`` - This should be set to a writable location for the
 sqlite database. You **must** have SQLite support in PHP enabled for
@@ -129,18 +129,18 @@ to finish up our configuration.
    this value as you will need this value in a later step when you
    configure the remote single sign on provider.
 
-Update SAML Configuration in LibreBooking
+Update SAML Configuration in HelloMeet
 -----------------------------------------
 
-Whew, almost done! The last few settings are in LibreBooking.
+Whew, almost done! The last few settings are in HelloMeet.
 
-First, open up ``/your-librebooking-directory/config/config.php`` and
+First, open up ``/your-HelloMeet-directory/config/config.php`` and
 set the authentication:
 
 ``$conf['settings']['plugins']['Authentication'] = 'Saml';``
 
 Then go to the folder
-``/your-librebooking-directory/plugins/Authentication/Saml``
+``/your-HelloMeet-directory/plugins/Authentication/Saml``
 
 Then copy ``Saml.config.dist.php`` to ``Saml.config.php``.
 
@@ -154,8 +154,8 @@ be ``/home/username/simplesamlphp``.
 for SimpleSAMLphp. In this case ``/home/username/simplesamlphp/config``
 
 Most of the remaining settings are attribute maps. SAML will send over
-user attributes, but often with obscure names. LibreBooking needs to
-know which attribute maps to the proper user field in LibreBooking.
+user attributes, but often with obscure names. HelloMeet needs to
+know which attribute maps to the proper user field in HelloMeet.
 
 There are only 2 absolutely required fields to map – username/userid and
 email. For example, if the username is being sent across in the SAML
@@ -168,9 +168,9 @@ attributes coming across then you can add the following line to
 plugins/Authentication/Saml/SamlUser.php as the first line in the
 constructor:
 ``Log::Debug('Saml attributes are: %s', var_export($saml_attributes, true));``
-Enable Logging in LibreBooking and try to log in. We’ll write out the
+Enable Logging in HelloMeet and try to log in. We’ll write out the
 attributes to the log file and you can copy the names into the
-LibreBooking SAML configuration file.
+HelloMeet SAML configuration file.
 
 Configuring the other end
 -------------------------
@@ -196,7 +196,7 @@ A couple important notes with SAML enabled:
 
 .. warning::
 
-    You will no longer be able to log into LibreBooking with any other
+    You will no longer be able to log into HelloMeet with any other
     credentials. There is no “back door” – so every authentication request will
     be routed through SAML.
 
@@ -211,6 +211,6 @@ Logging In
 ----------
 
 Once all the mapping is complete, you should be able to log into
-LibreBooking via your organization’s federated log in page. Your users
+HelloMeet via your organization’s federated log in page. Your users
 will no longer have to remember another set of credentials and your
 account management just got one step easier!

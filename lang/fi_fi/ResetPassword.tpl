@@ -1,9 +1,9 @@
-Tässä on väliaikainen LibreBooking-salasanasi: {$TemporaryPassword}
+Tässä on väliaikainen HelloMeet-salasanasi: {$TemporaryPassword}
 
 <br/>
 
 Vanha salasanasi ei enää toimi.
 
-<a href="{$ScriptUrl}">Kirjaudu sovellukseen LibreBooking</a> ja vaihda salasanasi mahdollisimman pian.
+<a href="{$ScriptUrl}">Kirjaudu sovellukseen HelloMeet</a> ja vaihda salasanasi mahdollisimman pian.
 
 

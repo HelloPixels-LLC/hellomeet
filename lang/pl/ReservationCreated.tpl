@@ -67,5 +67,5 @@
 	<br/>
 	<a href="{$ScriptUrl}/{$ReservationUrl}">Podgląd rezerwacji</a> |
 	<a href="{$ScriptUrl}/{$ICalUrl}">Dodaj do Outlook'a</a> |
-	<a href="{$ScriptUrl}">Zaloguj się do LibreBooking</a>
+	<a href="{$ScriptUrl}">Zaloguj się do HelloMeet</a>
 

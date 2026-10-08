@@ -74,5 +74,5 @@
 
 	<br/>
 	<br/>
-	<a href="{$ScriptUrl}/{$ReservationUrl}">Bekijk deze reservering</a> | <a href="{$ScriptUrl}">Login in LibreBooking</a>
+	<a href="{$ScriptUrl}/{$ReservationUrl}">Bekijk deze reservering</a> | <a href="{$ScriptUrl}">Login in HelloMeet</a>
 

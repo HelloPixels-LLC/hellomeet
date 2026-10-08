@@ -797,11 +797,11 @@ class pl extends en_gb
         // End Strings
 
         // Install
-        $strings['InstallApplication'] = 'Zainstaluj LibreBooking';
+        $strings['InstallApplication'] = 'Zainstaluj HelloMeet';
         $strings['IncorrectInstallPassword'] = 'Wprowadzone hasło jest nieprawidłowe.';
         $strings['SetInstallPassword'] = 'Przed uruchomieniem instalacji należy ustawić hasło.';
         $strings['InstallPasswordInstructions'] = 'W %s zmień wartość %s na losowe i trudne do odgadnięcia hasło, następnie wróć do tej strony.<br/>Możesz użyć %s';
-        $strings['NoUpgradeNeeded'] = 'LibreBooking jest aktualny. Nie ma potrzeby aktualizacji.';
+        $strings['NoUpgradeNeeded'] = 'HelloMeet jest aktualny. Nie ma potrzeby aktualizacji.';
         $strings['ProvideInstallPassword'] = 'Wprowadź hasło instalacji.';
         $strings['InstallPasswordLocation'] = 'Znajduje się w %s wewnątrz %s.';
         $strings['VerifyInstallSettings'] = 'Sprawdź poniższe ustawienia domyślne. Możesz je zmienić w %s.';
@@ -826,10 +826,10 @@ class pl extends en_gb
         $strings['InstallationSuccess'] = 'Instalacja zakończona pomyślnie!';
         $strings['RegisterAdminUser'] = 'Zarejestruj użytkownika będącego administratorem. Czynnosć jest wymagana, jeśli nie importowano przykładowych danych. Upewnij się, że parametr $conf[\'settings\'][\'allow.self.registration\'] w pliku %s. ma wartość \'true\'';
         $strings['LoginWithSampleAccounts'] = 'Jeśli zaimportowano przykładowe wpisy do bazy, możesz zalogować się używając danych admin/password dla administratora lub user/password dla uzytkownika podstawowego.';
-        $strings['InstalledVersion'] = 'Korzystasz z LibreBooking w wersji %s.';
+        $strings['InstalledVersion'] = 'Korzystasz z HelloMeet w wersji %s.';
         $strings['InstallUpgradeConfig'] = 'Zaleca się uaktualnienie pliku konfiguracyjnego';
         $strings['InstallationFailure'] = 'Podczas instalacji napotkano problemy. Popraw je i uruchom instalację ponownie.';
-        $strings['ConfigureApplication'] = 'Skonfiguruj LibreBooking';
+        $strings['ConfigureApplication'] = 'Skonfiguruj HelloMeet';
         $strings['ConfigUpdateSuccess'] = 'Twój plik konfiguracji jest aktualny!';
         $strings['ConfigUpdateFailure'] = 'Nie udało się automatycznie zaktualizować Twojego pliku konfiguracyjnego. Nadpisz plik config.php poniższymi danymi:';
         $strings['ScriptUrlWarning'] = 'Parametr <em>script.url</em> może być niepoprawny. Obecna wartość to <strong>%s</strong>, jednak możliwe że powinna to być <strong>%s</strong>';
@@ -915,7 +915,7 @@ class pl extends en_gb
         $strings['Dashboard'] = 'Strona główna';
         $strings['Help'] = 'Pomoc';
         $strings['Administration'] = 'Administracja';
-        $strings['About'] = 'O LibreBooking';
+        $strings['About'] = 'O HelloMeet';
         $strings['Bookings'] = 'Terminarze';
         $strings['Schedule'] = 'Harmonogram';
         $strings['Account'] = 'Konto';

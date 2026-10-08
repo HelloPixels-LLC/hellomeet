@@ -759,11 +759,11 @@ class lt extends en_gb
         // End Strings
 
         // Install
-        $strings['InstallApplication'] = 'Diegti LibreBooking';
+        $strings['InstallApplication'] = 'Diegti HelloMeet';
         $strings['IncorrectInstallPassword'] = 'Atsiprašome, slaptažodis neteisingas.';
         $strings['SetInstallPassword'] = 'Nurodykite diegimo slaptažodį prieš pradėdami diegimą.';
         $strings['InstallPasswordInstructions'] = 'Faile %s pakeiskite eilutę %s į slaptažodį, kuris būtų sunkiai atspėjamas, poto grįžkite į šį puslapį.<br/>Galima panaudoti %s';
-        $strings['NoUpgradeNeeded'] = 'LibreBooking yra naujausios versijos. Atnaujinimas nebūtinas.';
+        $strings['NoUpgradeNeeded'] = 'HelloMeet yra naujausios versijos. Atnaujinimas nebūtinas.';
         $strings['ProvideInstallPassword'] = 'Pateikite įdiegimo slaptažodį.';
         $strings['InstallPasswordLocation'] = 'Tai galima rasti %s , %s.';
         $strings['VerifyInstallSettings'] = 'Prieš tęsdami sutikrinkite numatytas reikšme. Arba jas galima keisti faile %s.';
@@ -788,10 +788,10 @@ class lt extends en_gb
         $strings['InstallationSuccess'] = 'Diegimas baigtas sėkmingai!';
         $strings['RegisterAdminUser'] = 'Registruokite savo administratoriaus naudotoją. To reikia, jei nepasirinkote įkelti pavyzdinių duomenų. Įsitikinkite, kad eilutė $conf[\'settings\'][\'allow.self.registration\'] = \'true\' yra faile %s .';
         $strings['LoginWithSampleAccounts'] = 'Jei įkėlėte pavyzdinius duomenis, galite jungtis admin/password duomenimis administratoriaus vardu, arba user/password įprasto naudotojo vardu.';
-        $strings['InstalledVersion'] = 'Naudojate LibreBooking %s versiją';
+        $strings['InstalledVersion'] = 'Naudojate HelloMeet %s versiją';
         $strings['InstallUpgradeConfig'] = 'Rekomenduojama atnaujinti nustatymų failą';
         $strings['InstallationFailure'] = 'Diegiant nutiko bėdų. Pataisykite nesklandumus ir bandykite pakartoti diegimą.';
-        $strings['ConfigureApplication'] = 'Nustatyti LibreBooking';
+        $strings['ConfigureApplication'] = 'Nustatyti HelloMeet';
         $strings['ConfigUpdateSuccess'] = 'Jūsų nustatymų failas atnaujintas!';
         $strings['ConfigUpdateFailure'] = 'Nepavyko automatiškai atnaujinti nustatymų failos. Pakeiskite failo config.php turinį šiuo tekstu:';
         $strings['ScriptUrlWarning'] = 'Your <em>script.url</em> setting may not be correct. It is currently <strong>%s</strong>, we think it should be <strong>%s</strong>';

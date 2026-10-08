@@ -68,7 +68,7 @@ class MigrateConfig
     public static function WriteConfigFile(string $path, array $settings): void
     {
         $php = "<?php\n\n";
-        $php .= '// LibreBooking configuration file migrated at ' . date('c') . "\n\n";
+        $php .= '// HelloMeet configuration file migrated at ' . date('c') . "\n\n";
         $php .= 'return ' . self::ExportArray([Configuration::SETTINGS => $settings]) . ";\n";
 
         if (file_put_contents($path, $php) === false) {

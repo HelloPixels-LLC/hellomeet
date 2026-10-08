@@ -67,5 +67,5 @@
 	<br/>
 	<a href="{$ScriptUrl}/{$ReservationUrl}">Lihat reservasi ini</a> |
 	<a href="{$ScriptUrl}/{$ICalUrl}">Tambah ke kalender</a> |
-	<a href="{$ScriptUrl}">Masuk LibreBooking</a>
+	<a href="{$ScriptUrl}">Masuk HelloMeet</a>
 

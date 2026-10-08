@@ -67,5 +67,5 @@
 	<br/>
 	<a href="{$ScriptUrl}/{$ReservationUrl}">לצפות בהזמנה</a> |
 	<a href="{$ScriptUrl}/{$ICalUrl}">להוסיף לאוטלוג</a> |
-	<a href="{$ScriptUrl}">כניסה ל-LibreBooking</a>
+	<a href="{$ScriptUrl}">כניסה ל-HelloMeet</a>
 

@@ -770,11 +770,11 @@ class es extends en_gb
         // End Strings
 
         // Install
-        $strings['InstallApplication'] = 'Instalar LibreBooking (solo MySQL)';
+        $strings['InstallApplication'] = 'Instalar HelloMeet (solo MySQL)';
         $strings['IncorrectInstallPassword'] = 'Lo siento, la contraseña no es correcta.';
         $strings['SetInstallPassword'] = 'Debes establecer una contraseña de instalación antes de iniciar la instalación.';
         $strings['InstallPasswordInstructions'] = 'En %s por favor establece %s a una contraseña aleatoria y difícil de adivinar, entonces vuelve a esta página.<br/>Puedes usar %s';
-        $strings['NoUpgradeNeeded'] = 'No es necesaria una actualización. ¡Ejecutar el proceso de instalación borrará todos los datos existentes e instalará una copia nueva de LibreBooking!';
+        $strings['NoUpgradeNeeded'] = 'No es necesaria una actualización. ¡Ejecutar el proceso de instalación borrará todos los datos existentes e instalará una copia nueva de HelloMeet!';
         $strings['ProvideInstallPassword'] = 'Por favor proporciona la contraseña de instalación.';
         $strings['InstallPasswordLocation'] = 'Puede encontrarse en %s en %s.';
         $strings['VerifyInstallSettings'] = 'Verifica las siguientes opciones predeterminadas antes de continuar. O puedes cambiarlas en %s.';
@@ -799,10 +799,10 @@ class es extends en_gb
         $strings['InstallationSuccess'] = '¡La instalación se ha completado correctamente!';
         $strings['RegisterAdminUser'] = 'Registra tu usuario administrador. Esto es necesario si no importaste los datos de ejemplo. Asegúrate de que $conf[\'settings\'][\'allow.self.registration\'] = \'true\' en el archivo %s.';
         $strings['LoginWithSampleAccounts'] = 'Si importaste los datos de ejemplo, puedes iniciar sesión con admin/password para usuario administrador o user/password para usuario básico.';
-        $strings['InstalledVersion'] = 'Ahora estás ejecutando la versión %s de LibreBooking';
+        $strings['InstalledVersion'] = 'Ahora estás ejecutando la versión %s de HelloMeet';
         $strings['InstallUpgradeConfig'] = 'Se recomienda actualizar el archivo de configuración';
         $strings['InstallationFailure'] = 'Hubo problemas con la instalación. Por favor, corrígelos y reintenta la instalación.';
-        $strings['ConfigureApplication'] = 'Configurar LibreBooking';
+        $strings['ConfigureApplication'] = 'Configurar HelloMeet';
         $strings['ConfigUpdateSuccess'] = '¡El archivo de configuración se ha actualizado!';
         $strings['ConfigUpdateFailure'] = 'No pudimos actualizar automáticamente el archivo de configuración. Por favor sobreescribe el contenido de config.php con lo siguiente:';
         $strings['ScriptUrlWarning'] = 'Su fichero de configuración <em>script.url</em> puede no ser correcto. Actualmente es <strong>%s</strong>, pensamos que debería ser <strong>%s</strong>';

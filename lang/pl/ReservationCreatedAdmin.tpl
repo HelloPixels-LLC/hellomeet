@@ -66,5 +66,5 @@
 	{/if}
 
 	<br/>
-	<a href="{$ScriptUrl}/{$ReservationUrl}">Podgląd rezerwacji</a> | <a href="{$ScriptUrl}">Zaloguj się do LibreBooking</a>
+	<a href="{$ScriptUrl}/{$ReservationUrl}">Podgląd rezerwacji</a> | <a href="{$ScriptUrl}">Zaloguj się do HelloMeet</a>
 

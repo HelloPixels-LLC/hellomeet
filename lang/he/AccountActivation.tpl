@@ -1,5 +1,5 @@
 {$FirstName},<br/>
-תודה שנרשמת עם LibreBooking. נא <a href="{$ActivationUrl}">להפעיל את החשבון
+תודה שנרשמת עם HelloMeet. נא <a href="{$ActivationUrl}">להפעיל את החשבון
 שלך</a>.
 
 

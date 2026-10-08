@@ -1,7 +1,7 @@
 Custom Plugins
 ==============
 
-LibreBooking plugins decorate existing application services. A plugin usually
+HelloMeet plugins decorate existing application services. A plugin usually
 wraps the default implementation, adds custom behavior before or after it, and
 then returns control to the base service.
 
@@ -14,10 +14,10 @@ then returns control to the base service.
 
 .. warning::
 
-   LibreBooking does not guarantee a stable plugin API. Plugin interfaces,
+   HelloMeet does not guarantee a stable plugin API. Plugin interfaces,
    constructor arguments, method signatures, loaded services, and domain objects
    may change in future releases. Test custom plugins before upgrading
-   LibreBooking, and expect that existing plugins may need code changes after an
+   HelloMeet, and expect that existing plugins may need code changes after an
    upgrade.
 
 Plugin Layout
@@ -53,7 +53,7 @@ Supported plugin types include:
 Plugin Types
 ------------
 
-Choose the plugin type based on the part of LibreBooking you need to change.
+Choose the plugin type based on the part of HelloMeet you need to change.
 
 ``Authentication``
   Controls how users prove their identity and how login/logout behaves. This is
@@ -66,7 +66,7 @@ Choose the plugin type based on the part of LibreBooking you need to change.
 ``Authorization``
   Controls high-level role and delegation decisions after a user is known. This
   is useful when administrator roles, approval rights, or "reserve for someone
-  else" rules come from an external policy source instead of LibreBooking
+  else" rules come from an external policy source instead of HelloMeet
   groups. Authorization plugins answer questions such as whether a user is an
   application administrator, resource administrator, group administrator, or can
   approve/reserve for another user.
@@ -86,7 +86,7 @@ Choose the plugin type based on the part of LibreBooking you need to change.
 
 ``PostReservation``
   Runs after reservation actions are saved. This is useful for side effects and
-  integrations that should happen only after LibreBooking has accepted the
+  integrations that should happen only after HelloMeet has accepted the
   change. Examples include sending custom notifications, calling a webhook,
   syncing reservations to another system, writing an audit record, or replacing
   the default reservation email behavior.
@@ -150,7 +150,7 @@ For Docker deployments, plugin files must be present inside the running
 container. Common approaches are:
 
 - Build a custom image that copies the plugin directory into ``/app/plugins`` or
-  the LibreBooking application directory used by your image.
+  the HelloMeet application directory used by your image.
 - Mount the plugin directory as a volume into the matching
   ``plugins/<PluginType>/<PluginName>`` path.
 - Keep ``config/config.php`` persistent and set the plugin key there, or provide
@@ -182,9 +182,9 @@ Important methods:
   identity provider.
 
 ``Login($username, $loginContext)``
-  Loads or creates the LibreBooking user session after validation succeeds. Most
+  Loads or creates the HelloMeet user session after validation succeeds. Most
   plugins delegate to the base authentication service once they have determined
-  the LibreBooking username.
+  the HelloMeet username.
 
 ``Logout(UserSession $user)``
   Runs when a user logs out. Use this to clear external sessions or delegate to
@@ -575,7 +575,7 @@ Minimal example:
        public function GetIcalendarExtraLines(IReservedItemView $item)
        {
            // Add one valid iCalendar property per line, ending with a newline.
-           return "X-LIBREBOOKING-RESOURCE:" . $item->GetResourceName() . "\n";
+           return "X-HelloMeet-RESOURCE:" . $item->GetResourceName() . "\n";
        }
    }
 
@@ -703,7 +703,7 @@ Minimal example:
 
        public function CreatePreUpdateService(UserSession $userSession)
        {
-           // Delegate unchanged actions to LibreBooking's default validation.
+           // Delegate unchanged actions to HelloMeet's default validation.
            return $this->factoryToDecorate->CreatePreUpdateService($userSession);
        }
 
@@ -827,7 +827,7 @@ Minimal example:
 
        public function CreatePostUpdateService(UserSession $userSession)
        {
-           // Delegate unchanged actions to LibreBooking's default notifications.
+           // Delegate unchanged actions to HelloMeet's default notifications.
            return $this->factoryToDecorate->CreatePostUpdateService($userSession);
        }
 
@@ -871,7 +871,7 @@ Notification service example:
        {
            // Run custom post-reservation behavior here.
 
-           // Call the base service to keep LibreBooking's default notifications.
+           // Call the base service to keep HelloMeet's default notifications.
            $this->base->Notify($reservationSeries);
        }
    }
@@ -960,7 +960,7 @@ If a plugin does not load:
   name.
 - Confirm the plugin is in the correct plugin type directory.
 - Confirm the plugin is enabled with the correct key in ``config/config.php``.
-- Check the LibreBooking logs for ``Loading plugin`` or ``Error loading
+- Check the HelloMeet logs for ``Loading plugin`` or ``Error loading
   plugin`` messages.
 - Clear PHP OPcache or restart the web server/container after changing plugin
   code.

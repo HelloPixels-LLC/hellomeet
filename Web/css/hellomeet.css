@@ -13,7 +13,7 @@
 }
 
 [data-bs-theme='default'] {
-  --primary: #2b6b6b;
+  --primary: #3b3fd8;
   --primary-hover: color-mix(in oklab, var(--primary) 80%, black);
   --primary-disabled: color-mix(in oklab, var(--primary) 40%, white);
   --text-color-btn: #ffffff;
@@ -78,6 +78,11 @@ footer {
 
 img.logo {
   max-height: 50px;
+}
+
+.hellomeet-login-logo {
+  width: 100%;
+  max-width: 320px;
 }
 
 .dropdown-item:hover,

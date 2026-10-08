@@ -36,7 +36,7 @@ class AuthenticationWebService
 
     /**
      * @name Authenticate
-     * @description Authenticates an existing LibreBooking user
+     * @description Authenticates an existing HelloMeet user
      * @request AuthenticationRequest
      * @response AuthenticationResponse
      * @return void

@@ -80,5 +80,5 @@
 	<br/>
 	<a href="{$ScriptUrl}/{$ReservationUrl}">予約の表示</a> |
 	<a href="{$ScriptUrl}/{$ICalUrl}">カレンダーへ追加</a> |
-	<a href="{$ScriptUrl}">LibreBooking へログイン</a>
+	<a href="{$ScriptUrl}">HelloMeet へログイン</a>
 

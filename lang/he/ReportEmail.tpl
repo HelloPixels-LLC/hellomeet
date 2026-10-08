@@ -1,5 +1,5 @@
-מצ"ב דו"ח שלך מ-LibreBooking.<br/>
+מצ"ב דו"ח שלך מ-HelloMeet.<br/>
 
-<a href="{$ScriptUrl}">להתבר ל-LibreBooking</a>
+<a href="{$ScriptUrl}">להתבר ל-HelloMeet</a>
 
 

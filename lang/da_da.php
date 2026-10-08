@@ -775,11 +775,11 @@ class da_da extends en_gb
         // End Strings
 
         // Install
-        $strings['InstallApplication'] = 'Installer LibreBooking';
+        $strings['InstallApplication'] = 'Installer HelloMeet';
         $strings['IncorrectInstallPassword'] = 'Kodeordet var forkert.';
         $strings['SetInstallPassword'] = 'Du skal angive et installationskodeord, før installationen kan køres.';
         $strings['InstallPasswordInstructions'] = 'I %s sæt %s til et kodeord, som er tilfældigt og svært at gætte, gå derefter tilbage til denne side.<br/>Du kan bruge %s';
-        $strings['NoUpgradeNeeded'] = 'LibreBooking er opdateret. Der er ikke brug for opgradering.';
+        $strings['NoUpgradeNeeded'] = 'HelloMeet er opdateret. Der er ikke brug for opgradering.';
         $strings['ProvideInstallPassword'] = 'Du skal angive dit installationskodeord.';
         $strings['InstallPasswordLocation'] = 'Du kan finde dette på %s i %s.';
         $strings['VerifyInstallSettings'] = 'Bekræft de følgende standardindstillinger før du fortsætter, eller ændre dem i %s.';
@@ -804,10 +804,10 @@ class da_da extends en_gb
         $strings['InstallationSuccess'] = 'Installationen blev gennemført!';
         $strings['RegisterAdminUser'] = 'Opret din administrator bruger. Dette er nødvendigt, hvis du ikke importerede "sample data". Vær sikker på at $conf[\'settings\'][\'allow.self.registration\'] = \'true\' i din %s fil.';
         $strings['LoginWithSampleAccounts'] = 'Hvis du importerede "sample data", kan du logge ind med admin/password for administratoren eller user/password for almindelig bruger.';
-        $strings['InstalledVersion'] = 'Du kører nu version %s af LibreBooking';
+        $strings['InstalledVersion'] = 'Du kører nu version %s af HelloMeet';
         $strings['InstallUpgradeConfig'] = 'Vi anbefaler, at du opgraderer din config fil';
         $strings['InstallationFailure'] = 'Der var problemer med installationen. Ret problemerne og kør installationen forfra.';
-        $strings['ConfigureApplication'] = 'Konfigurer Booked Scheduler';
+        $strings['ConfigureApplication'] = 'Konfigurer HelloMeet';
         $strings['ConfigUpdateSuccess'] = 'Din config fil er opdateret!';
         $strings['ConfigUpdateFailure'] = 'Vi kunne ikke opdaterer din config fil automatisk. Overskriv indholdet af config.php med det følgende:';
         $strings['ScriptUrlWarning'] = 'Din <em>script.url</em> indstilling er muligvis forkert. Den er sat til <strong>%s</strong>, og burde være <strong>%s</strong>';

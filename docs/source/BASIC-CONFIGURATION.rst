@@ -2,7 +2,7 @@ Basic Configuration
 ===================
 
 This guide covers the essential configuration settings needed to get
-LibreBooking up and running. All settings are configured in the
+HelloMeet up and running. All settings are configured in the
 ``/config/config.php`` file, which should be created by copying
 ``/config/config.dist.php``.
 
@@ -24,7 +24,7 @@ Then edit the file with your preferred settings.
 Environment Variable Override
 -----------------------------
 
-LibreBooking supports overriding configuration settings using environment
+HelloMeet supports overriding configuration settings using environment
 variables. This is especially useful for Docker deployments or when you want to
 keep sensitive information separate from configuration files.
 
@@ -40,7 +40,7 @@ keep sensitive information separate from configuration files.
 - ``default.timezone`` → ``LB_DEFAULT_TIMEZONE``
 
 **Using .env Files**
-  LibreBooking automatically loads ``.env`` files if present in the root
+  HelloMeet automatically loads ``.env`` files if present in the root
   directory. See ``develop/app/.env.example`` for a complete list of available
   environment variables.
 
@@ -63,7 +63,7 @@ Application Identity
 
   .. code-block:: php
 
-     'app.title' => 'LibreBooking',
+     'app.title' => 'HelloMeet',
 
 **admin.email**
   Administrator email address.
@@ -129,7 +129,7 @@ Database settings are configured as a nested array:
    'database' => [
        'type' => 'mysql',
        'hostspec' => '127.0.0.1',
-       'name' => 'librebooking',
+       'name' => 'HelloMeet',
        'user' => 'lb_user',
        'password' => 'password',
    ],
@@ -298,11 +298,11 @@ Frontend Settings
 
 **script.url**
   Public URL to the ``Web`` directory of this instance. For example, if
-  LibreBooking is accessed at ``https://example.com/librebooking/Web/``, set
+  HelloMeet is accessed at ``https://example.com/librebooking/Web/``, set
   this value to ``https://example.com/librebooking/Web``. The equivalent
   environment variable is ``LB_SCRIPT_URL``.
 
-  This setting must not be empty. When it is empty, LibreBooking displays a
+  This setting must not be empty. When it is empty, HelloMeet displays a
   persistent configuration warning to authenticated and anonymous users
   because application links and other features may not work correctly. Set
   ``script.url`` (or ``LB_SCRIPT_URL``) to dismiss the warning.
@@ -310,7 +310,7 @@ Frontend Settings
   ``script.url`` must always end with ``/Web``. The webserver document root
   must not be set directly to the ``Web`` directory with ``/Web`` omitted
   from the URL — that configuration is not supported and breaks navigation
-  links and login/SSO redirects. LibreBooking can still be installed in a
+  links and login/SSO redirects. HelloMeet can still be installed in a
   subdirectory/subsite under the document root, as long as ``/Web`` remains
   the final path segment (e.g. ``https://example.com/librebooking/Web``).
 
@@ -358,17 +358,17 @@ Scheduled Jobs (Cron)
 ---------------------
 
 Set up host cron entries to execute the job scripts directly with PHP.
-Example crontab (adjust PHP binary path and LibreBooking path):
+Example crontab (adjust PHP binary path and HelloMeet path):
 
 .. code-block:: text
 
-   * * * * * /usr/bin/env php -f /var/www/librebooking/Jobs/autorelease.php
-   * * * * * /usr/bin/env php -f /var/www/librebooking/Jobs/sendreminders.php
-   * * * * * /usr/bin/env php -f /var/www/librebooking/Jobs/sendmissedcheckin.php
-   * * * * * /usr/bin/env php -f /var/www/librebooking/Jobs/sendwaitlist.php
-   0 0 * * * /usr/bin/env php -f /var/www/librebooking/Jobs/sendseriesend.php
-   0 0 * * * /usr/bin/env php -f /var/www/librebooking/Jobs/sessioncleanup.php
-   0 1 * * * /usr/bin/env php -f /var/www/librebooking/Jobs/deleteolddata.php
+   * * * * * /usr/bin/env php -f /var/www/HelloMeet/Jobs/autorelease.php
+   * * * * * /usr/bin/env php -f /var/www/HelloMeet/Jobs/sendreminders.php
+   * * * * * /usr/bin/env php -f /var/www/HelloMeet/Jobs/sendmissedcheckin.php
+   * * * * * /usr/bin/env php -f /var/www/HelloMeet/Jobs/sendwaitlist.php
+   0 0 * * * /usr/bin/env php -f /var/www/HelloMeet/Jobs/sendseriesend.php
+   0 0 * * * /usr/bin/env php -f /var/www/HelloMeet/Jobs/sessioncleanup.php
+   0 1 * * * /usr/bin/env php -f /var/www/HelloMeet/Jobs/deleteolddata.php
 
 Next Steps
 ----------
@@ -384,7 +384,7 @@ After configuring these basic settings:
 Docker Installation
 ===================
 
-LibreBooking can be easily deployed using Docker containers. This is the
+HelloMeet can be easily deployed using Docker containers. This is the
 recommended method for quick setup and testing.
 
 Prerequisites
@@ -400,7 +400,7 @@ Quick Start with Docker Compose
 
    .. code-block:: yaml
 
-      name: librebooking
+      name: HelloMeet
 
       services:
         db:
@@ -415,7 +415,7 @@ Quick Start with Docker Compose
             - MYSQL_ROOT_PASSWORD=your_secure_root_password
 
         app:
-          image: librebooking/librebooking:develop # or use tagged version
+          image: HelloMeet/HelloMeet:develop # or use tagged version
           restart: always
           depends_on:
             - db
@@ -424,7 +424,7 @@ Quick Start with Docker Compose
           volumes:
             - app_config:/config
           environment:
-            - LB_DB_NAME=librebooking
+            - LB_DB_NAME=HelloMeet
             - LB_DB_USER=lb_user
             - LB_DB_USER_PWD=your_secure_user_password
             - LB_DB_HOST=db
@@ -456,7 +456,7 @@ Docker Environment Variables
 **Required Environment Variables (when config.php doesn't exist):**
 
 ``LB_DB_NAME``
-  Database name for LibreBooking (e.g., ``librebooking``)
+  Database name for HelloMeet (e.g., ``HelloMeet``)
 
 ``LB_DB_USER``
   Database username (e.g., ``lb_user``)
@@ -479,7 +479,7 @@ Docker Environment Variables
   Environment mode: ``production`` (default) or ``dev``
 
 ``LB_LOGGING_FOLDER``
-  Log directory (default: ``/var/log/librebooking``)
+  Log directory (default: ``/var/log/HelloMeet``)
 
 ``LB_LOGGING_LEVEL``
   Logging level: ``none`` (default), ``debug``, ``error``
@@ -497,13 +497,13 @@ Docker Image Versions
 
 .. code-block:: bash
 
-   docker pull librebooking/librebooking:v3.0.3
+   docker pull HelloMeet/HelloMeet:v3.0.3
 
 **Development Version:**
 
 .. code-block:: bash
 
-   docker pull librebooking/librebooking:develop
+   docker pull HelloMeet/HelloMeet:develop
 
 Persistent Data
 ---------------
@@ -522,7 +522,7 @@ Example with persistent uploads:
 .. code-block:: yaml
 
    app:
-     image: librebooking/librebooking:develop # or use tagged version
+     image: HelloMeet/HelloMeet:develop # or use tagged version
      volumes:
        - app_config:/config
        - ./uploads/images:/var/www/html/Web/uploads/images
@@ -531,7 +531,7 @@ Example with persistent uploads:
 Background Jobs (Cron)
 ----------------------
 
-LibreBooking requires background jobs for features like reminder emails.
+HelloMeet requires background jobs for features like reminder emails.
 
 **Docker/Container deployments**
 
@@ -544,11 +544,11 @@ container from the same image with ``root`` and
 
    services:
      app:
-       image: librebooking/librebooking:develop # or use tagged version
+       image: HelloMeet/HelloMeet:develop # or use tagged version
        user: 'www-data'
 
      cron:
-       image: librebooking/librebooking:develop # or use tagged version
+       image: HelloMeet/HelloMeet:develop # or use tagged version
        user: 'root'
        entrypoint: /usr/local/bin/cron.sh
 

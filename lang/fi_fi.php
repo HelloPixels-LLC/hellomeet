@@ -1022,11 +1022,11 @@ class fi_fi extends en_gb
         //End Datatables
 
         // Install
-        $strings['InstallApplication'] = 'Asenna LibreBooking';
+        $strings['InstallApplication'] = 'Asenna HelloMeet';
         $strings['IncorrectInstallPassword'] = 'Antamasi salasana oli väärä.';
         $strings['SetInstallPassword'] = 'Asenna asennussalasana ennen kuin asennus voidaan suorittaa.';
         $strings['InstallPasswordInstructions'] = 'Aseta tiedostossa %s kohdassa %s satunnainen ja arvaamaton salasana, ja palaa sitten tälle sivulle.<br/>Voit käyttää %s';
-        $strings['NoUpgradeNeeded'] = 'LibreBooking on ajan tasalla. Päivitystä ei tarvita.';
+        $strings['NoUpgradeNeeded'] = 'HelloMeet on ajan tasalla. Päivitystä ei tarvita.';
         $strings['ProvideInstallPassword'] = 'Anna asennussalasanasi.';
         $strings['InstallPasswordLocation'] = 'Salasana löytyy tiedostosta %s kohdasta %s.';
         $strings['VerifyInstallSettings'] = 'Tarkista seuraavat oletusasetukset ennen jatkamista. Voit muuttaa niitä tiedostossa %s.';
@@ -1051,10 +1051,10 @@ class fi_fi extends en_gb
         $strings['InstallationSuccess'] = 'Asennus valmistui onnistuneesti!';
         $strings['RegisterAdminUser'] = 'Rekisteröi ylläpitäjätilisi. Tämä vaaditaan, jos et tuonut esimerkkidataa. Varmista, että $conf[\'settings\'][\'allow.self.registration\'] = \'true\' tiedostossasi %s.';
         $strings['LoginWithSampleAccounts'] = 'Jos tuot esimerkkidatan, voit kirjautua admin/password (ylläpitäjä) tai user/password (peruskäyttäjä).';
-        $strings['InstalledVersion'] = 'Käytössä on nyt LibreBooking versio %s';
+        $strings['InstalledVersion'] = 'Käytössä on nyt HelloMeet versio %s';
         $strings['InstallUpgradeConfig'] = 'Suositus: päivitä konfiguraatiotiedostosi';
         $strings['InstallationFailure'] = 'Asennuksessa ilmeni ongelmia. Korjaa ne ja yritä asennus uudelleen.';
-        $strings['ConfigureApplication'] = 'Konfiguroi LibreBooking';
+        $strings['ConfigureApplication'] = 'Konfiguroi HelloMeet';
         $strings['ConfigUpdateSuccess'] = 'Konfiguraatiotiedostosi on nyt ajan tasalla!';
         $strings['ConfigUpdateFailure'] = 'Konfiguraatiotiedoston päivitys ei onnistunut. Korvaa config.php:n sisältö seuraavalla:';
         $strings['ScriptUrlWarning'] = 'Asetuksesi <em>script.url</em> ei ehkä ole oikein. Nykyinen arvo on <strong>%s</strong>, arvelimme että se pitäisi olla <strong>%s</strong>';

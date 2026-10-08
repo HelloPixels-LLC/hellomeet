@@ -80,4 +80,4 @@
 	<br/>
 	<a href="{$ScriptUrl}/{$ReservationUrl}">Erreserba hau ikusi</a> |
 	<a href="{$ScriptUrl}/{$ICalUrl}">Egutegi batera gehitu</a> |
-	<a href="{$ScriptUrl}">LibreBooking-en saioa hasi</a>
+	<a href="{$ScriptUrl}">HelloMeet-en saioa hasi</a>

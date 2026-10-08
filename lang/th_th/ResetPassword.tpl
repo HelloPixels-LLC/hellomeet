@@ -1,4 +1,4 @@
-นี่คือรหัสผ่าน LibreBooking ชั่วคราวของคุณ: {$TemporaryPassword}
+นี่คือรหัสผ่าน HelloMeet ชั่วคราวของคุณ: {$TemporaryPassword}
 
 <br/>
 
@@ -6,4 +6,4 @@
 <br/>
 <br/>
 
-โปรด<a href="{$ScriptUrl}">เข้าสู่ระบบ LibreBooking</a> และเปลี่ยนรหัสผ่านโดยเร็วที่สุด
+โปรด<a href="{$ScriptUrl}">เข้าสู่ระบบ HelloMeet</a> และเปลี่ยนรหัสผ่านโดยเร็วที่สุด

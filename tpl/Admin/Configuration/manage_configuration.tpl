@@ -113,7 +113,7 @@
     {if $IsPageEnabled && $IsConfigFileWritable}
         <div class="card shadow">
             <div class="card-body">
-                {assign var=HelpUrl value="https://librebooking.readthedocs.io/en/latest/ADMINISTRATION.html"}
+                {assign var=HelpUrl value="https://github.com/HelloPixels-LLC/hellomeet/blob/develop/docs/source/ADMINISTRATION.rst"}
                 <h2 class="text-center border-bottom mb-3">{translate key=ConfigurationUpdateHelp args=$HelpUrl}</h2>
                 <div id="updatedMessage" class="alert alert-success" style="display:none;">
                     {translate key=ConfigurationUpdated}

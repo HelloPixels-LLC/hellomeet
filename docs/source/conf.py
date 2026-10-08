@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "LibreBooking"
+project = "HelloMeet"
 copyright = "2025, The LibreBooking development team"
 author = "The LibreBooking development team"
 release = "7.0.0"

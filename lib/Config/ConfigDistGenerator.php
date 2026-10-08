@@ -15,9 +15,9 @@ class ConfigDistGenerator
 <?php
 
 /**
- * LibreBooking configuration file
+ * HelloMeet configuration file
  *
- * This file contains the default configuration for LibreBooking.
+ * This file contains the default configuration for HelloMeet.
  * It is used to set up the application and can be overridden by environment variables.
  * The settings are grouped into sections for easier management.
  */

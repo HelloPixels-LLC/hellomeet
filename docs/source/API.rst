@@ -1,8 +1,8 @@
-LibreBooking API Documentation
+HelloMeet API Documentation
 ==============================
 
 A dynamically generated API documentation Page can be found by opening
-``<librebooking-url>/Web/Services/index.php`` (API has to be enabled in
+``<HelloMeet-url>/Web/Services/index.php`` (API has to be enabled in
 config)
 
 -  `Getting Started With The API <#getting-started-with-the-api>`__
@@ -24,7 +24,7 @@ Getting Started With the API
     Use the URL as specified in the documentation in regards to having or not
     having a trailing ``/`` character.
 
-Authenticating to LibreBooking
+Authenticating to HelloMeet
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For all of the secure service calls it is required to be
@@ -84,7 +84,7 @@ variables. Set them after authenticating (see `Authenticate <#authenticate>`__):
 
 .. code:: bash
 
-   # Base URL of your LibreBooking installation
+   # Base URL of your HelloMeet installation
    BASE_URL="https://librebooking.example.com"
 
    # Obtained from the Authenticate response
@@ -804,7 +804,7 @@ Authenticate
 
 **Description:**
 
-Authenticates an existing LibreBooking user
+Authenticates an existing HelloMeet user
 
 **Route:** ``/Web/Services/index.php/Authentication/Authenticate``
 

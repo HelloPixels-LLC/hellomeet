@@ -49,5 +49,5 @@
 
 <br/>
 <br/>
-<a href="{$ScriptUrl}">LibreBooking へログイン</a>
+<a href="{$ScriptUrl}">HelloMeet へログイン</a>
 

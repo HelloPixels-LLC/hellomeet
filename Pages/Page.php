@@ -52,8 +52,8 @@ abstract class Page implements IPage
         $this->smarty->assign('HtmlTextDirection', $resources->TextDirection);
         $appTitle = Configuration::Instance()->GetKey(ConfigKeys::APP_TITLE);
         $pageTile = $resources->GetString($titleKey);
-        $this->smarty->assign('Title', (empty($appTitle) ? 'LibreBooking' : $appTitle) . (empty($pageTile) ? '' : ' - ' . $pageTile));
-        $this->smarty->assign('AppTitle', (empty($appTitle) ? 'LibreBooking' : $appTitle));
+        $this->smarty->assign('Title', (empty($appTitle) ? 'HelloMeet' : $appTitle) . (empty($pageTile) ? '' : ' - ' . $pageTile));
+        $this->smarty->assign('AppTitle', (empty($appTitle) ? 'HelloMeet' : $appTitle));
         $companyName = Configuration::Instance()->GetKey(ConfigKeys::COMPANY_NAME);
         $companyUrl = Configuration::Instance()->GetKey(ConfigKeys::COMPANY_URL);
         $this->smarty->assign('CompanyName', (empty($companyName) ? '' : $companyName));
@@ -110,7 +110,7 @@ abstract class Page implements IPage
                 baseName: 'custom-logo',
                 extensions: ['png', 'gif', 'jpg'],
                 locations: $customFileLocations,
-            ) ?? 'img/librebooking.png'
+            ) ?? 'img/hellomeet-logo.png'
         );
 
         $this->smarty->assign('CssUrl', 'null-style.css');

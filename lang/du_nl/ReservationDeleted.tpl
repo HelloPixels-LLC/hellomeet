@@ -49,5 +49,5 @@ Beschrijving: {$Description|nl2br}<br/>
 
 <br/>
 <br/>
-<a href="{$ScriptUrl}">Login in LibreBooking</a>
+<a href="{$ScriptUrl}">Login in HelloMeet</a>
 

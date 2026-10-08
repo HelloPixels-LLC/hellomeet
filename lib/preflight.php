@@ -1,9 +1,9 @@
 <?php
 
 /**
- * LibreBooking Preflight Check
+ * HelloMeet Preflight Check
  *
- * Standalone script that validates all prerequisites for running LibreBooking.
+ * Standalone script that validates all prerequisites for running HelloMeet.
  * No dependency on the application's autoloader or classes.
  *
  * Usage: composer preflight [-- --no-color] [-- --skip-db] [-- --help]
@@ -476,7 +476,7 @@ class PreflightRunner
             return new CheckResult(
                 status: CheckStatus::Warn,
                 label: "Database connection: connected to {$host}/{$dbName}, but schema not found",
-                message: "The database exists but has no LibreBooking tables.\n"
+                message: "The database exists but has no HelloMeet tables.\n"
                     . 'Visit http://<your-server>/Web/install/ in a browser to set up the database schema.',
             );
         }
@@ -543,7 +543,7 @@ class PreflightRunner
     private function printHeader(): void
     {
         echo "\n";
-        echo $this->colorize(text: 'LibreBooking Preflight Check', colorCode: '1') . "\n";
+        echo $this->colorize(text: 'HelloMeet Preflight Check', colorCode: '1') . "\n";
         echo str_repeat(string: '=', times: 35) . "\n";
         echo "\n";
     }
@@ -633,7 +633,7 @@ function printUsage(): void
     echo "Usage: composer preflight -- [OPTIONS]\n";
     echo "       php lib/preflight.php [OPTIONS]\n";
     echo "\n";
-    echo "Validates all prerequisites for running LibreBooking.\n";
+    echo "Validates all prerequisites for running HelloMeet.\n";
     echo "\n";
     echo "Note: When using 'composer preflight', options must be passed after '--'\n";
     echo "      so Composer forwards them to the script instead of handling them itself.\n";

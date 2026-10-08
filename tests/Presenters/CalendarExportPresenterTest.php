@@ -285,7 +285,7 @@ class CalendarExportPresenterTest extends TestBase
         $calendar = $display->Render([]);
 
         $this->assertStringContainsString(
-            'PRODID:-//LibreBooking//NONSGML ' . Configuration::VERSION . '//EN',
+            'PRODID:-//HelloMeet//NONSGML ' . Configuration::VERSION . '//EN',
             $calendar
         );
         $this->assertStringNotContainsString('9.9.9-user-config', $calendar);

@@ -69,3 +69,6 @@ php8-report.log
 # phpunit cache
 .phpunit.cache/
 .env
+
+# Original design exports; production assets are checked in under Web/img.
+/HelloMeet Logo Directions/

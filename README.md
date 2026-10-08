@@ -1,194 +1,70 @@
+# HelloMeet
 
-# Librebooking
+![HelloMeet](Web/img/hellomeet-logo.png)
 
-> [!WARNING]
-> **Security: upgrade to LibreBooking 7.0.0 or later immediately.**
->
-> All versions before 7.0.0 contain a critical vulnerability that lets an
-> unauthenticated attacker take over an administrator account. Security fixes
-> are not backported, so no fix will be released for 6.x or earlier.
->
-> If you cannot upgrade right away, delete `Web/install/migrate.php` or block
-> access to it in your web server. See the
-> [security advisory](https://github.com/LibreBooking/librebooking/security/advisories/GHSA-3356-vjx2-5pg8)
-> for details and for how to check whether an installation was compromised,
-> and get the
-> [latest release](https://github.com/LibreBooking/librebooking/releases/latest).
+HelloMeet is HelloPixels LLC's application for booking meeting rooms, desks,
+and shared equipment. It supports recurring reservations, approval workflows,
+resource permissions, QR booking shortcuts, calendars, and usage reports.
 
-[![GitHub issues](https://img.shields.io/github/issues/LibreBooking/librebooking)](https://github.com/LibreBooking/librebooking/issues)
-[![Last commit](https://img.shields.io/github/last-commit/LibreBooking/librebooking)](https://github.com/LibreBooking/librebooking/commits)
-[![GitHub release](https://img.shields.io/github/v/release/LibreBooking/librebooking?include_prereleases)](https://github.com/LibreBooking/librebooking/releases)
-[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://github.com/LibreBooking/librebooking/blob/develop/LICENSE.md)
+## Getting started
 
-[![GitHub stars](https://img.shields.io/github/stars/LibreBooking/librebooking?style=flat)](https://github.com/LibreBooking/librebooking/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/LibreBooking/librebooking?style=flat)](https://github.com/LibreBooking/librebooking/network)
+1. Administrators configure working hours under **Application Management > Schedules**.
+2. Add bookable rooms, individual desks, and equipment under **Resources**.
+3. Create users and groups, and assign resource permissions.
+4. Users book an available time under **Schedule > Bookings**.
+5. Use **My Account** to update your profile, password, and notification preferences.
 
-[![PHP](https://img.shields.io/badge/PHP-8.2%2B-brightgreen.svg?logo=php)](https://www.php.net/)
-[![Database](https://img.shields.io/badge/Database-MySQL%20%3E%3D8.0%20%7C%20MariaDB%20%3E%3D10.6-blue.svg?logo=mysql)](https://www.mysql.com/)
-![Platform](https://img.shields.io/badge/Platform-Web-lightgrey)
-![Status](https://img.shields.io/badge/Status-Active-green)
+See the [administration guide](docs/source/ADMINISTRATION.rst) for booking rules,
+approvals, blackouts, quotas, and resource administrators.
 
-[![Docker](https://img.shields.io/badge/Docker-Supported-blue?logo=docker)](https://github.com/LibreBooking/docker)
-[![Docker pulls](https://img.shields.io/docker/pulls/librebooking/librebooking)](https://github.com/LibreBooking/docker)
+## Deploy with Coolify
 
-[![Discord](https://img.shields.io/badge/Discord-5865F2?style=flat&logo=discord&logoColor=white)](https://discord.gg/4TGThPtmX8)
-[![Docs](https://img.shields.io/badge/Docs-Available-lightgrey?logo=read-the-docs)](https://librebooking.readthedocs.io/en/latest/)
+Connect `https://github.com/HelloPixels-LLC/hellomeet.git`, select `develop`,
+choose the **Docker Compose** build pack, and use `/docker-compose.coolify.yml`.
 
-⭐ Star us on GitHub — it motivates us a lot!
+The stack builds HelloMeet from this repository using `Dockerfile.hellomeet`.
+The PHP/Apache runtime is based on the pinned upstream 7.0.0 image.
+MariaDB, application configuration, and uploaded files use persistent volumes.
+The application and scheduler run the same branded source.
 
-🔥 Join the community: [Discord discussion channel](https://discord.gg/4TGThPtmX8) .
+Follow the [Coolify guide](docs/source/COOLIFY.rst) for environment variables,
+domain routing, installation, email setup, and backups. Clear the installation
+password after initial setup. Email requires a configured SMTP account.
 
-## Table of Contents
+## Branding
 
-- [About](#-about)
-- [Features](#-features)
-- [Demo](#-demo)
-- [Screenshots](#-screenshots)
-- [Installation & Deployment](#-installation--deployment)
-- [Developer Documentation](#-developer-documentation)
-- [Configuration & Theming](#-configuration--theming)
-- [ReCaptcha](#-recaptcha)
-- [Community & Support](#-community--support)
-- [Contributing](#-contributing)
-- [Roadmap](#-roadmap)
-- [License](#-license)
+The supplied HelloMeet logo is used in the navigation, login, and help pages.
+Browser favicons, Apple touch icons, and home-screen icons use the matching
+artwork. The default interface uses the logo's purple primary color.
+Translated product text, email templates, API documentation, and calendar
+exports use HelloMeet. Production artwork lives under `Web/img/hellomeet/`
+and `Web/img/hellomeet-logo.png`. Original design exports are not deployed.
 
-## 🚀 About
+`LB_APP_TITLE=HelloMeet` and `LB_ADMIN_EMAIL_NAME='HelloMeet Administrator'`
+are applied to both services, including deployments with an existing config
+volume. Database names, `LB_` environment keys, and PHP namespaces retain their
+compatibility identifiers so existing installations continue to work.
 
-**LibreBooking** is an open-source resource scheduling solution. It provides a
-flexible, mobile-friendly, and extensible interface for organizations to manage
-resource reservations.
+## Development
 
-The repository for LibreBooking is hosted on GitHub at
-<https://github.com/LibreBooking/librebooking>; the `develop` branch contains the latest
-code.
+PHP 8.2 or newer, Composer, and MySQL 8.0 or MariaDB 10.6 or newer are required.
+Frontend tooling requires Node.js 20.19.0 or newer.
 
-LibreBooking is a fork of Booked Scheduler, based on Booked Scheduler's last
-open-source version released in 2020. Since then, LibreBooking has evolved
-significantly and diverged from the original project.
-
-## ✨ Features
-
-- [x] Multi-resource booking & waitlists
-- [x] DataTables for advanced listings
-- [x] Role-based access control
-- [x] Quotas and credits for reservations
-- [x] Granular usage reporting
-- [x] Responsive Bootstrap 5 interface
-- [x] Custom themes and color schemes
-- [x] Plugin-ready architecture
-- [x] Outlook/Thunderbird integration through ics
-
-## 🧪 Demo
-
-A live demo instance of LibreBooking is available for testing:
-
-[Try the demo](https://librebooking.readthedocs.io/en/latest/demo.html)
-
-| Role  | Username | Password    |
-| ----- | -------- | ----------- |
-| Admin | `admin`  | `demoadmin` |
-| User  | `user`   | `demouser`  |
-
-Note: This instance is public and **resets every 20 minutes** to ensure a clean environment. Startup might take a few seconds, so please be patient.
-
-## 📸 Screenshots
-
-![Login](./Web/img/readme/02.png)
-![Schedules](./Web/img/readme/06.png)
-![Dashboard](./Web/img/readme/03.png)
-![User profile](./Web/img/readme/04.png)
-![Search](./Web/img/readme/07.png)
-![DataTables example](./Web/img/readme/15.png)
-
-## 🔧 Installation & Deployment
-
-### Manual Installation
-
-To run LibreBooking from a prebuilt release, your server needs:
-
-- PHP >= 8.2 with the extensions: ctype, curl, fileinfo, intl, json, mbstring, mysqli, openssl, pdo, pdo_mysql, tokenizer, xml
-- Optional PHP extensions: bcmath (needed for Active Directory authentication), gd (image processing), ldap (LDAP authentication)
-- Apache >= 2.4. Other web servers, including Nginx, may work when configured
-  with equivalent routing and access-control rules, but are not currently
-  supported or tested by the LibreBooking project.
-- MySQL >= 8.0 (2018) or MariaDB >= 10.6 (2021)
-- Composer (for managing PHP dependencies)
-- Git (optional, useful for cloning the repository or managing updates)
-
-For full setup instructions, see
-[INSTALLATION](https://github.com/LibreBooking/librebooking/blob/develop/docs/source/INSTALLATION.rst)
-
-### Docker Deployment
-
-LibreBooking is available as a Docker container. See [LibreBooking Docker README](https://github.com/LibreBooking/docker) for complete setup.
-
-```bash
-git clone https://github.com/LibreBooking/docker.git
-cd docker
-docker-compose up -d
+```sh
+composer install
+composer config-dist:check
+composer env-example:check
+composer phpunit
+npm ci
+npm run lint:frontend
 ```
 
-## 💻 Developer Documentation
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md) for repository
+conventions. The active branch is `develop`.
 
-- See
-  [docs/source/README.md](https://github.com/LibreBooking/librebooking/blob/develop/docs/source/DEVELOPER-README.rst)
-  for developer notes.
-- See [docs/source/API.rst](https://github.com/LibreBooking/librebooking/blob/develop/docs/source/API.rst)
-  for API notes.
-- See
-  [docs/source/Oauth2-Configuration.rst](https://github.com/LibreBooking/librebooking/blob/develop/docs/source/Oauth2-Configuration.rst)
-  for Oauth2 configuration.
-- See
-  [docs/source/SAML-Configuration.rst](https://github.com/LibreBooking/librebooking/blob/develop/docs/source/SAML-Configuration.rst)
-  for SAML configuration.
-- Codebase follows PSR-12 standards and GitHub Flow.
+## Credits and license
 
-## 🎨 Configuration & Theming
-
-For configuration options, see the
-[Configuration Guide](https://github.com/LibreBooking/librebooking/blob/develop/docs/source/CONFIGURATION.rst).
-
-Recent configuration highlights:
-
-- Change theme via `config.php`:
-
-  ```php
-  'css.theme' = 'default';
-  ```
-
-- Theme options: 'default', 'dimgray', 'dark_red', 'dark_green', 'french_blue', 'orange'
-- Customize `Web/css/librebooking.css`
-
-## 🔒 ReCaptcha
-
-As of 09-Mar-2023, ReCaptcha integration updated to v3. Generate new keys for your domain if using ReCaptcha.
-
-## 💬 Community & Support
-
-- [Discord](https://discord.gg/4TGThPtmX8)
-- [Docs](https://librebooking.readthedocs.io/en/latest/)
-- [Issues](https://github.com/LibreBooking/librebooking/issues)
-- [Discussions](https://github.com/LibreBooking/librebooking/discussions)
-
-## 🤝 Contributing
-
-- Fork, file issues, suggest improvements.
-- Even non-coders can help by reporting bugs, testing, updating issues.
-- PRs welcome (docs, features, refactoring, fixes).
-- See CONTRIBUTING.md
-
-## 💡 Roadmap
-
-_Work in progress – roadmap to be defined._
-Want to suggest a feature? [Open an issue](https://github.com/LibreBooking/librebooking/issues) or join the [Discord discussion channel](https://discord.gg/4TGThPtmX8).
-
-## 📜 License
-
-This project is licensed under **GPL-3.0**.
-
-## 🙏 Acknowledgments
-
-Forked from Booked Scheduler. Thanks to all contributors and the community.
-
-[Back to top](#librebooking)
+HelloMeet is a branded fork of [LibreBooking](https://github.com/LibreBooking/librebooking),
+which originated from Booked Scheduler. Original copyright notices,
+[contributors](CONTRIBUTORS.md), and the [GPL v3 license](LICENSE.md) are retained.
+Upstream development history is recorded in [CHANGELOG.md](CHANGELOG.md).

@@ -73,7 +73,7 @@ class Configurator implements IConfigurationSettings
         if (!array_key_exists(Configuration::SETTINGS, $mergedSettings)) {
             $mergedSettings = [Configuration::SETTINGS => $mergedSettings];
         }
-        $comment = '// LibreBooking configuration file edited at ' . date('c');
+        $comment = '// HelloMeet configuration file edited at ' . date('c');
         $body = $this->ExportArray($mergedSettings);
         $php = "<?php\n\n$comment\n\nreturn $body;\n";
 

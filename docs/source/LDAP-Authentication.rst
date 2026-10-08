@@ -56,7 +56,7 @@ Management > Configuration**. Key settings include:
 - **binddn/bindpw**: Service account credentials for directory searches
 - **basedn**: Base DN where users are located
 - **user.id.attribute**: LDAP attribute for username lookup (typically ``uid``)
-- **attribute.mapping**: Maps LDAP attributes to LibreBooking user fields
+- **attribute.mapping**: Maps LDAP attributes to HelloMeet user fields
 - **sync.groups**: Enable group membership synchronization
 - **database.auth.when.ldap.user.not.found**: Fallback to database authentication
 
@@ -110,7 +110,7 @@ Troubleshooting
 Enable Debug Logging
 ~~~~~~~~~~~~~~~~~~~~
 
-Set ``debug.enabled`` to ``true`` to see detailed LDAP operations in the LibreBooking logs:
+Set ``debug.enabled`` to ``true`` to see detailed LDAP operations in the HelloMeet logs:
 
 .. code-block:: php
 
@@ -143,9 +143,9 @@ Migration from Database Auth
 To migrate existing users:
 
 1. Keep ``database.auth.when.ldap.user.not.found`` set to ``true``
-2. Ensure LibreBooking usernames match LDAP usernames
+2. Ensure HelloMeet usernames match LDAP usernames
 3. Users automatically switch to LDAP auth on next login
 4. Existing reservations and data are preserved
 
-Users are matched by username - if a LibreBooking account exists with the same
+Users are matched by username - if a HelloMeet account exists with the same
 username, it will be updated with LDAP information.

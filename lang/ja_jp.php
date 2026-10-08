@@ -776,7 +776,7 @@ class ja_jp extends en_gb
         // End Strings
 
         // Install
-        $strings['InstallApplication'] = 'LibreBookingをインストール ( MySQLのみ )';
+        $strings['InstallApplication'] = 'HelloMeetをインストール ( MySQLのみ )';
         $strings['IncorrectInstallPassword'] = '申し訳ありませんが、パスワードが違っています。';
         $strings['SetInstallPassword'] = 'インストールを実行する前に、インストールパスワードを設定しておかなくてはなりません。';
         $strings['InstallPasswordInstructions'] = '%s 内の %s にランダムで推測できないようなパスワードを設定して、再度このページに戻って来てください。<br/> %s を使ってもいいでしょう。';
@@ -805,10 +805,10 @@ class ja_jp extends en_gb
         $strings['InstallationSuccess'] = 'インストールは無事完了しました！';
         $strings['RegisterAdminUser'] = '管理者アカウントを作成してください。サンプルデータをインポートしていない場合は必須です。 %s 内で $conf[\'settings\'][\'allow.self.registration\'] = \'true\' にしておいてください。';
         $strings['LoginWithSampleAccounts'] = 'サンプルデータをインポートした場合は、admin/password で管理者、user/password で一般ユーザーとしてログインできます。';
-        $strings['InstalledVersion'] = '実行中のphpScheduleItのバージョンは %s です';
+        $strings['InstalledVersion'] = '実行中のHelloMeetのバージョンは %s です';
         $strings['InstallUpgradeConfig'] = '設定ファイルをアップグレードしてください。';
         $strings['InstallationFailure'] = 'インストール中に問題が発生しました。問題箇所を修正し再度インストールを実行してください。';
-        $strings['ConfigureApplication'] = 'phpScheduleItの設定';
+        $strings['ConfigureApplication'] = 'HelloMeetの設定';
         $strings['ConfigUpdateSuccess'] = '設定ファイルは更新されました！';
         $strings['ConfigUpdateFailure'] = '設定ファイルを自動で更新できませんでした。config.php を下記の内容で上書きしてください。';
         $strings['ScriptUrlWarning'] = '<em> script.url</em>の設定が正しくない可能性があります。 現在は <strong>%s</strong> です。 <strong>%s</strong> である必要があります。';

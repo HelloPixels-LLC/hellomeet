@@ -1,4 +1,4 @@
-LibreBooking から送信されたレポートが添付されています。<br/><br/>
+HelloMeet から送信されたレポートが添付されています。<br/><br/>
 
-<a href="{$ScriptUrl}">LibreBookingへログイン</a>
+<a href="{$ScriptUrl}">HelloMeetへログイン</a>
 

@@ -1,4 +1,4 @@
-<p>คุณได้สร้างบัญชี LibreBooking ใหม่พร้อมข้อมูลต่อไปนี้:<br/>
+<p>คุณได้สร้างบัญชี HelloMeet ใหม่พร้อมข้อมูลต่อไปนี้:<br/>
 อีเมล: {$EmailAddress}<br/>
 รหัสผ่าน: {$Password|escape:'html'}<br/>
 

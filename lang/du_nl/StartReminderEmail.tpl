@@ -11,5 +11,5 @@ Reserverings Details:
 <br/>
 <a href="{$ScriptUrl}/{$ReservationUrl}">Bekijk deze reservering</a> |
 <a href="{$ScriptUrl}/{$ICalUrl}">Voeg toe aan agenda</a> |
-<a href="{$ScriptUrl}">Login in LibreBooking</a>
+<a href="{$ScriptUrl}">Login in HelloMeet</a>
 

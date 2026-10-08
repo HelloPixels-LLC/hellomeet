@@ -47,5 +47,5 @@ Penjeasan: {$Description|nl2br}<br/>
     {/foreach}
 {/if}
 
-<a href="{$ScriptUrl}">Masuk LibreBooking</a>
+<a href="{$ScriptUrl}">Masuk HelloMeet</a>
 

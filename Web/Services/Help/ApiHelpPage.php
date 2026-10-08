@@ -9,7 +9,7 @@ class ApiHelpPage
         <html lang="en">
         <head>
             <meta charset="utf-8"/>
-            <title>LibreBooking API Documentation</title>
+            <title>HelloMeet API Documentation</title>
             <link rel="shortcut icon" href="../favicon.ico"/>
             <link rel="icon" href="../favicon.ico"/>
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -67,7 +67,7 @@ class ApiHelpPage
         <body>
             <div class="topbar">
                 <div class="container-fluid">
-                    <h1 class="mb-3">LibreBooking API Documentation</h1>
+                    <h1 class="mb-3">HelloMeet API Documentation</h1>
 EOT;
 
         echo $head;

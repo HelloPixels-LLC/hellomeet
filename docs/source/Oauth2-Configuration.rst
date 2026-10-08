@@ -4,18 +4,18 @@ Oauth2 Configuration
 You can use any IdP (Identity Provider) which supports Oauth2 like
 `authentik <https://goauthentik.io>`__ or
 `Keycloak <https://www.keycloak.org/>`__ for authentication with
-LibreBooking
+HelloMeet
 
 IdP Configuration
 -----------------
 
 First you need to create a Client in your IdP in Confidential mode
 (Client ID and Client Secret). The Client need to allow redirects to
-``<LibreBooking URL>/Web/oauth2-auth.php`` ex.
+``<HelloMeet URL>/Web/oauth2-auth.php`` ex.
 ``https://librebooking.com/Web/oauth2-auth.php`` and needs the scopes
 ``openid``, ``email`` and ``profile``.
 
-The mapping of Oauth2 attributes to LibreBooking attributes is:
+The mapping of Oauth2 attributes to HelloMeet attributes is:
 
 -  ``email`` -> ``email``
 -  ``given_name`` -> ``firstName``
@@ -25,10 +25,10 @@ The mapping of Oauth2 attributes to LibreBooking attributes is:
 -  ``organization`` -> ``organization``
 -  ``title`` -> ``title``
 
-LibreBooking Config
+HelloMeet Config
 -------------------
 
-To connect LibreBooking with your Oauth2 IdP, add the following settings to
+To connect HelloMeet with your Oauth2 IdP, add the following settings to
 the ``authentication`` section of your ``config/config.php`` file. This example
 uses authentik as the IdP with the URL ``authentik.io``.
 
@@ -53,7 +53,7 @@ uses authentik as the IdP with the URL ``authentik.io``.
 Trailing Slash Handling
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-By default, LibreBooking strips the trailing slash from the configured
+By default, HelloMeet strips the trailing slash from the configured
 ``oauth2.url.authorize`` URL. Some identity providers require the trailing slash
 to be preserved. To keep the trailing slash as configured, set:
 
@@ -64,7 +64,7 @@ to be preserved. To keep the trailing slash as configured, set:
 This setting only affects the authorize URL. The token and userinfo URLs are not
 modified.
 
-To hide the internal LibreBooking login prompt, also set:
+To hide the internal HelloMeet login prompt, also set:
 
 .. code-block:: php
 

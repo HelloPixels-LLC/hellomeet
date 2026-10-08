@@ -1,7 +1,7 @@
 Frequently Asked Questions
 ==========================
 
-This FAQ collects recurring questions from the LibreBooking GitHub issues and
+This FAQ collects recurring questions from the HelloMeet GitHub issues and
 discussions and points to the longer documentation when you need the full
 setup or configuration details.
 
@@ -15,7 +15,7 @@ Start with the basics:
 2. Confirm that ``tpl``, ``tpl_c``, and ``uploads`` are writable by the web
    server.
 3. Confirm that the configured log directory is writable by the web server so
-   LibreBooking can write error logs there. For example, some deployments use
+   HelloMeet can write error logs there. For example, some deployments use
    permissions such as ``0755``, but the exact mode depends on your server user
    and group setup.
 4. Enable logging and set the log level to ``debug`` so the real exception is
@@ -34,10 +34,10 @@ Related threads:
 - `<https://github.com/LibreBooking/librebooking/discussions/999>`__
 - `<https://github.com/LibreBooking/librebooking/issues/171>`__
 
-Why does LibreBooking fail with ``Class "Smarty" not found``?
+Why does HelloMeet fail with ``Class "Smarty" not found``?
 -------------------------------------------------------------
 
-LibreBooking depends on Composer-managed PHP packages, including Smarty. If
+HelloMeet depends on Composer-managed PHP packages, including Smarty. If
 you deploy the source tree without running ``composer install``, the
 application will load PHP files from the repository but fail when it reaches a
 class provided by ``vendor/``.
@@ -87,7 +87,7 @@ Why do my URLs redirect to ``/Web/Web/``?
 
 This usually means ``script.url`` is configured incorrectly.
 
-Set ``script.url`` to the base URL of LibreBooking's ``Web`` directory exactly
+Set ``script.url`` to the base URL of HelloMeet's ``Web`` directory exactly
 once, for example:
 
 .. code-block:: php
@@ -95,7 +95,7 @@ once, for example:
    'script.url' => 'https://example.com/librebooking/Web',
 
 Do not append ``/Web`` twice, and do not point it at a specific page such as
-``/Web/index.php`` or ``/Web/schedule.php``. LibreBooking builds application
+``/Web/index.php`` or ``/Web/schedule.php``. HelloMeet builds application
 links by appending page paths to ``script.url``, so a value that already
 contains an extra ``/Web`` will produce broken URLs such as ``/Web/Web/...``.
 
@@ -145,11 +145,11 @@ Related thread:
 Why does LDAP authentication fail after migrating from older versions?
 ----------------------------------------------------------------------
 
-Check the LDAP host value in ``config/Ldap.config.php``. In LibreBooking, the
+Check the LDAP host value in ``config/Ldap.config.php``. In HelloMeet, the
 host must include the LDAP scheme prefix, for example ``ldap://ldap.example.com``
 or ``ldaps://ldap.example.com``.
 
-If you migrate settings from older Booked Scheduler or Librebooking versions
+If you migrate settings from older HelloMeet or HelloMeet versions
 and keep only the bare hostname, LDAP bind and login can fail even though the
 hostname itself is correct.
 
@@ -162,8 +162,8 @@ Related thread:
 How do I configure Microsoft Entra ID / Azure AD login?
 -------------------------------------------------------
 
-LibreBooking uses a server-side OAuth flow. In Microsoft Entra ID, register
-LibreBooking as a **Web** application, not a single-page application (SPA).
+HelloMeet uses a server-side OAuth flow. In Microsoft Entra ID, register
+HelloMeet as a **Web** application, not a single-page application (SPA).
 
 Use:
 
@@ -175,7 +175,7 @@ If Entra reports that PKCE is required, the app was likely registered as an
 SPA. If token exchange fails with an invalid secret error, verify that you
 copied the secret value and not the identifier shown beside it in the portal.
 
-Your IdP must also return the attributes LibreBooking needs. In practice,
+Your IdP must also return the attributes HelloMeet needs. In practice,
 missing email claims can prevent auto-provisioning from succeeding.
 
 If you want new external-auth users to be created automatically on first
@@ -189,10 +189,10 @@ Related thread:
 
 - `<https://github.com/LibreBooking/librebooking/discussions/987>`__
 
-Can LibreBooking automatically create external-auth users and route them to the right schedule?
+Can HelloMeet automatically create external-auth users and route them to the right schedule?
 -----------------------------------------------------------------------------------------------
 
-LibreBooking can create users during external authentication, but custom
+HelloMeet can create users during external authentication, but custom
 tenant-specific behavior such as choosing a schedule by email domain or
 assigning groups automatically is not a simple configuration setting.
 
@@ -211,7 +211,7 @@ What is the correct order for a manual database installation or upgrade?
 
 For a fresh manual install, use this order:
 
-1. ``create-db.sql`` if you need LibreBooking to create the database
+1. ``create-db.sql`` if you need HelloMeet to create the database
 2. ``create-user.sql`` if you want to create a dedicated database user
 3. ``create-schema.sql``
 4. All scripts in ``database_schema/upgrades/`` in version order
@@ -253,7 +253,7 @@ Linux host. At minimum, verify the following:
   ``/Web/...`` with the correct case.
 
 If your hosting panel prefixes database names and usernames, use those exact
-prefixed values in the LibreBooking database configuration.
+prefixed values in the HelloMeet database configuration.
 
 See :doc:`INSTALLATION` and :doc:`BASIC-CONFIGURATION`.
 
@@ -265,7 +265,7 @@ Related threads:
 Can I set the document root directly to the ``Web`` directory and drop ``/Web`` from the URL?
 ------------------------------------------------------------------------------------------------
 
-No. LibreBooking can be installed at the document root or in a
+No. HelloMeet can be installed at the document root or in a
 subdirectory/subsite underneath it, but the public URL must always include
 ``/Web/`` (e.g. ``https://example.com/Web/`` or
 ``https://example.com/librebooking/Web/``), and ``script.url`` must be set

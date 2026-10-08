@@ -1,4 +1,4 @@
-Laporan Anda dari LibreBooking terlampir.<br/>
+Laporan Anda dari HelloMeet terlampir.<br/>
 
-<a href="{$ScriptUrl}">Masuk LibreBooking</a>
+<a href="{$ScriptUrl}">Masuk HelloMeet</a>
 

@@ -24,7 +24,7 @@ export default [
         bootstrap: 'readonly',
         html2canvas: 'readonly',
 
-        // Core utilities (phpscheduleit.js)
+        // Core utilities (hellomeet.js)
         startsWith: 'readonly',
         createCookie: 'readonly',
         readCookie: 'readonly',

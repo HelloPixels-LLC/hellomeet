@@ -10,8 +10,13 @@
         <meta http-equiv="REFRESH"
             content="{$SessionTimeoutSeconds};URL={$Path}logout.php?{QueryStringKeys::REDIRECT}={$smarty.server.REQUEST_URI|urlencode}" />
     {/if}
-    <link rel="shortcut icon" href="{$Path}{$FaviconUrl}" />
-    <link rel="icon" href="{$Path}{$FaviconUrl}" />
+    <link rel="shortcut icon" href="{$Path}{$FaviconUrl}?{$Version}" />
+    <link rel="icon" href="{$Path}{$FaviconUrl}?{$Version}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{$Path}img/hellomeet/apple-touch-icon.png" />
+    <link rel="manifest" href="{$Path}site.webmanifest" />
+    <meta name="application-name" content="{$AppTitle|escape}" />
+    <meta name="apple-mobile-web-app-title" content="{$AppTitle|escape}" />
+    <meta name="theme-color" content="#3b3fd8" />
     <!-- JavaScript -->
     {if isset($UseLocalJquery) && $UseLocalJquery}
         {vendor_js src="jquery/3.3.1/jquery-3.3.1.min.js"}
@@ -81,7 +86,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;700&display=swap" />
     {/if}
-    {cssfile src="librebooking.css"}
+    {cssfile src="hellomeet.css"}
     {if isset($cssFiles) && $cssFiles neq ''}
         {assign var='CssFileList' value=$cssFiles|split:','}
         {foreach from=$CssFileList item=cssFile}
@@ -130,7 +135,7 @@
     {if !isset($HideNavBar) || $HideNavBar == false}
         <div class="d-flex align-items-center gap-2 m-2">
             <a class="navbar-brand" href="{$HomeUrl}">
-                <img src="{$Path}{$LogoUrl}?{$Version}" alt="{$Title}" class="logo">
+                <img src="{$Path}{$LogoUrl}?{$Version}" alt="{$AppTitle|escape}" class="logo">
             </a>
             <div class="border-start ps-2 d-flex flex-column">
                 {if $CompanyName neq ''}
@@ -142,11 +147,11 @@
         <nav class="navbar navbar-expand-lg bg-light shadow-sm py-2 sticky-top">
             <div class="container-fluid">
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse"
-                    data-bs-target="#librebooking-navigation" aria-controls="librebooking-navigation" aria-expanded="false"
+                    data-bs-target="#hellomeet-navigation" aria-controls="hellomeet-navigation" aria-expanded="false"
                     aria-label="{translate key=ShowHideNavigation}">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="librebooking-navigation">
+                <div class="collapse navbar-collapse" id="hellomeet-navigation">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         {if isset($LoggedIn) && $LoggedIn}
                             <li class="nav-item" id="navDashboard"><a class="nav-link link-primary"
@@ -387,7 +392,7 @@
                                         </li>
                                         <li id="navNewVersion" class="new-version">
                                             <a class="dropdown-item"
-                                                href="https://github.com/LibreBooking/librebooking/releases">{translate key=WhatsNew}</a>
+                                                href="https://github.com/HelloPixels-LLC/hellomeet/commits/develop">{translate key=WhatsNew}</a>
                                         </li>
                                     {/if}
                                 </ul>
@@ -419,11 +424,11 @@
                                 data-bs-toggle="dropdown">{translate key="Help"}</a>
                             <ul class="dropdown-menu  dropdown-menu-end">
                                 <li id="navHelp"><a class="dropdown-item"
-                                        href="https://librebooking.readthedocs.io/en/latest/">{translate key=Help}</a>
+                                        href="{$Path}help.php">{translate key=Help}</a>
                                 </li>
                                 {if isset($CanViewAdmin) && $CanViewAdmin}
                                     <li id="navHelpAdmin"><a class="dropdown-item"
-                                            href="https://librebooking.readthedocs.io/en/latest/ADMINISTRATION.html">{translate key=Administration}</a>
+                                            href="https://github.com/HelloPixels-LLC/hellomeet/blob/develop/docs/source/ADMINISTRATION.rst">{translate key=Administration}</a>
                                     </li>
                                 {/if}
                                 <li id="navAbout"><a class="dropdown-item"

@@ -41,6 +41,6 @@
     {/foreach}
 {/if}
 
-<a href="{$ScriptUrl}">להתחבר ל-LibreBooking</a>
+<a href="{$ScriptUrl}">להתחבר ל-HelloMeet</a>
 
 

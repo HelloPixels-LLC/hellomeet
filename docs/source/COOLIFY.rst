@@ -2,14 +2,16 @@ Deploying with Coolify
 =====================
 
 The repository includes ``docker-compose.coolify.yml`` for deploying the
-official LibreBooking 7.0.0 image, MariaDB 11.4, and the background scheduler.
+HelloMeet source build, MariaDB 11.4, and the background scheduler.
 The database, configuration, and uploaded files use persistent named volumes.
 An Apache configuration redirects the site root to ``LB_SCRIPT_URL`` while
 preserving HTTPS behind Coolify's proxy. This requires Docker Compose 2.23.1
 or newer for inline configuration support.
-This stack uses a published application image; it does not build application
-code from your fork. PHP or template changes in the fork require a separate
-image build workflow.
+Both the application and scheduler build from this repository using
+``Dockerfile.hellomeet`` on the pinned upstream PHP/Apache 7.0.0 image.
+Repository changes, including branding and templates, are included on redeploy.
+``LB_APP_TITLE`` and ``LB_ADMIN_EMAIL_NAME`` are set by the stack so existing
+configuration volumes also display HelloMeet.
 
 Create the resource
 -------------------
@@ -43,7 +45,7 @@ Set these in Coolify's **Environment Variables** page:
   example ``https://booking.example.com/Web``. Do not include ``:8080`` here.
 * ``LB_DEFAULT_TIMEZONE``: defaults to ``Asia/Dubai``; change if required.
 
-The database name is ``librebooking`` and the application database user is
+The database name is ``HelloMeet`` and the application database user is
 ``lb_user``. The database service is reachable internally as ``db``.
 
 Email is disabled initially. To enable invitations and reminders, set
@@ -52,7 +54,7 @@ Email is disabled initially. To enable invitations and reminders, set
 ``SMTP_FROM_ADDRESS``. The default port is 587 and encryption is ``tls``.
 The web application and scheduler receive the same email settings.
 
-Initialize LibreBooking
+Initialize HelloMeet
 -----------------------
 
 1. Open ``https://booking.example.com/Web/install/`` and enter
@@ -83,5 +85,5 @@ References
 
 * `Coolify Docker Compose documentation
   <https://coolify.io/docs/applications/builds/docker-compose>`_
-* `LibreBooking Docker instructions
+* `HelloMeet Docker instructions
   <https://github.com/LibreBooking/docker/blob/master/RUN.md>`_

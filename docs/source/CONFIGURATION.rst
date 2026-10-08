@@ -1,7 +1,7 @@
 Configuration Overview
 ======================
 
-LibreBooking configuration has been split into two guides for better usability:
+HelloMeet configuration has been split into two guides for better usability:
 
 Basic Configuration
 -------------------
@@ -36,7 +36,7 @@ This covers:
 Configuration File Format
 -------------------------
 
-LibreBooking uses a PHP array-based configuration format. The file returns a
+HelloMeet uses a PHP array-based configuration format. The file returns a
 settings array with both flat dot notation and nested arrays:
 
 .. code-block:: php
@@ -45,14 +45,14 @@ settings array with both flat dot notation and nested arrays:
    return [
        'settings' => [
            // Flat keys
-           'app.title' => 'LibreBooking',
+           'app.title' => 'HelloMeet',
            'admin.email' => 'admin@example.com',
 
            // Nested arrays
            'database' => [
                'type' => 'mysql',
                'hostspec' => '127.0.0.1',
-               'name' => 'librebooking',
+               'name' => 'HelloMeet',
                'user' => 'lb_user',
                'password' => 'password',
            ],
@@ -79,7 +79,7 @@ If upgrading from an older version that used ``$conf['settings'][...]`` format,
 you'll need to convert your configuration to the new array return format. The
 new format is more modern and provides better IDE support and validation.
 
-LibreBooking includes a migration script for this purpose:
+HelloMeet includes a migration script for this purpose:
 
 .. code-block:: bash
 
@@ -117,7 +117,7 @@ migrated file when you are satisfied with the result.
 Language String Overrides
 -------------------------
 
-LibreBooking supports installation-specific string overrides through
+HelloMeet supports installation-specific string overrides through
 ``config/lang-overrides.php``. If this file exists, its string values are
 merged into the active language during resource initialization after the
 standard language file has been loaded.

@@ -1,5 +1,5 @@
 # Set the referenced variables in Coolify, then route the app domain to port 8080.
-# This stack runs the official image; it does not build PHP changes from the fork.
+# Build the HelloMeet fork on the stable PHP/Apache runtime image.
 services:
   db:
     image: mariadb:11.4
@@ -19,7 +19,9 @@ services:
       start_period: 30s
 
   app:
-    image: librebooking/librebooking:7.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile.hellomeet
     restart: unless-stopped
     depends_on:
       db:
@@ -30,6 +32,8 @@ services:
       - source: public-url-redirect
         target: /etc/apache2/conf-enabled/public-url-redirect.conf
     environment:
+      LB_APP_TITLE: HelloMeet
+      LB_ADMIN_EMAIL_NAME: HelloMeet Administrator
       LB_DATABASE_HOSTSPEC: db
       LB_DATABASE_NAME: librebooking
       LB_DATABASE_USER: lb_user
@@ -52,7 +56,9 @@ services:
       - uploads:/var/www/html/Web/uploads
 
   scheduler:
-    image: librebooking/librebooking:7.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile.hellomeet
     restart: unless-stopped
     command: ["supercronic", "/config/lb-jobs-cron"]
     depends_on:
@@ -61,6 +67,8 @@ services:
       app:
         condition: service_started
     environment:
+      LB_APP_TITLE: HelloMeet
+      LB_ADMIN_EMAIL_NAME: HelloMeet Administrator
       LB_DATABASE_HOSTSPEC: db
       LB_DATABASE_NAME: librebooking
       LB_DATABASE_USER: lb_user

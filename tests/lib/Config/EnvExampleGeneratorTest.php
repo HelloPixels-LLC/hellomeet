@@ -66,7 +66,7 @@ class EnvExampleGeneratorTest extends TestBase
 
         // String defaults render as single-quoted
         $this->assertMatchesRegularExpression(
-            "/^LB_APP_TITLE='LibreBooking'$/m",
+            "/^LB_APP_TITLE='HelloMeet'$/m",
             $content
         );
 

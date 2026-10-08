@@ -70,4 +70,4 @@
     {/if}
 {/if}
 
-{jsfile src="phpscheduleit.js"}
+{jsfile src="hellomeet.js"}

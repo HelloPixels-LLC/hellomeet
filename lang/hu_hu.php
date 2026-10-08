@@ -756,11 +756,11 @@ class hu_hu extends en_us
         // End Strings
 
         // Install
-        $strings['InstallApplication'] = 'LibreBooking telepítése';
+        $strings['InstallApplication'] = 'HelloMeet telepítése';
         $strings['IncorrectInstallPassword'] = 'Sajnáljuk, a jelszó nem megfelelő.';
         $strings['SetInstallPassword'] = 'Meg kell adnia egy jelszót, mielőtt a telepítő lefut.';
         $strings['InstallPasswordInstructions'] = 'In %s kérjük adjon meg egy jelszót %s egy jelszót, amely véletlen szerű és nehezen kitalálható, majd térjen vissza erre az oldalra.<br/>You can use %s';
-        $strings['NoUpgradeNeeded'] = 'LibreBooking aktuális. Nincs szükség frissítésre.';
+        $strings['NoUpgradeNeeded'] = 'HelloMeet aktuális. Nincs szükség frissítésre.';
         $strings['ProvideInstallPassword'] = 'Kérjük, adja meg a telepítői jelszavát.';
         $strings['InstallPasswordLocation'] = 'Ez megtalálható %s in %s.';
         $strings['VerifyInstallSettings'] = 'Erősítse meg az alapértelmezett beállításokat, mielőtt folytatjuk. Később itt megváltoztathatja %s.';
@@ -785,10 +785,10 @@ class hu_hu extends en_us
         $strings['InstallationSuccess'] = 'A telepítés sikeresen végrehajtva!';
         $strings['RegisterAdminUser'] = 'Regisztálja adminisztrátor felhasználóját. Erre akkor van szükség, ha nem importál minta adatokat. Ensure that $conf[\'settings\'][\'allow.self.registration\'] = \'true\' in your %s file.';
         $strings['LoginWithSampleAccounts'] = 'Ha importálta a mintaadatokat, bejelentkezhet admin/jelszó használatával vagy felhasználó/jelszó használatával általános felhasználóhoz.';
-        $strings['InstalledVersion'] = 'A következő verzióval használja a LibreBooking %s ';
+        $strings['InstalledVersion'] = 'A következő verzióval használja a HelloMeet %s ';
         $strings['InstallUpgradeConfig'] = 'Ajánlott a konfigurációs fájl frissítése';
         $strings['InstallationFailure'] = 'Problémák voltak a telepítéssel.  Javítsa őket majd próbálja újra a telepítést.';
-        $strings['ConfigureApplication'] = 'LibreBooking beállítása';
+        $strings['ConfigureApplication'] = 'HelloMeet beállítása';
         $strings['ConfigUpdateSuccess'] = 'A konfigurációs fájl már aktuális!';
         $strings['ConfigUpdateFailure'] = 'Nem tudjuk automatikusan frissíteni a konfigurációs fájlt. Kérjük, írja felül a config.php tartalmát a következőekkel:';
         $strings['ScriptUrlWarning'] = 'Az Ön <em>script.url</em> valószínűleg nem helyes. Jelenleg <strong>%s</strong>, úgy gondoljuk <strong>%s</strong>';

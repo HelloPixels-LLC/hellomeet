@@ -36,7 +36,7 @@ Configuration**. Key settings include:
 - **username/password**: Service account credentials for AD searches
 - **basedn**: Base DN in DC= format (e.g., ``DC=example,DC=com``)
 - **account.suffix**: Domain suffix for user logins (e.g., ``@example.com``)
-- **attribute.mapping**: Maps AD attributes to LibreBooking fields (note: AD
+- **attribute.mapping**: Maps AD attributes to HelloMeet fields (note: AD
   uses ``givenName``, ``telephoneNumber``, etc.)
 - **sync.groups**: Enable group membership synchronization
 - **use.sso**: Enable Windows Single Sign-On
@@ -86,7 +86,7 @@ Enable Debug Logging
 ~~~~~~~~~~~~~~~~~~~~
 
 Set ``debug.enabled`` to ``true`` in the Ldap plugin configuration (Active
-Directory uses the same logging) to see detailed operations in LibreBooking
+Directory uses the same logging) to see detailed operations in HelloMeet
 logs.
 
 Migration from Database Auth
@@ -95,9 +95,9 @@ Migration from Database Auth
 To migrate existing users:
 
 1. Keep ``database.auth.when.ldap.user.not.found`` set to ``true``
-2. Ensure LibreBooking usernames match AD usernames (without @domain)
+2. Ensure HelloMeet usernames match AD usernames (without @domain)
 3. Users automatically switch to AD auth on next login
 4. Existing reservations and data are preserved
 
-Users are matched by username - if a LibreBooking account exists with the same
+Users are matched by username - if a HelloMeet account exists with the same
 username, it will be updated with AD information.

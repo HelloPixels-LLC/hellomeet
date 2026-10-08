@@ -97,7 +97,7 @@ class ConfigDistGeneratorTest extends TestBase
         $content = ConfigDistGenerator::render();
 
         $this->assertStringContainsString(
-            'This file contains the default configuration for LibreBooking',
+            'This file contains the default configuration for HelloMeet',
             $content
         );
     }
@@ -167,7 +167,7 @@ class ConfigDistGeneratorTest extends TestBase
 
         // String defaults render as quoted strings
         $this->assertMatchesRegularExpression(
-            "/'app\\.title' => 'LibreBooking',/",
+            "/'app\\.title' => 'HelloMeet',/",
             $content
         );
     }

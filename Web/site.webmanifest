@@ -1,0 +1,22 @@
+{
+  "name": "HelloMeet",
+  "short_name": "HelloMeet",
+  "description": "Room, desk, and resource booking",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b3fd8",
+  "icons": [
+    {
+      "src": "img/hellomeet/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/hellomeet/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

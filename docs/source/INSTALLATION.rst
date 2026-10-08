@@ -1,4 +1,4 @@
-LibreBooking Installation
+HelloMeet Installation
 =========================
 
 .. note::
@@ -13,10 +13,10 @@ Server Configuration
 ~~~~~~~~~~~~~~~~~~~~
 
 In an **Apache** or similar server environment, some required modules
-for LibreBooking may not be enabled by default. The following modules
+for HelloMeet may not be enabled by default. The following modules
 (or their equivalents) are often not enabled as part of a standard
 installation but should be enabled for the proper operation of the
-LibreBooking application:
+HelloMeet application:
 
 -  headers
 -  rewrite
@@ -51,8 +51,8 @@ Alternatively, you can clone the application directly from the official GitHub r
     git clone https://github.com/LibreBooking/librebooking.git
 
 .. important::
-   The document root (or subsite) must point at the LibreBooking project
-   directory itself, **not** at its ``Web`` subdirectory. LibreBooking can be
+   The document root (or subsite) must point at the HelloMeet project
+   directory itself, **not** at its ``Web`` subdirectory. HelloMeet can be
    installed directly at the document root or in a subdirectory/subsite
    underneath it (e.g. ``https://example.com/librebooking/``), but the public
    URL must always include ``/Web/`` (e.g. ``https://example.com/Web/`` or
@@ -66,7 +66,7 @@ Install PHP dependencies using Composer:
 
    .. code-block:: bash
 
-       cd librebooking
+       cd HelloMeet
        # Install without the developer dependencies
        composer install --no-dev
        # If you will be working on the code then use: `composer install`
@@ -86,27 +86,27 @@ web server user having write access.
 
 `Want to know why? <http://www.smarty.net/docs/en/variable.compile.dir.tpl>`__
 
-LibreBooking will not work if PHP
+HelloMeet will not work if PHP
 `session.autostart <http://www.php.net/manual/en/session.configuration.php#ini.session.auto-start>`__
 is enabled. Ensure this setting is disabled.
 
 Application Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can configure LibreBooking to fit your environment and needs or use the
+You can configure HelloMeet to fit your environment and needs or use the
 minimal default settings which should be enough for the application to work.
 
 Copy ``/config/config.dist.php`` to ``/config/config.php`` and adjust
 the settings for your environment.
 
-Set ``script.url`` to the public URL of LibreBooking's ``Web`` directory. For
+Set ``script.url`` to the public URL of HelloMeet's ``Web`` directory. For
 example:
 
 .. code-block:: php
 
     'script.url' => 'https://example.com/librebooking/Web',
 
-If ``script.url`` is empty, LibreBooking displays a persistent configuration
+If ``script.url`` is empty, HelloMeet displays a persistent configuration
 warning to all users because some application features will not work
 correctly. Docker and other environment-based deployments can set the same
 value with ``LB_SCRIPT_URL``.
@@ -124,7 +124,7 @@ In addition, to allow resource image uploads, the web server must also have
 read/write access to your configurable uploads directory specified by
 ``'uploads' => ['image.upload.directory' => 'path']`` in the ``config.php``.
 
-By default, LibreBooking uses standard username/password for user
+By default, HelloMeet uses standard username/password for user
 authentication.
 
 Alternatively, you can use LDAP or Active Directory authentication. See
@@ -153,10 +153,10 @@ following database settings are properly filled out:
         'settings' => [
             'database' => [
                 'type' => 'mysql',
-                'user' => 'lb_user',         // Database user with permission to access the LibreBooking database
+                'user' => 'lb_user',         // Database user with permission to access the HelloMeet database
                 'password' => 'password',    // Database password
                 'hostspec' => '127.0.0.1',   // IP address, DNS name, or named pipe
-                'name' => 'librebooking',    // Name of the database used by LibreBooking
+                'name' => 'HelloMeet',    // Name of the database used by HelloMeet
             ],
         ]
     ];
@@ -192,8 +192,8 @@ the on-screen instructions.
 
 .. note::
    Some may see directory permission issues displayed on the page.
-   The web server must have write access to ``/librebooking/tpl_c`` and
-   ``/librebooking/tpl``.
+   The web server must have write access to ``/HelloMeet/tpl_c`` and
+   ``/HelloMeet/tpl``.
    If you cannot provide the required permission. Contact your web server
    administrator or hosting service to resolve or run the manual install
 
@@ -203,7 +203,7 @@ Manual Database Setup
 | The packaged database scripts make assumptions about your desired
   database configuration and set default values.
 | Please edit them to suit your environment before running. The files
-  are located in ``librebooking/database_schema/``
+  are located in ``HelloMeet/database_schema/``
 |
 | The following SQL files are available:
 | - ``create-db.sql`` - Creates the database
@@ -237,7 +237,7 @@ Manual Database Setup
   `phpMyAdmin <https://www.phpmyadmin.net/>`__):
 
 | On a remote host with no database creation privileges
-| If you are installing LibreBooking on a remote host, please follow
+| If you are installing HelloMeet on a remote host, please follow
   these steps.
 | These steps assume you are using cPanel and have the ability to create
   databases via the cPanel tool and phpMyAdmin.
@@ -247,14 +247,14 @@ Adding the database and user
 Select the MySQL Databases tool
 
 Add a new user with username and password of your choice. This will be
-the database user and database password set in your LibreBooking config
+the database user and database password set in your HelloMeet config
 file.
 
 **Please be aware that some hosts will prefix your database user name.**
 
 | Create a new database with whatever name you choose.
-| This will be the name of the database in your LibreBooking config
-  file. ‘librebooking’ is the recommended database name.
+| This will be the name of the database in your HelloMeet config
+  file. ‘HelloMeet’ is the recommended database name.
 
 **Please be aware that some hosts will prefix your database name.**
 
@@ -264,12 +264,12 @@ file.
 | Open phpMyAdmin.
 | Click on the database name that you just created in the left panel.
 | Click the SQL tab at the top of the page.
-| Import ``/database_schema/create-schema.sql`` to librebooking (or
+| Import ``/database_schema/create-schema.sql`` to HelloMeet (or
   whatever database name was used in the creation process)
 | Import all upgrade scripts from ``/database_schema/upgrades/`` in version order.
   For each version directory (2.1, 2.2, 2.3, etc.), import first the ``schema.sql``
   then the ``data.sql`` file if they exist.
-| Import ``/database_schema/create-data.sql`` to librebooking (or
+| Import ``/database_schema/create-data.sql`` to HelloMeet (or
   whatever database name was used in the creation process)
 
 | If you have database creation privileges in MySQL
@@ -297,21 +297,21 @@ automates all of the above steps and optionally loads sample data:
 Scheduled Jobs (Cron)
 ~~~~~~~~~~~~~~~~~~~~~
 
-LibreBooking requires background jobs for features like reminder emails.
+HelloMeet requires background jobs for features like reminder emails.
 
 For stand-alone (non-container) deployments, set up host cron entries to
 execute the job scripts directly with PHP.
-Example crontab (adjust PHP binary path and LibreBooking path):
+Example crontab (adjust PHP binary path and HelloMeet path):
 
 .. code-block:: text
 
-   * * * * * /usr/bin/env php -f /var/www/librebooking/Jobs/autorelease.php
-   * * * * * /usr/bin/env php -f /var/www/librebooking/Jobs/sendreminders.php
-   * * * * * /usr/bin/env php -f /var/www/librebooking/Jobs/sendmissedcheckin.php
-   * * * * * /usr/bin/env php -f /var/www/librebooking/Jobs/sendwaitlist.php
-   0 0 * * * /usr/bin/env php -f /var/www/librebooking/Jobs/sendseriesend.php
-   0 0 * * * /usr/bin/env php -f /var/www/librebooking/Jobs/sessioncleanup.php
-   0 1 * * * /usr/bin/env php -f /var/www/librebooking/Jobs/deleteolddata.php
+   * * * * * /usr/bin/env php -f /var/www/HelloMeet/Jobs/autorelease.php
+   * * * * * /usr/bin/env php -f /var/www/HelloMeet/Jobs/sendreminders.php
+   * * * * * /usr/bin/env php -f /var/www/HelloMeet/Jobs/sendmissedcheckin.php
+   * * * * * /usr/bin/env php -f /var/www/HelloMeet/Jobs/sendwaitlist.php
+   0 0 * * * /usr/bin/env php -f /var/www/HelloMeet/Jobs/sendseriesend.php
+   0 0 * * * /usr/bin/env php -f /var/www/HelloMeet/Jobs/sessioncleanup.php
+   0 1 * * * /usr/bin/env php -f /var/www/HelloMeet/Jobs/deleteolddata.php
 
 What each job does, and the configuration settings that control it:
 
@@ -356,7 +356,7 @@ Preflight Check
 ~~~~~~~~~~~~~~~
 
 At any point during or after installation, you can run the preflight check to
-verify that your server meets all the requirements for LibreBooking:
+verify that your server meets all the requirements for HelloMeet:
 
 .. code-block:: bash
 
@@ -404,7 +404,7 @@ http://yourhostname/librebooking/Web/).
 Building from Source
 ---------------------
 
-If you want to build LibreBooking from source code, the project includes a
+If you want to build HelloMeet from source code, the project includes a
 Phing build configuration.
 
 Prerequisites
@@ -476,7 +476,7 @@ This creates consolidated installation files for easier deployment.
 Docker Installation (Recommended)
 ----------------------------------
 
-LibreBooking can be easily deployed using Docker containers, which provides a
+HelloMeet can be easily deployed using Docker containers, which provides a
 consistent environment and simplifies setup. This is the recommended method for
 new installations.
 
@@ -493,7 +493,7 @@ Quick Start with Docker Compose
 
    .. code-block:: yaml
 
-      name: librebooking
+      name: HelloMeet
 
       services:
         db:
@@ -508,7 +508,7 @@ Quick Start with Docker Compose
             - MYSQL_ROOT_PASSWORD=your_secure_root_password
 
         app:
-          image: librebooking/librebooking:develop # or use tagged version
+          image: HelloMeet/HelloMeet:develop # or use tagged version
           restart: always
           depends_on:
             - db
@@ -517,7 +517,7 @@ Quick Start with Docker Compose
           volumes:
             - app_config:/config
           environment:
-            - LB_DB_NAME=librebooking
+            - LB_DB_NAME=HelloMeet
             - LB_DB_USER=lb_user
             - LB_DB_USER_PWD=your_secure_user_password
             - LB_DB_HOST=db
@@ -549,7 +549,7 @@ Docker Environment Variables
 **Required Environment Variables (when config.php doesn't exist):**
 
 ``LB_DB_NAME``
-  Database name for LibreBooking (e.g., ``librebooking``)
+  Database name for HelloMeet (e.g., ``HelloMeet``)
 
 ``LB_DB_USER``
   Database username (e.g., ``lb_user``)
@@ -572,7 +572,7 @@ Docker Environment Variables
   Environment mode: ``production`` (default) or ``dev``
 
 ``LB_LOGGING_FOLDER``
-  Log directory (default: ``/var/log/librebooking``)
+  Log directory (default: ``/var/log/HelloMeet``)
 
 ``LB_LOGGING_LEVEL``
   Logging level: ``none`` (default), ``debug``, ``error``
@@ -587,13 +587,13 @@ Docker Image Versions
 
 .. code-block:: bash
 
-   docker pull librebooking/librebooking:v3.0.3
+   docker pull HelloMeet/HelloMeet:v3.0.3
 
 **Development Version:**
 
 .. code-block:: bash
 
-   docker pull librebooking/librebooking:develop
+   docker pull HelloMeet/HelloMeet:develop
 
 Persistent Data Storage
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -610,7 +610,7 @@ To persist data beyond container lifecycle, mount these directories:
 Background Jobs (Cron)
 ~~~~~~~~~~~~~~~~~~~~~~
 
-LibreBooking requires background jobs for features like reminder emails.
+HelloMeet requires background jobs for features like reminder emails.
 See :ref:`background-jobs` for a description of each job and the
 configuration settings that control it.
 
@@ -627,11 +627,11 @@ Example docker-compose services:
 
    services:
      app:
-       image: librebooking/librebooking:develop # or use tagged version
+       image: HelloMeet/HelloMeet:develop # or use tagged version
        user: 'www-data'
 
      cron:
-       image: librebooking/librebooking:develop # or use tagged version
+       image: HelloMeet/HelloMeet:develop # or use tagged version
        user: 'root'
        entrypoint: /usr/local/bin/cron.sh
 
@@ -666,7 +666,7 @@ Docker Troubleshooting
   -  Use named volumes instead of bind mounts for easier management
 
 For more detailed Docker configuration options and advanced setups, see the
-`LibreBooking Docker repository <https://github.com/LibreBooking/docker>`__.
+`HelloMeet Docker repository <https://github.com/LibreBooking/docker>`__.
 
 Registering the Administrator Account
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -684,17 +684,17 @@ responsibilities, and remove administrator access when it is no longer needed.
 Upgrading
 ---------
 
-Upgrading from a previous version of LibreBooking (or Booked 2.x and phpScheduleIt 2.x)
+Upgrading from a previous version of HelloMeet (or Booked 2.x and HelloMeet 2.x)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The steps for upgrading from a previous version of LibreBooking are very
+The steps for upgrading from a previous version of HelloMeet are very
 similar to the steps described above in Application Deployment to
 Server.
 
 Recommended
 ^^^^^^^^^^^
 
-| The recommended approach is to backup your current LibreBooking files,
+| The recommended approach is to backup your current HelloMeet files,
   then upload the new files to the that same location.
 | This prevents any old files from interfering with new ones. After the
   new files are uploaded, copy your old ``config/config.php`` file to
@@ -708,7 +708,7 @@ Alternative
 ^^^^^^^^^^^
 
 | An alternative upgrade approach is to overwrite the current
-  LibreBooking files with the new ones.
+  HelloMeet files with the new ones.
 | If doing this, you must delete the contents of ``/tpl_c``. This
   approach will not allow you to roll back and will not clear out any
   obsolete files.
@@ -733,19 +733,19 @@ Manual Database Upgrade
 | The packaged database scripts make assumptions about your desired
   database configuration and set default values. Please edit them to
   suit your environment before running. The files are located in
-  ``librebooking/database_schema/upgrades.`` Depending on your current
+  ``HelloMeet/database_schema/upgrades.`` Depending on your current
   version, import the ``upgrade.sql`` file within each subdirectory to
   get to the current version (we recommend
   `adminer <https://www.adminer.org/>`__ for this)
 | For example, if you are running version 2.0 and the current version is
   2.2 then you should run
-  ``librebooking/database_schema/upgrade/2.1/upgrade.sql`` then
-  ``librebooking/database_schema/upgrade/2.2/upgrade.sql``
+  ``HelloMeet/database_schema/upgrade/2.1/upgrade.sql`` then
+  ``HelloMeet/database_schema/upgrade/2.2/upgrade.sql``
 
 Migrating from version 1.2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-| The web-based migration from phpScheduleIt 1.2 (``/Web/install/migrate.php``)
+| The web-based migration from HelloMeet 1.2 (``/Web/install/migrate.php``)
   has been removed for security reasons. The file remains only as a stub that
   answers with HTTP 410 so that overwriting an existing installation disables
   the old copy.
@@ -768,7 +768,7 @@ There are 2 main types of accounts, they are admin and user account.
    addition via the application.
 -  If not, **you will need to register an account with your configured
    admin email address**. The admin email address is set in the
-   ``librebooking/config/config.php`` file as ``'admin.email' => 'admin@example.com'``
+   ``HelloMeet/config/config.php`` file as ``'admin.email' => 'admin@example.com'``
    within the settings array.
 
 Other self registration accounts are defaulted to normal users.
@@ -784,13 +784,13 @@ At this time, it is recommended to change your password.
 Log Files
 ^^^^^^^^^
 
-LibreBooking logs multiple levels of information categorized into either
+HelloMeet logs multiple levels of information categorized into either
 application or database logs. To do this:
 
 -  To allow application logging, the PHP account requires write access
    (0755) to your configured log directory.
 -  Logging is configured in /config/config.php
--  Levels used by LibreBooking are OFF, DEBUG, ERROR. For normal
+-  Levels used by HelloMeet are OFF, DEBUG, ERROR. For normal
    operation, ERROR is appropriate. If trace logs are needed, DEBUG is
    appropriate.
 -  To turn on application logging, change the logging level setting
@@ -802,10 +802,10 @@ see :doc:`BASIC-CONFIGURATION` for essential settings or :doc:`ADVANCED-CONFIGUR
 for comprehensive options.
 
 
-Enabling LibreBooking API
+Enabling HelloMeet API
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-LibreBooking has the option to expose a RESTful JSON API. This API can
+HelloMeet has the option to expose a RESTful JSON API. This API can
 be leveraged for third party integration, automation or to develop
 client applications.
 

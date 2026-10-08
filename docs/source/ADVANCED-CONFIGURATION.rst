@@ -1,18 +1,18 @@
 Advanced Configuration
 ======================
 
-This guide covers all advanced configuration options available in LibreBooking.
+This guide covers all advanced configuration options available in HelloMeet.
 For basic setup, see :doc:`BASIC-CONFIGURATION` first.
 
 All settings are configured in the ``<INSTALL_DIR>/config/config.php`` file,
-where ``<INSTALL_DIR>`` is the root directory of your LibreBooking
+where ``<INSTALL_DIR>`` is the root directory of your HelloMeet
 installation. The configuration uses a mix of flat dot notation and nested
 arrays.
 
 Environment Variable Override
 -----------------------------
 
-LibreBooking supports overriding any configuration setting using environment
+HelloMeet supports overriding any configuration setting using environment
 variables. This provides flexibility for deployment scenarios and keeps
 sensitive data separate from configuration files.
 
@@ -41,7 +41,7 @@ sensitive data separate from configuration files.
      LB_DATABASE_HOSTSPEC='db.example.com'
      LB_ADMIN_EMAIL='admin@mycompany.com'
 
-  LibreBooking will automatically load and use these values.
+  HelloMeet will automatically load and use these values.
 
 **Docker Integration**
   Environment variables work seamlessly with Docker:
@@ -50,7 +50,7 @@ sensitive data separate from configuration files.
 
      # docker-compose.yml
      services:
-       librebooking:
+       HelloMeet:
          environment:
            - LB_APP_TITLE=Company Booking System
            - LB_DATABASE_HOSTSPEC=mysql
@@ -63,20 +63,20 @@ sensitive data separate from configuration files.
 Custom Footer Version Display
 -----------------------------
 
-LibreBooking can customize the version shown in the page footer using either a
+HelloMeet can customize the version shown in the page footer using either a
 suffix or a custom version override.
 
 Version Suffix
 ~~~~~~~~~~~~~~
 
-LibreBooking can optionally append a suffix to the version shown in the page
+HelloMeet can optionally append a suffix to the version shown in the page
 footer.
 
 Create ``<INSTALL_DIR>/config/version-suffix.txt`` with a value such as
 ``abc123``. This file is intended for local or deployment-time metadata and
 should not be committed to source control. If the file is present and contains
 a non-empty value, the footer version will be displayed as ``v4.1.0-abc123``.
-If the file is missing or empty, LibreBooking displays the base version only.
+If the file is missing or empty, HelloMeet displays the base version only.
 
 This is intended for deployment metadata such as a Docker image build
 identifier or short Git commit SHA. Only the footer display is affected. The
@@ -88,7 +88,7 @@ or fewer.
 
 Valid characters are letters, numbers, ``.``, ``_``, and ``-``. If the file
 contains multiple lines, exceeds 40 characters, or includes invalid characters,
-LibreBooking ignores the suffix and logs an error.
+HelloMeet ignores the suffix and logs an error.
 
 **Example**
 
@@ -103,7 +103,7 @@ such as ``v4.1.0-a1b2c3d``.
 Custom Version
 ~~~~~~~~~~~~~~
 
-LibreBooking can optionally replace the footer base version with a custom
+HelloMeet can optionally replace the footer base version with a custom
 value.
 
 Create ``<INSTALL_DIR>/config/custom-version.txt`` with a value such as
@@ -114,16 +114,16 @@ and contains a valid non-empty value, the footer version will be displayed as
 
 The usual value in this file would be the output of
 ``git describe --tags --long``. If ``custom-version.txt`` contains a valid
-value, it takes precedence over ``version-suffix.txt`` and LibreBooking logs
+value, it takes precedence over ``version-suffix.txt`` and HelloMeet logs
 an error if ``version-suffix.txt`` also exists.
 
 The file must contain a single line only. A trailing newline is allowed, but
-if the file contains additional lines, LibreBooking ignores the custom
+if the file contains additional lines, HelloMeet ignores the custom
 version. After trimming, the custom version must be 40 characters or fewer.
 
 Valid characters are letters, numbers, ``.``, ``_``, and ``-``. If the file
 contains multiple lines, exceeds 40 characters, or includes invalid characters,
-LibreBooking ignores the custom version and logs an error.
+HelloMeet ignores the custom version and logs an error.
 
 **Example**
 
@@ -134,7 +134,7 @@ LibreBooking ignores the custom version and logs an error.
 Maintenance Mode
 ----------------
 
-LibreBooking can be placed into maintenance mode by creating a file named
+HelloMeet can be placed into maintenance mode by creating a file named
 ``maint.txt`` in the root directory of the installation.
 
 When ``<INSTALL_DIR>/maint.txt`` exists, normal page rendering is replaced
@@ -154,7 +154,7 @@ the application.
 
      rm maint.txt
 
-The contents of ``maint.txt`` are not used. LibreBooking only checks whether
+The contents of ``maint.txt`` are not used. HelloMeet only checks whether
 the file exists. The maintenance notice text comes from the
 ``MaintenanceNotice`` language string and can be customized with
 ``config/lang-overrides.php``.
@@ -317,7 +317,7 @@ Logging Configuration
 .. code-block:: php
 
    'logging' => [
-       'folder' => '/var/log/librebooking/log',
+       'folder' => '/var/log/HelloMeet/log',
        'level' => 'none',
        'sql' => false,
    ],

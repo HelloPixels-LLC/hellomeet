@@ -47,7 +47,7 @@ Design philosophy
 API
 ---
 
-LibreBooking has a REST-API `API-Documentation <./API.md>`__
+HelloMeet has a REST-API `API-Documentation <./API.md>`__
 
 User interface
 --------------
@@ -154,12 +154,12 @@ Application Structure
        /uploads                    Default file upload directory
        /Web                        All user facing pages
            /scripts                    All application related javascript files
-       /WebServices                The LibreBooking API
+       /WebServices                The HelloMeet API
 
 Database
 --------
 
-|Entity Relationship Diagram| you can open ``/doc/LibreBooking.mbw``
+|Entity Relationship Diagram| you can open ``/doc/HelloMeet.mbw``
 with `MySQL Workbench <https://www.mysql.com/products/workbench/>`__ to
 edit/update this ERD
 

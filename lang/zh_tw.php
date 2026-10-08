@@ -459,11 +459,11 @@ class zh_tw extends en_us
         // End Strings
 
         // Install
-        $strings['InstallApplication'] = '安裝 phpScheduleIt (只限 MySQL)';
+        $strings['InstallApplication'] = '安裝 HelloMeet (只限 MySQL)';
         $strings['IncorrectInstallPassword'] = '對不起！密碼不正確。';
         $strings['SetInstallPassword'] = '在執行安裝前，您必須設置安裝密碼。';
         $strings['InstallPasswordInstructions'] = '在 %s 請將 %s 的密碼設定為隨機的及難以猜測，然後返回到這個頁面。<BR/>您可以用 %s 的';
-        $strings['NoUpgradeNeeded'] = '有沒有升級的需要。執行安裝過程中會刪除所有現有數據，並安裝一個全新的phpScheduleIt！';
+        $strings['NoUpgradeNeeded'] = '有沒有升級的需要。執行安裝過程中會刪除所有現有數據，並安裝一個全新的HelloMeet！';
         $strings['ProvideInstallPassword'] = '請提供安裝密碼';
         $strings['InstallPasswordLocation'] = '安裝密碼可以在 %s 內 %s 找到';
         $strings['VerifyInstallSettings'] = '進入下一步前，請驗證以下預設設置。或者，你可以在 %s 改變他們。';
@@ -488,10 +488,10 @@ class zh_tw extends en_us
         $strings['InstallationSuccess'] = '安裝完成';
         $strings['RegisterAdminUser'] = '註冊您的管理員用戶。這是必需的，如果你沒有導入示例數據。請確保 $conf[\'settings\'][\'allow.self.registration\'] = \'true\' 在 %s 檔案';
         $strings['LoginWithSampleAccounts'] = '如果有導入示例數據，您可以登錄 admin/password 為管理員用戶或者 user/password 為普通用戶';
-        $strings['InstalledVersion'] = '您現在正在運行 %s 版本的phpScheduleIt';
+        $strings['InstalledVersion'] = '您現在正在運行 %s 版本的HelloMeet';
         $strings['InstallUpgradeConfig'] = '建議升級您的配置文件';
         $strings['InstallationFailure'] = '安裝過程出現問題。請予以更正，並重新安裝。';
-        $strings['ConfigureApplication'] = '配置 phpScheduleIt';
+        $strings['ConfigureApplication'] = '配置 HelloMeet';
         $strings['ConfigUpdateSuccess'] = '你的設定檔目前是最新的';
         $strings['ConfigUpdateFailure'] = '我們不能自動更新你的設定檔。請使用下列的內容覆蓋config.php：';
         // End Install

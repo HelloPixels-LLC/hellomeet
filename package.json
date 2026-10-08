@@ -1,8 +1,8 @@
 {
-  "name": "librebooking",
+  "name": "hellomeet",
   "version": "0.0.0",
   "private": true,
-  "description": "Frontend linting tools for LibreBooking",
+  "description": "Frontend linting tools for HelloMeet",
   "engines": {
     "node": ">=20.19.0"
   },

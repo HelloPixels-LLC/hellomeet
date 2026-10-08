@@ -9,7 +9,7 @@ class ConfigKeys extends AbstractConfigKeys
     public const APP_TITLE = [
         'key' => 'app.title',
         'type' => 'string',
-        'default' => 'LibreBooking',
+        'default' => 'HelloMeet',
         'label' => 'App title',
         'description' => 'The title of the application displayed in the header and browser tab',
         'config_file_comment' => 'The public name of the application',
@@ -34,7 +34,7 @@ class ConfigKeys extends AbstractConfigKeys
     public const ADMIN_EMAIL_NAME = [
         'key' => 'admin.email.name',
         'type' => 'string',
-        'default' => 'LB Administrator',
+        'default' => 'HelloMeet Administrator',
         'label' => 'Administrator Display Name',
         'description' => 'Display name used for outgoing admin emails',
     ];

@@ -107,8 +107,8 @@ class ru_ru extends en_gb
         $strings['NextWeek'] = 'Следующая неделя';
         $strings['SignOut'] = 'Выйти';
         $strings['JavascriptRequired'] = 'Для корректной работы этого приложения требуется JavaScript. Пожалуйста, включите JavaScript в настройках вашего браузера.';
-        $strings['ScriptUrlNotConfigured'] = 'LibreBooking настроен неверно: значение <code>script.url</code> пусто, поэтому часть возможностей работать не будет. Обратитесь к администратору.';
-        $strings['ScriptUrlMissingWebSuffix'] = 'LibreBooking настроен неверно: значение <code>script.url</code> должно заканчиваться на <code>/Web</code>, иначе ссылки навигации и перенаправление после входа будут работать неправильно. Обратитесь к администратору.';
+        $strings['ScriptUrlNotConfigured'] = 'HelloMeet настроен неверно: значение <code>script.url</code> пусто, поэтому часть возможностей работать не будет. Обратитесь к администратору.';
+        $strings['ScriptUrlMissingWebSuffix'] = 'HelloMeet настроен неверно: значение <code>script.url</code> должно заканчиваться на <code>/Web</code>, иначе ссылки навигации и перенаправление после входа будут работать неправильно. Обратитесь к администратору.';
         $strings['LayoutDescription'] = 'Запускает на %s, показывая %s дней';
         $strings['AllResources'] = 'Все ресурсы';
         $strings['TakeOffline'] = 'В автономный режим';
@@ -792,11 +792,11 @@ class ru_ru extends en_gb
         // End Strings
 
         // Install
-        $strings['InstallApplication'] = 'Установка LibreBooking (только MySQL)';
+        $strings['InstallApplication'] = 'Установка HelloMeet (только MySQL)';
         $strings['IncorrectInstallPassword'] = 'К сожалению, введен неверный пароль.';
         $strings['SetInstallPassword'] = 'Вы должны задать пароль установки прежде чем, установка будет продолжена';
         $strings['InstallPasswordInstructions'] = 'В %s задайте %s пароль, который является случайным и трудно угадываемый, а затем вернитесь на эту страницу.<br/>Вы можете использовать %s';
-        $strings['NoUpgradeNeeded'] = 'Нет необходимости обновления. Запуск процесса установки удалит все существующие данные и установить новую копию LibreBooking!';
+        $strings['NoUpgradeNeeded'] = 'Нет необходимости обновления. Запуск процесса установки удалит все существующие данные и установить новую копию HelloMeet!';
         $strings['ProvideInstallPassword'] = 'Введите пароль для установки.';
         $strings['InstallPasswordLocation'] = 'Это можно найти на %s в %s.';
         $strings['VerifyInstallSettings'] = 'Проверьте следующие параметры по умолчанию, прежде чем продолжить. Или вы можете изменить их в %s.';
@@ -822,10 +822,10 @@ class ru_ru extends en_gb
         $strings['InstallationSuccess'] = 'Установка успешно завершена!';
         $strings['RegisterAdminUser'] = 'Зарегистрируйте вашего пользователя с правами администратора. Это необходимо, если вы не импортировали данные из образца. Проверьте, что $conf[\'settings\'][\'allow.self.registration\'] = \'true\' в вашем файле %s.';
         $strings['LoginWithSampleAccounts'] = 'Если вы импортировали данные примера, вы можете войти с admin/password для администратора или user/password для простого пользователя.';
-        $strings['InstalledVersion'] = 'Сейчас у вас запущена версия %s LibreBooking';
+        $strings['InstalledVersion'] = 'Сейчас у вас запущена версия %s HelloMeet';
         $strings['InstallUpgradeConfig'] = 'Рекомендуется обновить конфигурационный файл';
         $strings['InstallationFailure'] = 'Были проблемы с установкой. Пожалуйста, исправьте их и повторите установку.';
-        $strings['ConfigureApplication'] = 'Настроить LibreBooking';
+        $strings['ConfigureApplication'] = 'Настроить HelloMeet';
         $strings['ConfigUpdateSuccess'] = 'Ваш конфигурационный файл теперь обновлен!';
         $strings['ConfigUpdateFailure'] = 'Мы не могли автоматически обновлять свой конфигурационный файл. Пожалуйста, перезаписать содержимое config.php со следующими требованиями:';
         $strings['ScriptUrlWarning'] = 'Похоже, значение <em>script.url</em> указано неверно. Сейчас это <strong>%s</strong>, а должно быть <strong>%s</strong>';

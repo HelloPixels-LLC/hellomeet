@@ -34,6 +34,6 @@
 
 	<a href="{$ScriptUrl}/{$ReservationUrl}">Näytä varaus</a> |
 	<a href="{$ScriptUrl}/{$ICalUrl}">Lisää kalenteriisi</a> |
-	<a href="{$ScriptUrl}">Kirjaudu sovellukseen LibreBooking</a>
+	<a href="{$ScriptUrl}">Kirjaudu sovellukseen HelloMeet</a>
 
 

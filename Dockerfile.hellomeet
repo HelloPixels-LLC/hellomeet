@@ -1,0 +1,26 @@
+FROM librebooking/librebooking:7.0.0
+
+LABEL org.opencontainers.image.title="HelloMeet" \
+      org.opencontainers.image.description="HelloMeet room, desk, and resource booking" \
+      org.opencontainers.image.url="https://github.com/HelloPixels-LLC/hellomeet" \
+      org.opencontainers.image.source="https://github.com/HelloPixels-LLC/hellomeet" \
+      org.opencontainers.image.authors="HelloPixels LLC" \
+      org.opencontainers.image.licenses="GPL-3.0-only"
+
+USER root
+WORKDIR /var/www/html
+COPY --chown=www-data:root . /var/www/html/
+
+# Remove inherited upstream artwork and cached templates from the base image.
+RUN rm -f Web/img/librebooking.png Web/css/librebooking.css Web/scripts/phpscheduleit.js \
+    && find Web/img/psd Web/img/readme -type f -delete \
+    && find tpl_c -type f ! -name index.html -delete \
+    && chown -R www-data:root config tpl_c Web/uploads
+
+USER www-data:root
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader \
+    && composer config-dist:check \
+    && composer env-example:check
+
+ENV LB_APP_TITLE=HelloMeet \
+    LB_ADMIN_EMAIL_NAME="HelloMeet Administrator"

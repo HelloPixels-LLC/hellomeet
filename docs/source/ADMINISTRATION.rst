@@ -11,7 +11,7 @@ the time intervals to book.
 You must have at least one schedule defined and every resource must belong to
 a schedule.
 
-When installing LibreBooking, a default schedule will be created with out of
+When installing HelloMeet, a default schedule will be created with out of
 the box settings. From the Schedules menu option you can view and edit
 attributes of the current schedules.
 
@@ -147,7 +147,7 @@ unauthenticated users.
 Resources
 ---------
 
-Resources are the reservable items in LibreBooking. Resources could be
+Resources are the reservable items in HelloMeet. Resources could be
 conference rooms, equipment, boats, people, or anything else you can imagine.
 
 You can view and manage resources from the Resources menu option. Here you
@@ -274,7 +274,7 @@ Resource Public Access
 By default, resources can not be used in RSS or iCalendar feeds, shown on the
 resource tablet display, or embedded in external websites.
 
-To allow reservations for a resource to be displayed outside of LibreBooking,
+To allow reservations for a resource to be displayed outside of HelloMeet,
 enable Public Access for each resource. Once enabled, URLs for the resource
 tablet display, RSS feeds, iCalendar feeds, as well as the JavaScript snippet
 for embedding the resource calendar in external websites will be available to
@@ -489,7 +489,7 @@ Adding Administrators
 It is common to have multiple administrative users within an organization.
 There are two ways to add additional administrators. Both require an existing
 administrator to add the new one. The new administrator must also already
-have an account in LibreBooking.
+have an account in HelloMeet.
 
 Option 1) Open Application Configuration, find the ``admin.email`` section, and
 add the other user's email address. You can separate multiple email addresses
@@ -542,7 +542,7 @@ Private attributes are only shown to the reservation owner and those users
 who have administrative privileges over that reservation.
 
 Custom attributes are available to plugins and can be used to extend the
-functionality of LibreBooking.
+functionality of HelloMeet.
 
 Reporting
 ---------
@@ -553,7 +553,7 @@ schedule administrators under the Reports menu item.
 This is an easy way to view usage at a glance or over time. There is also an
 option to report on resource utilization.
 
-LibreBooking comes with a set of Common Reports which can be viewed as a list
+HelloMeet comes with a set of Common Reports which can be viewed as a list
 of results, a chart, exported to CSV, and printed.
 
 In addition, ad-hoc reports can be created from the Create New Report menu
@@ -569,7 +569,7 @@ Credits
 Credits allow control over a person's usage of resources and accessories.
 
 Credits must first be enabled in the Application Configuration before they
-can be used in LibreBooking. This is done by setting ``enabled`` to ``true``
+can be used in HelloMeet. This is done by setting ``enabled`` to ``true``
 in the ``credits`` section.
 
 Once enabled, administrators will have the ability to set the credit
@@ -580,7 +580,7 @@ Credits can have different redemption rates for peak and off peak times of a
 schedule. Peak times are defined per schedule in the Schedules section.
 
 Credits can be charged based on the number of slots booked or a set amount
-per reservation. LibreBooking allows reservations to be created "over"
+per reservation. HelloMeet allows reservations to be created "over"
 blocked slots. You can choose whether or not to charge credits for all slots
 in a reservation or just the available slots.
 
@@ -601,17 +601,17 @@ From the Payments section of Application Management administrators are able
 to set the cost per credit, configure payment gateways, and view purchase
 transaction history.
 
-LibreBooking supports two payment gateways: Stripe and PayPal. At least one
+HelloMeet supports two payment gateways: Stripe and PayPal. At least one
 must be enabled in order to allow purchasing credits.
 
 Configuring Stripe
 ^^^^^^^^^^^^^^^^^^
 
 Within the Payments management screen, click the Payment Gateways tab and
-enable Stripe. LibreBooking integrates with Stripe using Stripe Checkout,
+enable Stripe. HelloMeet integrates with Stripe using Stripe Checkout,
 which requires use of the Stripe API. First create a Stripe account if you do
 not already have one. On the Stripe API screen, copy your Stripe API keys
-into the LibreBooking Stripe gateway settings and save the payment gateway
+into the HelloMeet Stripe gateway settings and save the payment gateway
 configuration. Use the test API keys if you want to simulate purchasing
 credits. Use the live API keys to charge users and collect payments.
 
@@ -619,19 +619,19 @@ Configuring PayPal
 ^^^^^^^^^^^^^^^^^^
 
 Within the Payments management screen, click the Payment Gateways tab and
-enable PayPal. LibreBooking integrates with PayPal using Express Checkout,
+enable PayPal. HelloMeet integrates with PayPal using Express Checkout,
 which requires use of the PayPal API. First create a PayPal account if you do
 not already have one and navigate to PayPal Developer In the REST API apps
 section, create a new app. In the App details section you will have access to
 both Sandbox and Live API credentials. Copy your PayPal app credentials into
-the LibreBooking PayPal gateway settings and save the payment configuration.
+the HelloMeet PayPal gateway settings and save the payment configuration.
 Use the Sandbox credentials if you want to simulate purchasing credits. Use
 the Live credentials to charge users and collect payments.
 
 Reservation Tablet View
 -----------------------
 
-LibreBooking provides a tablet-friendly view of a resource's current
+HelloMeet provides a tablet-friendly view of a resource's current
 availability.
 
 A good use of this feature is mounting a tablet next to a resource to show
@@ -646,7 +646,7 @@ reservation, and book new reservations.
 Reservation Monitor View
 ------------------------
 
-LibreBooking provides a monitor-friendly view of a schedule's current
+HelloMeet provides a monitor-friendly view of a schedule's current
 availability.
 
 A good use of this feature is mounting a large monitor in a public area to
@@ -661,7 +661,7 @@ The ``view.schedules`` setting in the ``privacy`` section must be set to
 Slack Integration
 -----------------
 
-You can begin a LibreBooking reservation request directly from Slack. You
+You can begin a HelloMeet reservation request directly from Slack. You
 will need to create a Slack App in your Slack workspace for this integration
 to work.
 
@@ -678,7 +678,7 @@ Terms of Service
 ----------------
 
 It is common to require users to agree to terms of service before a
-reservation can be made. LibreBooking supplies two options for this - showing
+reservation can be made. HelloMeet supplies two options for this - showing
 terms upon registration or before each reservation.
 
 Terms of service can be set from Application Management > Reservations, then

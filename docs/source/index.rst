@@ -1,4 +1,4 @@
-.. LibreBooking documentation master file, created by
+.. HelloMeet documentation master file, created by
    sphinx-quickstart on Fri May 16 12:37:55 2025.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -6,7 +6,7 @@
 .. include:: readme.md
    :parser: myst_parser.sphinx_
 
-LibreBooking documentation
+HelloMeet documentation
 ==========================
 
 .. toctree::
@@ -40,7 +40,7 @@ LibreBooking documentation
 .. toctree::
    :maxdepth: 1
    :titlesonly:
-   :caption: Using LibreBooking:
+   :caption: Using HelloMeet:
 
    ADMINISTRATION
    FAQ

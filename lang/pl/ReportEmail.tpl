@@ -1,3 +1,3 @@
-W załączeniu Twój raport z LibreBooking.<br/>
+W załączeniu Twój raport z HelloMeet.<br/>
 
-<a href="{$ScriptUrl}">Zaloguj się do LibreBooking</a>
+<a href="{$ScriptUrl}">Zaloguj się do HelloMeet</a>

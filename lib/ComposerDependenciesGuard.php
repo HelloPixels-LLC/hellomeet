@@ -43,7 +43,7 @@ function EnsureComposerDependenciesInstalledForRequest(): void
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>LibreBooking Setup Required</title>
+    <title>HelloMeet Setup Required</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -85,7 +85,7 @@ function EnsureComposerDependenciesInstalledForRequest(): void
 <body>
     <div class="container">
         <h1>Application setup is incomplete</h1>
-        <p>Composer dependencies are missing, so LibreBooking cannot start yet.</p>
+        <p>Composer dependencies are missing, so HelloMeet cannot start yet.</p>
         <p>From the project root, run <code>composer install</code>, then reload this page.</p>
     </div>
 </body>

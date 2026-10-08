@@ -11,4 +11,4 @@
 
 http_response_code(410);
 header('Content-Type: text/plain; charset=utf-8');
-echo 'Gone: the phpScheduleIt 1.2 web migration has been removed. See the LibreBooking installation documentation.';
+echo 'Gone: the legacy web migration has been removed. See the HelloMeet installation documentation.';

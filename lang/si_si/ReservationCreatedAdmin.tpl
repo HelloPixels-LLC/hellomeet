@@ -74,4 +74,4 @@
 
 	<br/>
 	<br/>
-	<a href="{$ScriptUrl}/{$ReservationUrl}">Ogled rezervacije</a> | <a href="{$ScriptUrl}">Prijava v program LibreBooking</a>
+	<a href="{$ScriptUrl}/{$ReservationUrl}">Ogled rezervacije</a> | <a href="{$ScriptUrl}">Prijava v program HelloMeet</a>

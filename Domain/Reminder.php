@@ -86,7 +86,7 @@ class Reminder
     public static function SendItOut(Reminder $reminder)
     {
         $message = $reminder->Message();
-        $subject = 'Automatic Reminder from LibreBooking';
+        $subject = 'Automatic Reminder from HelloMeet';
         /* replace 'username' and 'password' with your GoogleVoice sign-in */
         $gv = new GoogleVoice('username', 'password');
         $addresses = explode(',', str_replace(' ', '', $reminder->Address()));

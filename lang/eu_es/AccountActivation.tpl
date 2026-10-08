@@ -1,2 +1,2 @@
 {$FirstName},<br/>
-Eskerrik asko LibreBooking-en erregistratzeagatik. Mesedez, <a href="{$ActivationUrl}">aktibatu zure kontua</a>.
+Eskerrik asko HelloMeet-en erregistratzeagatik. Mesedez, <a href="{$ActivationUrl}">aktibatu zure kontua</a>.

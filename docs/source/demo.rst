@@ -1,7 +1,7 @@
 Live Demo
 =========
 
-A hosted demo of LibreBooking is available for testing. It runs on a free
+A hosted demo of HelloMeet is available for testing. It runs on a free
 `Fly.io <https://fly.io/>`_ tier and may take a few seconds to wake up if it
 has been idle.
 

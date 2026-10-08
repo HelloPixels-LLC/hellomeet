@@ -14,4 +14,4 @@
 <br/>
 <br/>
 <a href="{$ScriptUrl}/{$ReservationUrl}">ดูการจองนี้</a> |
-<a href="{$ScriptUrl}">เข้าสู่ระบบ LibreBooking</a>
+<a href="{$ScriptUrl}">เข้าสู่ระบบ HelloMeet</a>
