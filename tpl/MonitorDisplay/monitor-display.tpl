@@ -83,4 +83,4 @@
     });
 </script>
 
-{include file='globalfooter.tpl'}
+{include file='globalfooter.tpl' PoweredByDisplay=true}

@@ -20,6 +20,14 @@
                         administration guide</a></p>
                 <p><a class="link-primary" href="https://github.com/HelloPixels-LLC/hellomeet/issues">HelloMeet
                         support</a></p>
+                <div class="hellopixels-about my-4 text-center">
+                    <h2>Powered by HelloPixels</h2>
+                    <a href="https://www.hellopixels.com" target="_blank" rel="noopener noreferrer">
+                        <img src="{$Path}img/hellopixels/logo.png" alt="HelloPixels" width="120" height="120">
+                        <span class="d-block mt-2">www.hellopixels.com</span>
+                    </a>
+                    <p class="mt-2 mb-0">HelloMeet is developed and maintained by HelloPixels LLC.</p>
+                </div>
                 <h2>Credits and license</h2>
                 <p>HelloMeet is maintained by HelloPixels LLC and is based on LibreBooking and Booked Scheduler.
                     Original copyright and license notices are retained.</p>

@@ -8,6 +8,9 @@
 		{/if}
 		<div><a class="link-primary" href="https://github.com/HelloPixels-LLC/hellomeet">{$AppTitle|escape} - GPLv3 -
 				{$DisplayVersion}</a></div>
+		<div class="hellopixels-footer{if isset($PoweredByDisplay) && $PoweredByDisplay} hellopixels-display{/if}">
+			{include file='Controls/powered-by-hellopixels.tpl'}
+		</div>
 	</footer>
 
 	<div class="toast-container position-fixed bottom-0 end-0 p-3">

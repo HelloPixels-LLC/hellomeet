@@ -782,3 +782,67 @@ a.fc-event:hover {
 .fc-timegrid-event-harness > .fc-timegrid-event {
   inset: 0 -4px 0 0;
 }
+
+.hellopixels-powered {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #555555;
+  font-size: 0.75rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.hellopixels-powered:hover,
+.hellopixels-powered:focus-visible {
+  color: #333333;
+  text-decoration: underline;
+}
+
+.hellopixels-powered-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hellopixels-website {
+  font-size: 0.6875rem;
+}
+
+.hellopixels-powered img {
+  width: 128px;
+  height: auto;
+}
+
+.hellopixels-header {
+  margin-inline-start: auto;
+}
+
+.hellopixels-footer {
+  padding: 4px 0;
+}
+
+.hellopixels-display {
+  padding: 8px 0;
+}
+
+.hellopixels-about img {
+  padding: 8px;
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+.hellopixels-qr .hellopixels-powered img {
+  width: 110px;
+}
+
+@media (width < 576px) {
+  .hellomeet-header .hellopixels-header {
+    flex-basis: 100%;
+    margin-inline-start: 0;
+  }
+}

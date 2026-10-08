@@ -7,6 +7,9 @@
       <img src="{$QRImageUrl}" alt="QR Code" class="img-fluid" style="max-width: 200px; height: auto;">
     </div>
     <p class="text-muted mb-0">{translate key=ScanToSchedule}</p>
+    <div class="hellopixels-qr mt-3">
+      {include file='Controls/powered-by-hellopixels.tpl'}
+    </div>
   </div>
 </div>
 

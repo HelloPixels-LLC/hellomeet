@@ -133,7 +133,7 @@
     {/if}
 
     {if !isset($HideNavBar) || $HideNavBar == false}
-        <div class="d-flex align-items-center gap-2 m-2">
+        <div class="hellomeet-header d-flex flex-wrap align-items-center gap-2 m-2">
             <a class="navbar-brand" href="{$HomeUrl}">
                 <img src="{$Path}{$LogoUrl}?{$Version}" alt="{$AppTitle|escape}" class="logo">
             </a>
@@ -142,6 +142,9 @@
                     <h5 class="mb-0"><a class="link-primary" href="{$CompanyUrl}">{$CompanyName}</a></h5>
                 {/if}
                 <h5 class="mb-0"><a class="link-primary" href="{$HomeUrl}">{$AppTitle}</a></h5>
+            </div>
+            <div class="hellopixels-header">
+                {include file='Controls/powered-by-hellopixels.tpl'}
             </div>
         </div>
         <nav class="navbar navbar-expand-lg bg-light shadow-sm py-2 sticky-top">

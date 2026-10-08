@@ -40,6 +40,11 @@ Translated product text, email templates, API documentation, and calendar
 exports use HelloMeet. Production artwork lives under `Web/img/hellomeet/`
 and `Web/img/hellomeet-logo.png`. Original design exports are not deployed.
 
+HelloPixels attribution appears in the header, global footer, email footers,
+About page, resource QR labels, and room/tablet displays. The supplied horizontal
+and square HelloPixels logos live under `Web/img/hellopixels/`. Shared web and
+email footer templates keep the attribution consistent across pages and languages.
+
 `LB_APP_TITLE=HelloMeet` and `LB_ADMIN_EMAIL_NAME='HelloMeet Administrator'`
 are applied to both services, including deployments with an existing config
 volume. Database names, `LB_` environment keys, and PHP namespaces retain their
