@@ -427,7 +427,7 @@ class ConfigKeys extends AbstractConfigKeys
     public const EMAIL_DEFAULT_FROM_NAME = [
         'key' => 'email.default.from.name',
         'type' => 'string',
-        'default' => 'LB',
+        'default' => 'HelloMeet',
         'label' => 'Default From Name',
         'description' => 'Default display name for outgoing emails',
         'config_file_comment' => 'Default name to use for outgoing emails',

@@ -23,4 +23,5 @@ RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoload
     && composer env-example:check
 
 ENV LB_APP_TITLE=HelloMeet \
-    LB_ADMIN_EMAIL_NAME="HelloMeet Administrator"
+    LB_ADMIN_EMAIL_NAME="HelloMeet Administrator" \
+    LB_EMAIL_DEFAULT_FROM_NAME="HelloMeet"

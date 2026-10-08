@@ -10,8 +10,8 @@ or newer for inline configuration support.
 Both the application and scheduler build from this repository using
 ``Dockerfile.hellomeet`` on the pinned upstream PHP/Apache 7.0.0 image.
 Repository changes, including branding and templates, are included on redeploy.
-``LB_APP_TITLE`` and ``LB_ADMIN_EMAIL_NAME`` are set by the stack so existing
-configuration volumes also display HelloMeet.
+``LB_APP_TITLE``, ``LB_ADMIN_EMAIL_NAME``, and ``LB_EMAIL_DEFAULT_FROM_NAME``
+are set by the stack so existing configuration volumes also display HelloMeet.
 
 Create the resource
 -------------------
@@ -52,7 +52,9 @@ Email is disabled initially. To enable invitations and reminders, set
 ``LB_EMAIL_ENABLED=true`` and configure ``SMTP_HOST``, ``SMTP_PORT``,
 ``SMTP_SECURE``, ``SMTP_USERNAME``, ``SMTP_PASSWORD``, and
 ``SMTP_FROM_ADDRESS``. The default port is 587 and encryption is ``tls``.
-The web application and scheduler receive the same email settings.
+The sender display name defaults to HelloMeet; optionally set
+``SMTP_FROM_NAME`` to customize it. The web application and scheduler receive
+the same email settings.
 
 Initialize HelloMeet
 -----------------------

@@ -199,7 +199,7 @@ return [
             'default.from.address' => 'no-reply@example.com',
 
             # Default name to use for outgoing emails
-            'default.from.name' => 'LB',
+            'default.from.name' => 'HelloMeet',
         ],
 
         #########
