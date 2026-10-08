@@ -6,8 +6,7 @@
 		{if $CompanyName neq ''}
 			<div class="mb-2"><a class="link-primary" href="{$CompanyUrl}">{$CompanyName}</a></div>
 		{/if}
-		<div><a class="link-primary" href="https://github.com/HelloPixels-LLC/hellomeet">{$AppTitle|escape} - GPLv3 -
-				{$DisplayVersion}</a></div>
+		<div>{$AppTitle|escape} - GPLv3 - {$DisplayVersion}</div>
 		<div class="hellopixels-footer{if isset($PoweredByDisplay) && $PoweredByDisplay} hellopixels-display{/if}">
 			{include file='Controls/powered-by-hellopixels.tpl'}
 		</div>

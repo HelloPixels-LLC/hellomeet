@@ -846,3 +846,8 @@ a.fc-event:hover {
     margin-inline-start: 0;
   }
 }
+
+.hellomeet-qr-logo {
+  width: 180px;
+  height: auto;
+}

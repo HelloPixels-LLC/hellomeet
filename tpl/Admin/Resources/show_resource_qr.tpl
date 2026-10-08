@@ -2,6 +2,7 @@
 
 <div class="min-vh-75 d-flex justify-content-center align-items-center p-3">
   <div class="border rounded-3 p-3 text-center bg-white shadow-sm" style="max-width: 300px; width: 100%;">
+    <img src="{$Path}img/hellomeet-logo.png" alt="HelloMeet" class="hellomeet-qr-logo img-fluid d-block mx-auto mb-3">
     <h2 class="h4 fw-bold mb-3">{$ResourceName}</h2>
     <div class="mb-3">
       <img src="{$QRImageUrl}" alt="QR Code" class="img-fluid" style="max-width: 200px; height: auto;">

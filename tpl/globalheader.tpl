@@ -364,9 +364,6 @@
                                     data-bs-toggle="dropdown">
                                     <span class="visually-hidden">Configuration</span>
                                     <i class="bi bi-gear-fill"></i>
-                                    {if isset($ShowNewVersion) && $ShowNewVersion}<span
-                                            class="badge badge-new-version new-version"
-                                        id="newVersionBadge">{translate key=NewVersion}</span>{/if}
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     {if isset($EnableConfigurationPage) && $EnableConfigurationPage}
@@ -389,15 +386,6 @@
                                     <li id="navDataCleanup"><a class="dropdown-item"
                                             href="{$Path}admin/data_cleanup.php">{translate key="DataCleanup"}</a>
                                     </li>
-                                    {if isset($ShowNewVersion) && $ShowNewVersion}
-                                        <li>
-                                            <hr class="dropdown-divider">
-                                        </li>
-                                        <li id="navNewVersion" class="new-version">
-                                            <a class="dropdown-item"
-                                                href="https://github.com/HelloPixels-LLC/hellomeet/commits/develop">{translate key=WhatsNew}</a>
-                                        </li>
-                                    {/if}
                                 </ul>
                             </li>
                         {/if}
@@ -431,7 +419,7 @@
                                 </li>
                                 {if isset($CanViewAdmin) && $CanViewAdmin}
                                     <li id="navHelpAdmin"><a class="dropdown-item"
-                                            href="https://github.com/HelloPixels-LLC/hellomeet/blob/develop/docs/source/ADMINISTRATION.rst">{translate key=Administration}</a>
+                                            href="{$Path}help.php#getting-started">{translate key=Administration}</a>
                                     </li>
                                 {/if}
                                 <li id="navAbout"><a class="dropdown-item"
