@@ -767,7 +767,7 @@
                 filterUrl: '{$smarty.server.SCRIPT_NAME}?{QueryStringKeys::ACCOUNT_STATUS}=',
                 actions: actions,
                 manageReservationsUrl: '{$ManageReservationsUrl}',
-                displayGroupSaveFailedMessage: '{translate key=DisplayGroupSaveFailed|escape:"javascript"}',
+                displayGroupSaveFailedMessage: '{{translate key=DisplayGroupSaveFailed}|escape:'javascript'}',
             };
 
             var userManagement = new UserManagement(userOptions);

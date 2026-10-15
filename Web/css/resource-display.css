@@ -25,19 +25,28 @@
   background: var(--bs-body-bg);
 }
 
-.focus-header {
+.focus-brand-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
-  padding: clamp(1.25rem, 3vw, 2.25rem) clamp(1rem, 4vw, 4rem);
-  border-bottom: 1px solid var(--bs-border-color);
+  gap: 1rem;
+  padding: clamp(1.1rem, 2vw, 1.65rem) clamp(0.25rem, 2vw, 1.25rem) 0;
 }
 
-.focus-brand-room {
+.focus-room-display-caption {
+  color: var(--focus-muted);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.focus-room-row {
   display: flex;
-  align-items: center;
-  gap: clamp(1rem, 2vw, 2rem);
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 1.2rem clamp(0.25rem, 2vw, 1.25rem) 1.45rem;
   min-width: 0;
 }
 
@@ -55,25 +64,32 @@
 
 .focus-room-details {
   min-width: 0;
-  padding-left: clamp(1rem, 2vw, 2rem);
-  border-left: 1px solid var(--bs-border-color);
+}
+
+.focus-room-location {
+  margin: 0 0 0.25rem;
+  color: var(--focus-muted);
+  font-size: 0.8rem;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .focus-room-details h1 {
   margin: 0;
-  overflow: hidden;
   color: var(--bs-emphasis-color);
-  font-size: clamp(1.25rem, 2.4vw, 1.8rem);
-  font-weight: 700;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: clamp(2.25rem, 5vw, 3.65rem);
+  font-weight: 550;
+  letter-spacing: -0.055em;
+  line-height: 1.08;
+  overflow-wrap: anywhere;
 }
 
 .focus-room-metadata {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem 1rem;
-  margin-top: 0.35rem;
+  margin-top: 0.5rem;
   color: var(--focus-muted);
   font-size: 0.9rem;
 }
@@ -86,7 +102,7 @@
 .focus-clock {
   display: block;
   color: var(--bs-emphasis-color);
-  font-size: clamp(2.4rem, 6vw, 4.6rem);
+  font-size: clamp(2.4rem, 4vw, 3rem);
   font-variant-numeric: tabular-nums;
   font-weight: 650;
   letter-spacing: -0.06em;
@@ -107,7 +123,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.75rem;
-  padding: 0.65rem clamp(1rem, 4vw, 4rem);
+  padding: 0.25rem 0 1rem;
   color: var(--focus-muted);
   font-size: 0.85rem;
 }
@@ -120,7 +136,7 @@
 
 .focus-main {
   flex: 1 0 auto;
-  padding: clamp(0.5rem, 2vw, 1.25rem) clamp(1rem, 4vw, 4rem) 2rem;
+  padding: clamp(0.5rem, 2vw, 1.25rem) clamp(0.25rem, 2vw, 1.25rem) 2rem;
 }
 
 .focus-status-card,
@@ -137,24 +153,29 @@
   min-height: 29rem;
   flex-direction: column;
   padding: clamp(1.35rem, 3vw, 2.5rem);
-  border-top: 0.4rem solid var(--bs-primary);
+  border-left: 0.4rem solid var(--bs-primary);
+  background: var(--bs-primary-bg-subtle);
 }
 
 .focus-status-card[data-state='booked'] {
-  border-top-color: var(--bs-danger);
+  border-left-color: var(--bs-danger);
+  background: var(--bs-danger-bg-subtle);
 }
 
 .focus-status-card[data-state='starting-soon'] {
-  border-top-color: var(--bs-warning);
+  border-left-color: var(--bs-warning);
+  background: var(--bs-warning-bg-subtle);
 }
 
 .focus-status-card[data-state='available'],
 .focus-status-card[data-state='empty-day'] {
-  border-top-color: var(--bs-success);
+  border-left-color: var(--bs-success);
+  background: var(--bs-success-bg-subtle);
 }
 
 .focus-status-card[data-state='stale'] {
-  border-top-color: var(--bs-danger);
+  border-left-color: var(--bs-secondary);
+  background: var(--bs-secondary-bg-subtle);
 }
 
 .focus-status-topline {
@@ -198,11 +219,11 @@
 
 .focus-meeting-main {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-  margin: auto 0;
-  padding: 2rem 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  margin: 0;
+  padding: 0.15rem 0 1.25rem;
 }
 
 .focus-meeting-copy {
@@ -218,12 +239,22 @@
   text-transform: uppercase;
 }
 
-.focus-meeting-copy h2 {
+.focus-hero-word {
+  margin: 0.65rem 0 1rem;
+  color: var(--bs-emphasis-color);
+  font-size: clamp(2.6rem, 5.8vw, 4rem);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 1.02;
+  overflow-wrap: anywhere;
+}
+
+.focus-meeting-copy h3 {
   margin: 0;
   color: var(--bs-emphasis-color);
-  font-size: clamp(1.8rem, 4vw, 3.6rem);
-  font-weight: 700;
-  line-height: 1.08;
+  font-size: clamp(1.25rem, 2vw, 1.55rem);
+  font-weight: 550;
+  line-height: 1.3;
   overflow-wrap: anywhere;
 }
 
@@ -241,29 +272,30 @@
 
 .focus-group-brand {
   display: flex;
-  max-width: 12rem;
-  flex: 0 0 8rem;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.55rem;
-  text-align: center;
-}
-
-.focus-group-logo,
-.focus-agenda-brand img {
-  display: block;
   width: 100%;
-  height: 5rem;
-  object-fit: contain;
+  align-items: center;
+  gap: 0.8rem;
+  text-align: left;
 }
 
-.focus-group-initials,
-.focus-agenda-brand > span {
+.focus-group-logo {
+  display: block;
+  width: 4.2rem;
+  height: 3.5rem;
+  object-fit: contain;
+  flex: 0 0 auto;
+  border-radius: 0.5rem;
+  background: var(--bs-white);
+  padding: 0.2rem;
+}
+
+.focus-group-initials {
   display: grid;
-  width: 4.5rem;
-  height: 4.5rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  flex: 0 0 auto;
   place-items: center;
-  border-radius: 1.1rem;
+  border-radius: 0.75rem;
   background: var(--bs-primary-bg-subtle);
   color: var(--bs-primary-text-emphasis);
   font-size: 1.45rem;
@@ -272,28 +304,31 @@
 
 .focus-group-name {
   color: var(--bs-emphasis-color);
-  font-size: 0.95rem;
+  font-size: 1.15rem;
   font-weight: 700;
   overflow-wrap: anywhere;
 }
 
 .focus-countdown-row {
   display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
+  align-items: center;
+  gap: 1rem;
   margin-top: auto;
-  padding-top: 1rem;
-  border-top: 1px solid var(--focus-card-border);
+  padding-top: 1.1rem;
 }
 
 .focus-countdown-label {
+  display: block;
   color: var(--focus-muted);
+  font-size: 0.78rem;
 }
 
 .focus-countdown {
+  display: block;
   color: var(--bs-emphasis-color);
-  font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+  font-size: clamp(1.55rem, 2.5vw, 2rem);
   font-variant-numeric: tabular-nums;
+  line-height: 1.1;
 }
 
 .focus-empty-state {
@@ -319,10 +354,10 @@
   font-size: 2.2rem;
 }
 
-.focus-empty-state h2 {
+.focus-empty-state h3 {
   color: var(--bs-emphasis-color);
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
-  font-weight: 700;
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-weight: 550;
 }
 
 .focus-empty-state p {
@@ -331,40 +366,35 @@
 }
 
 .focus-checkin-action {
-  display: flex;
-  width: 100%;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.65rem;
-  margin-top: 1.25rem;
-  padding: 0.9rem 1rem;
+  margin-left: auto;
+  padding: 0.7rem 1rem;
   border: 0;
-  border-radius: 0.8rem;
-  background: var(--bs-primary);
-  color: var(--bs-white);
-  font-size: 1.05rem;
-  font-weight: 700;
+  border-radius: 0.65rem;
+  background: var(--bs-emphasis-color);
+  color: var(--bs-body-bg);
+  font-size: 0.9rem;
+  font-weight: 650;
+  white-space: nowrap;
 }
 
 .focus-checkin-action:hover,
 .focus-checkin-action:focus-visible {
-  background: var(--bs-primary-text-emphasis);
-  color: var(--bs-white);
-}
-
-.focus-checkin-time {
-  margin-left: 0.25rem;
-  opacity: 0.8;
-  font-size: 0.9rem;
+  background: var(--bs-secondary-color);
+  color: var(--bs-body-bg);
 }
 
 .focus-checkin-confirmation {
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  margin: 1.25rem 0 0;
+  margin: 0 0 0 auto;
   color: var(--bs-success-text-emphasis);
   font-weight: 650;
+  white-space: nowrap;
 }
 
 .focus-checkin-feedback {
@@ -416,7 +446,7 @@
 
 .focus-agenda-item {
   display: grid;
-  grid-template-columns: 5.25rem minmax(0, 1fr) 3.4rem;
+  grid-template-columns: 5.25rem minmax(0, 1fr);
   align-items: center;
   gap: 0.9rem;
   padding: 1rem 0;
@@ -461,22 +491,43 @@
   font-size: 0.82rem;
 }
 
-.focus-agenda-brand {
+.focus-agenda-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.55rem;
+  min-width: 0;
+}
+
+.focus-agenda-logo {
+  display: block;
+  width: 2.5rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  object-fit: contain;
+  border-radius: 0.3rem;
+  background: var(--bs-white);
+  padding: 0.1rem;
+}
+
+.focus-agenda-initials {
   display: grid;
-  width: 3.25rem;
-  height: 3.25rem;
+  width: 1.8rem;
+  height: 1.8rem;
+  flex: 0 0 auto;
   place-items: center;
+  border-radius: 0.45rem;
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
+  font-size: 0.72rem;
+  font-weight: 800;
 }
 
-.focus-agenda-brand img {
-  height: 3.25rem;
-}
-
-.focus-agenda-brand > span {
-  width: 2.65rem;
-  height: 2.65rem;
-  border-radius: 0.75rem;
-  font-size: 0.95rem;
+.focus-agenda-group-name {
+  color: var(--focus-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .focus-agenda-empty {
@@ -527,7 +578,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1rem clamp(1rem, 4vw, 4rem);
+  padding: 1rem clamp(0.25rem, 2vw, 1.25rem);
   border-top: 1px solid var(--bs-border-color);
   color: var(--focus-muted);
   font-size: 0.85rem;
@@ -582,13 +633,14 @@
 }
 
 @media (max-width: 767.98px) {
-  .focus-header {
+  .focus-room-row {
     align-items: flex-start;
     flex-direction: column;
-    gap: 1.2rem;
+    gap: 1rem;
+    padding-top: 1rem;
   }
 
-  .focus-brand-room {
+  .focus-room-details {
     width: 100%;
   }
 
@@ -611,30 +663,12 @@
     min-height: 25rem;
   }
 
-  .focus-meeting-main {
-    align-items: flex-start;
-    flex-direction: column-reverse;
-    gap: 1rem;
+  .focus-countdown-row {
+    flex-wrap: wrap;
   }
 
-  .focus-group-brand {
-    max-width: 100%;
-    flex-basis: auto;
-    flex-direction: row;
-    justify-content: flex-start;
-    text-align: left;
-  }
-
-  .focus-group-logo {
-    width: 4.25rem;
-    height: 3rem;
-  }
-
-  .focus-group-initials {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 0.75rem;
-    font-size: 1rem;
+  .focus-checkin-action {
+    padding: 0.65rem 0.8rem;
   }
 
   .focus-booking-row {
@@ -651,23 +685,22 @@
     font-size: 1.2rem;
   }
 
-  .focus-room-details {
-    padding-left: 0.75rem;
-  }
-
   .focus-room-metadata {
     font-size: 0.78rem;
   }
 
   .focus-agenda-item {
-    grid-template-columns: 4.25rem minmax(0, 1fr) 2.75rem;
+    grid-template-columns: 4.25rem minmax(0, 1fr);
     gap: 0.5rem;
   }
 
-  .focus-agenda-brand,
-  .focus-agenda-brand img {
-    width: 2.65rem;
-    height: 2.65rem;
+  .focus-agenda-logo {
+    width: 2.1rem;
+    height: 1.8rem;
+  }
+
+  .focus-agenda-group-name {
+    font-size: 0.73rem;
   }
 
   .focus-footer {

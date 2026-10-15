@@ -815,7 +815,9 @@ class en_us extends Language
         $strings['Seats'] = 'seats';
         $strings['LocalTime'] = 'Room local time';
         $strings['BookingDate'] = 'Booking date';
-        $strings['RoomBooked'] = 'Booked';
+        $strings['RoomBooked'] = 'Booked.';
+        $strings['RoomDisplay'] = 'Room display';
+        $strings['MeetingInProgress'] = 'Meeting in progress';
         $strings['StartingSoon'] = 'Starting soon';
         $strings['NoMeetingsToday'] = 'No meetings scheduled';
         $strings['RoomAvailable'] = 'Available';

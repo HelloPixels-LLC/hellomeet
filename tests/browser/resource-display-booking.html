@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Resource display booking regression fixture</title>
+    <link rel="stylesheet" href="../../Web/assets/vendor/bootstrap/5.3.3/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../../Web/css/resource-display.css" />
+    <style>
+      body {
+        padding: 1rem;
+      }
+
+      #test-results {
+        max-width: 50rem;
+        margin: 0 auto 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="test-results" class="alert alert-info" role="status">
+      Running the resource display booking regression checks…
+    </div>
+
+    <div id="page-resource-display-resource" class="resource-display-page">
+      <div id="booking-date-toolbar" class="focus-date-toolbar container-fluid d-none">
+        <label for="availabilityStartDate">Booking date</label>
+        <input id="availabilityStartDate" class="form-control" type="text" />
+      </div>
+      <div id="placeholder" aria-live="polite"></div>
+    </div>
+
+    <div class="modal" id="wait-modal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content"><div class="modal-body">Working</div></div>
+      </div>
+    </div>
+
+    <script src="../../Web/assets/vendor/jquery/3.3.1/jquery-3.3.1.min.js"></script>
+    <script src="../../Web/assets/vendor/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+      window._ = {
+        isEmpty: function (value) {
+          return value === '' || value == null;
+        },
+      };
+      window.BeforeSerialize = function () {};
+      window.userAutoComplete = function () {};
+      window.resourceDisplayRequests = [];
+      window.failNextPublicRead = false;
+      window.bookingEnabled = true;
+      window.clockOffset = 0;
+      var nativeNow = Date.now.bind(Date);
+      Date.now = function () {
+        return nativeNow() + window.clockOffset;
+      };
+      window.testClockTick = null;
+
+      function todayUtc() {
+        var parts = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'UTC',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }).formatToParts(new Date());
+        var values = {};
+        parts.forEach(function (part) {
+          values[part.type] = part.value;
+        });
+        return values.year + '-' + values.month + '-' + values.day;
+      }
+
+      function renderResource(showBooking, dateKind) {
+        var beginOptions =
+          dateKind === 'future'
+            ? '<option value="12:00">12:00</option><option value="12:30">12:30</option>'
+            : '<option value="09:00">09:00</option><option value="09:30">09:30</option>';
+        var beginDate = dateKind === 'future' ? '2035-05-06' : todayUtc();
+        var status =
+          '<div class="row g-4"><section class="col-12 col-lg-7"><div class="focus-status-card" data-state="booked">' +
+          '<div class="focus-status-topline"><span class="focus-status-dot"></span><span class="focus-status-label">Booked</span></div>' +
+          '<h2 class="focus-hero-word">Booked</h2><div class="focus-meeting-main">' +
+          '<div class="focus-group-brand"><span class="focus-group-initials">OP</span><span class="focus-group-name">Operations</span></div>' +
+          '<div class="focus-meeting-copy"><p class="focus-eyebrow">Current meeting</p><h3>Fixture meeting</h3></div></div></div></section>' +
+          '<aside class="col-12 col-lg-5"><div class="focus-agenda-card"><ol class="focus-agenda-list"><li class="focus-agenda-item">' +
+          '<div class="focus-agenda-time"><strong>12:00</strong></div><div class="focus-agenda-details"><h3>Agenda item</h3>' +
+          '<div class="focus-agenda-group"><span class="focus-agenda-initials">OP</span><span class="focus-agenda-group-name">Operations</span></div>' +
+          '</div></li></ol></div></aside></div>';
+        var booking = showBooking
+          ? '<div class="focus-booking-row"><button type="button" id="reservePopup" class="btn focus-book-button" data-bs-toggle="modal" data-bs-target="#reservation-box" data-public-action="true">Book</button></div>' +
+            '<div class="modal fade" id="reservation-box" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-fullscreen"><div class="modal-content">' +
+            '<div class="modal-header"><h2 class="modal-title">Book room</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>' +
+            '<div class="modal-body"><div id="booking-date-placeholder"></div><form id="formReserve" action="/reserve" method="post">' +
+            '<div id="validationErrors" class="d-none"><ul></ul></div><div class="focus-slot-table-wrap"><table class="focus-slot-table"><tbody><tr><td class="slot reservable" data-begin="09:00" data-end="09:30">09:00</td></tr></tbody></table></div>' +
+            '<select id="beginPeriod" name="BEGIN_PERIOD">' +
+            beginOptions +
+            '</select><select id="endPeriod" name="END_PERIOD"><option value="09:30">09:30</option><option value="10:00">10:00</option></select>' +
+            '<input type="hidden" name="BEGIN_DATE" value="' +
+            beginDate +
+            '" /><input type="email" id="emailAddress" required />' +
+            '<input type="text" id="requiredAttribute" required /><input type="checkbox" id="termsAndConditionsAcknowledgement" />' +
+            '<input type="submit" class="action-reserve" value="Reserve" /><button type="button" id="reserveCancel" data-bs-dismiss="modal">Cancel</button></form></div></div></div>'
+          : '';
+        var display =
+          '<div id="resource-display" class="resource-display focus-display" data-timezone="UTC" data-schedule-today="' +
+          todayUtc() +
+          '" data-now="' +
+          Math.floor(Date.now() / 1000) +
+          '">' +
+          '<header class="focus-brand-header"><div class="focus-wordmark">Hello<span>Meet</span></div></header>' +
+          '<div class="focus-room-row"><div class="focus-room-details"><p class="focus-room-location">Fixture location</p><h1>Fixture room today</h1></div></div>' +
+          '<main class="container-fluid focus-main">' +
+          status +
+          booking +
+          '</main>' +
+          '<footer class="focus-footer"><span id="connection-status"><span class="connection-message"></span></span><time id="last-updated"></time></footer></div>';
+        return display;
+      }
+
+      $.ajax = function (settings) {
+        var request = $.Deferred();
+        window.resourceDisplayRequests.push(settings);
+        window.setTimeout(function () {
+          if (settings.type === 'GET') {
+            if (settings.url.indexOf('&sd=') >= 0) {
+              request.resolve(renderResource(true, 'future'));
+            } else if (window.failNextPublicRead) {
+              window.failNextPublicRead = false;
+              request.reject();
+            } else {
+              request.resolve(renderResource(window.bookingEnabled, 'today'));
+            }
+          } else {
+            request.resolve({ success: true });
+          }
+        }, 0);
+        return request.promise();
+      };
+    </script>
+    <script src="../../Web/scripts/resourceDisplay.js"></script>
+    <script>
+      function assert(condition, message) {
+        if (!condition) {
+          throw new Error(message);
+        }
+      }
+
+      function waitFor(predicate) {
+        return new Promise(function (resolve, reject) {
+          var started = nativeNow();
+          function check() {
+            if (predicate()) {
+              resolve();
+            } else if (nativeNow() - started > 3000) {
+              reject(new Error('Timed out waiting for the fixture response.'));
+            } else {
+              window.setTimeout(check, 10);
+            }
+          }
+          check();
+        });
+      }
+
+      async function runChecks() {
+        var originalSetInterval = window.setInterval;
+        window.setInterval = function (callback, delay) {
+          if (delay === 1000) {
+            window.testClockTick = callback;
+            return 1;
+          }
+          return originalSetInterval(callback, delay);
+        };
+        var resourceDisplay = new ResourceDisplay();
+        resourceDisplay.initDisplay({
+          url: '/resource-display?rid=fixture&dr=display',
+          refreshInterval: 100000,
+          allowAutocomplete: false,
+          connectingLabel: 'Connecting',
+          onlineLabel: 'Connected',
+          offlineLabel: 'Connection lost',
+          retryingLabel: 'Retrying',
+          durationHoursLabel: 'hours',
+          durationMinutesLabel: 'minutes',
+          startsNowLabel: 'Starting now',
+          endsNowLabel: 'Ending now',
+          bookingFailedMessage: 'Booking failed',
+          checkinFailedMessage: 'Check-in failed',
+        });
+        window.setInterval = originalSetInterval;
+        await waitFor(function () {
+          return $('#reservation-box').length === 1;
+        });
+
+        var statusColumn = document.querySelector('.focus-main .col-lg-7').getBoundingClientRect();
+        var agendaColumn = document.querySelector('.focus-main .col-lg-5').getBoundingClientRect();
+        if (window.innerWidth >= 992) {
+          assert(
+            Math.abs(statusColumn.top - agendaColumn.top) < 2 && agendaColumn.left > statusColumn.right,
+            'At landscape tablet width, the status and agenda columns sit side by side.'
+          );
+        } else {
+          assert(
+            agendaColumn.top > statusColumn.bottom,
+            'At narrow portrait width, the agenda stacks below the status panel.'
+          );
+        }
+
+        assert(
+          $('#booking-date-toolbar').parent().attr('id') === 'booking-date-placeholder',
+          'The date picker belongs inside the booking modal.'
+        );
+        var modal = document.getElementById('reservation-box');
+        document.getElementById('reservePopup').click();
+        await new Promise(function (resolve) {
+          $(modal).one('shown.bs.modal', resolve);
+        });
+
+        $('#emailAddress').val('person@example.test');
+        $('#requiredAttribute').val('keep this value');
+        $('#termsAndConditionsAcknowledgement').prop('checked', true);
+        $('#availabilityStartDate').val('2035-05-06').trigger('change');
+        await waitFor(function () {
+          return window.resourceDisplayRequests.some(function (request) {
+            return request.url.indexOf('&sd=2035-05-06') >= 0;
+          });
+        });
+        await waitFor(function () {
+          return $('#beginPeriod option').first().val() === '12:00';
+        });
+        assert(
+          document.getElementById('reservation-box') === modal,
+          'Refreshing booking slots preserves the open modal instance.'
+        );
+        assert($('#emailAddress').val() === 'person@example.test', 'Refreshing slots preserves the entered email.');
+        assert(
+          $('#requiredAttribute').val() === 'keep this value',
+          'Refreshing slots preserves required-attribute values.'
+        );
+        assert(
+          $('#termsAndConditionsAcknowledgement').prop('checked'),
+          'Refreshing slots preserves the terms acknowledgement.'
+        );
+        assert($('h1').text() === 'Fixture room today', 'A future booking date does not change the public room view.');
+
+        window.clockOffset = 120000;
+        window.testClockTick();
+        await waitFor(function () {
+          return (
+            window.resourceDisplayRequests.filter(function (request) {
+              return request.url.indexOf('&sd=') < 0;
+            }).length >= 2
+          );
+        });
+        await waitFor(function () {
+          return !$('#resource-display').hasClass('is-stale');
+        });
+        assert(
+          !$('#requiredAttribute').prop('disabled'),
+          'An age-triggered background refresh does not disable the open booking form.'
+        );
+        assert(!$('.action-reserve').prop('disabled'), 'A successful freshness check keeps booking enabled.');
+        assert(document.getElementById('reservation-box') === modal, 'A freshness check preserves the modal instance.');
+
+        window.failNextPublicRead = true;
+        window.dispatchEvent(new Event('online'));
+        await waitFor(function () {
+          return $('#resource-display').hasClass('is-stale');
+        });
+        assert(!$('#emailAddress').prop('disabled'), 'A connectivity loss preserves editable form fields.');
+        assert(!$('#requiredAttribute').prop('disabled'), 'A connectivity loss preserves required attributes.');
+        assert(
+          $('#termsAndConditionsAcknowledgement').prop('checked'),
+          'A connectivity loss preserves the terms acknowledgement.'
+        );
+        assert($('.action-reserve').prop('disabled'), 'A connectivity loss suppresses public write actions.');
+
+        window.dispatchEvent(new Event('online'));
+        await waitFor(function () {
+          return !$('#resource-display').hasClass('is-stale') && !$('.action-reserve').prop('disabled');
+        });
+        assert($('#emailAddress').val() === 'person@example.test', 'Recovery preserves entered form values.');
+        assert(document.getElementById('reservation-box') === modal, 'Recovery does not rebuild the open modal.');
+
+        bootstrap.Modal.getOrCreateInstance(modal).hide();
+        await waitFor(function () {
+          return !$('#reservation-box').length;
+        });
+        assert($('#availabilityStartDate').val() === '', 'Closing the modal clears the selected future date.');
+        assert(
+          window.resourceDisplayRequests[window.resourceDisplayRequests.length - 1].url.indexOf('&sd=') < 0,
+          'The public view refresh returns to schedule-local today.'
+        );
+
+        window.bookingEnabled = false;
+        window.dispatchEvent(new Event('online'));
+        await waitFor(function () {
+          return $('#reservePopup').length === 0;
+        });
+        assert($('#booking-date-toolbar').hasClass('d-none'), 'The date picker stays hidden when booking is disabled.');
+      }
+
+      runChecks()
+        .then(function () {
+          $('#test-results')
+            .removeClass('alert-info')
+            .addClass('alert-success')
+            .text(
+              'Passed: date changes refresh slots without changing the public day or destroying entered form state; freshness recovery preserves the modal; real read failures disable writes while keeping the form editable; closing returns to today; booking-disabled output keeps the date picker hidden.'
+            );
+        })
+        .catch(function (error) {
+          $('#test-results')
+            .removeClass('alert-info')
+            .addClass('alert-danger')
+            .text('Failed: ' + error.message);
+          console.error(error);
+        });
+    </script>
+  </body>
+</html>

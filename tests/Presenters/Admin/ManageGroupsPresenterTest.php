@@ -13,10 +13,16 @@ class ManageGroupsPresenterTest extends TestBase
     private IGroupRepository&IGroupViewRepository&\PHPUnit\Framework\MockObject\MockObject $groupRepository;
     private IScheduleRepository&\PHPUnit\Framework\MockObject\MockObject $scheduleRepository;
     private ManageGroupsPresenter $presenter;
+    private string $logoDirectory;
 
     public function setUp(): void
     {
         parent::setup();
+
+        $this->logoDirectory = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'lb-group-presenter-' . bin2hex(random_bytes(8));
+        mkdir($this->logoDirectory, 0700, true);
+        $this->fakeConfig->SetKey(ConfigKeys::UPLOAD_IMAGE_DIRECTORY, $this->logoDirectory);
+        $this->fakeConfig->SetKey(ConfigKeys::UPLOAD_IMAGE_URL, '/uploads/images');
 
         $this->page = new FakeManageGroupsPage();
         $this->userRepo = new FakeUserRepository();
@@ -31,6 +37,17 @@ class ManageGroupsPresenterTest extends TestBase
             $this->scheduleRepository,
             $this->userRepo,
         );
+    }
+
+    public function tearDown(): void
+    {
+        foreach (glob($this->logoDirectory . DIRECTORY_SEPARATOR . '*') ?: [] as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
+        rmdir($this->logoDirectory);
+        parent::tearDown();
     }
 
     public function testChangePermissionsWithAdminScopeCheck()
@@ -103,6 +120,115 @@ class ManageGroupsPresenterTest extends TestBase
         $this->presenter->UploadGroupLogo();
 
         $this->assertFalse($this->page->_JsonResponse['success']);
+    }
+
+    public function testGroupLogoReplacementSavesNewFileBeforeRemovingOldFile(): void
+    {
+        $groupId = 7;
+        $oldFileName = 'group-logo-0123456789abcdef0123456789abcdef.png';
+        $oldPath = $this->logoDirectory . DIRECTORY_SEPARATOR . $oldFileName;
+        file_put_contents($oldPath, 'old logo');
+        $source = $this->createValidLogoUpload();
+        $group = new Group($groupId, 'Operations');
+        $group->ChangeLogoFileName($oldFileName);
+        $this->page->_GroupId = $groupId;
+        $this->page->_UploadedLogo = $this->uploadedLogo($source);
+
+        $this->groupRepository
+            ->expects($this->once())
+            ->method('LoadById')
+            ->with($groupId)
+            ->willReturn($group);
+        $this->groupRepository
+            ->expects($this->once())
+            ->method('Update')
+            ->with($group);
+
+        $this->presenter->UploadGroupLogo();
+
+        $newFileName = $this->page->_JsonResponse['fileName'];
+        $this->assertTrue($this->page->_JsonResponse['success']);
+        $this->assertMatchesRegularExpression('/\Agroup-logo-[a-f0-9]{32}\.png\z/', $newFileName);
+        $this->assertFileExists($this->logoDirectory . DIRECTORY_SEPARATOR . $newFileName);
+        $this->assertFileDoesNotExist($oldPath);
+        $this->assertSame($newFileName, $group->LogoFileName());
+    }
+
+    public function testFailedGroupLogoPersistenceDeletesReplacementAndKeepsOldFile(): void
+    {
+        $groupId = 7;
+        $oldFileName = 'group-logo-0123456789abcdef0123456789abcdef.png';
+        $oldPath = $this->logoDirectory . DIRECTORY_SEPARATOR . $oldFileName;
+        file_put_contents($oldPath, 'old logo');
+        $group = new Group($groupId, 'Operations');
+        $group->ChangeLogoFileName($oldFileName);
+        $this->page->_GroupId = $groupId;
+        $this->page->_UploadedLogo = $this->uploadedLogo($this->createValidLogoUpload());
+
+        $this->groupRepository
+            ->expects($this->once())
+            ->method('LoadById')
+            ->with($groupId)
+            ->willReturn($group);
+        $this->groupRepository
+            ->expects($this->once())
+            ->method('Update')
+            ->with($group)
+            ->willThrowException(new RuntimeException('database unavailable'));
+
+        $this->presenter->UploadGroupLogo();
+
+        $this->assertFalse($this->page->_JsonResponse['success']);
+        $this->assertFileExists($oldPath);
+        $replacementFiles = array_values(array_filter(
+            glob($this->logoDirectory . DIRECTORY_SEPARATOR . 'group-logo-*.png') ?: [],
+            static fn (string $path): bool => basename($path) !== $oldFileName
+        ));
+        $this->assertSame([], $replacementFiles);
+    }
+
+    public function testRemovingGroupLogoPersistsNullBeforeDeletingFile(): void
+    {
+        $groupId = 7;
+        $fileName = 'group-logo-0123456789abcdef0123456789abcdef.png';
+        $filePath = $this->logoDirectory . DIRECTORY_SEPARATOR . $fileName;
+        file_put_contents($filePath, 'existing logo');
+        $group = new Group($groupId, 'Operations');
+        $group->ChangeLogoFileName($fileName);
+        $this->page->_GroupId = $groupId;
+
+        $this->groupRepository
+            ->expects($this->once())
+            ->method('LoadById')
+            ->with($groupId)
+            ->willReturn($group);
+        $this->groupRepository
+            ->expects($this->once())
+            ->method('Update')
+            ->with($group);
+
+        $this->presenter->RemoveGroupLogo();
+
+        $this->assertSame(['success' => true], $this->page->_JsonResponse);
+        $this->assertNull($group->LogoFileName());
+        $this->assertFileDoesNotExist($filePath);
+    }
+
+    private function createValidLogoUpload(): string
+    {
+        $source = $this->logoDirectory . DIRECTORY_SEPARATOR . 'source.png';
+        file_put_contents($source, base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC',
+            true
+        ));
+        return $source;
+    }
+
+    private function uploadedLogo(string $source): FakeUploadedFile
+    {
+        $upload = new FakeUploadedFile();
+        $upload->TemporaryName = $source;
+        return $upload;
     }
 
     public function testChangePermissionsRejectsResourcesOutsideAdminScope()
@@ -278,6 +404,7 @@ class FakeManageGroupsPage extends FakeActionPageBase implements IManageGroupsPa
     /** @var string[]|null */
     public ?array $_AllowedResourceIds = null;
     public $_JsonResponse;
+    public ?FakeUploadedFile $_UploadedLogo = null;
 
     public function GetGroupId()
     {
@@ -336,7 +463,7 @@ class FakeManageGroupsPage extends FakeActionPageBase implements IManageGroupsPa
 
     public function GetUploadedLogo()
     {
-        return null;
+        return $this->_UploadedLogo;
     }
 
     public function GetRoleIds()

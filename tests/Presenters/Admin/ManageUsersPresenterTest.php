@@ -653,6 +653,119 @@ class ManageUsersPresenterTest extends TestBase
         $this->assertEquals($this->page->_BoundUpdateUser, $user);
         $this->assertEquals($this->page->_BoundUpdateAttributes, $attributes);
     }
+
+    public function testAdministratorCanSelectDisplayGroupThatUserBelongsTo(): void
+    {
+        $user = new FakeUser(50);
+        $user->WithGroups([new UserGroup(7, 'Operations')]);
+        $admin = new FakeUser(10);
+        $this->userRepo->_UserById[50] = $user;
+        $this->userRepo->_UserById[10] = $admin;
+        $this->fakeServer->SetUserSession(new FakeUserSession(true, 'America/Chicago', 10));
+        $this->page->_UserId = 50;
+        $this->page->_DisplayGroupId = 7;
+
+        $this->presenter->ChangeDisplayGroup();
+
+        $this->assertSame(['success' => true], $this->page->_JsonResponse);
+        $this->assertSame(7, $user->DisplayGroupId());
+        $this->assertSame($user, $this->userRepo->_UpdatedUser);
+    }
+
+    public function testDisplayGroupSaveRejectsGroupTheUserDoesNotBelongTo(): void
+    {
+        $user = new FakeUser(50);
+        $user->WithGroups([new UserGroup(8, 'Sales')]);
+        $this->userRepo->_UserById[50] = $user;
+        $this->userRepo->_UserById[10] = new FakeUser(10);
+        $this->fakeServer->SetUserSession(new FakeUserSession(true, 'America/Chicago', 10));
+        $this->page->_UserId = 50;
+        $this->page->_DisplayGroupId = 7;
+
+        $this->presenter->ChangeDisplayGroup();
+
+        $this->assertSame(['success' => false], $this->page->_JsonResponse);
+        $this->assertNull($this->userRepo->_UpdatedUser);
+        $this->assertNull($user->DisplayGroupId());
+    }
+
+    public function testGroupAdminCanSelectAGroupTheyAdministerForAMember(): void
+    {
+        $user = new FakeUser(50);
+        $user->WithGroups([new UserGroup(7, 'Operations')]);
+        $admin = new FakeUser(10);
+        $admin->WithOwnedGroups([new UserGroup(7, 'Operations', null, RoleLevel::GROUP_ADMIN)]);
+        $this->userRepo->_UserById[50] = $user;
+        $this->userRepo->_UserById[10] = $admin;
+        $this->fakeServer->SetUserSession(new FakeUserSession(false, 'America/Chicago', 10));
+        $this->page->_UserId = 50;
+        $this->page->_DisplayGroupId = 7;
+
+        $this->presenter->ChangeDisplayGroup();
+
+        $this->assertSame(['success' => true], $this->page->_JsonResponse);
+        $this->assertSame(7, $user->DisplayGroupId());
+        $this->assertSame($user, $this->userRepo->_UpdatedUser);
+    }
+
+    public function testGroupAdminCannotSelectAGroupOutsideTheirScope(): void
+    {
+        $user = new FakeUser(50);
+        $user->WithGroups([new UserGroup(7, 'Operations')]);
+        $admin = new FakeUser(10);
+        $admin->WithOwnedGroups([new UserGroup(8, 'Sales', null, RoleLevel::GROUP_ADMIN)]);
+        $this->userRepo->_UserById[50] = $user;
+        $this->userRepo->_UserById[10] = $admin;
+        $this->fakeServer->SetUserSession(new FakeUserSession(false, 'America/Chicago', 10));
+        $this->page->_UserId = 50;
+        $this->page->_DisplayGroupId = 7;
+
+        $this->presenter->ChangeDisplayGroup();
+
+        $this->assertSame(['success' => false], $this->page->_JsonResponse);
+        $this->assertNull($this->userRepo->_UpdatedUser);
+        $this->assertNull($user->DisplayGroupId());
+    }
+
+    public function testGroupAdminCanClearPreferenceForGroupTheyAdminister(): void
+    {
+        $user = new FakeUser(50);
+        $user->WithGroups([new UserGroup(7, 'Operations')]);
+        $user->ChangeDisplayGroup(7);
+        $admin = new FakeUser(10);
+        $admin->WithOwnedGroups([new UserGroup(7, 'Operations', null, RoleLevel::GROUP_ADMIN)]);
+        $this->userRepo->_UserById[50] = $user;
+        $this->userRepo->_UserById[10] = $admin;
+        $this->fakeServer->SetUserSession(new FakeUserSession(false, 'America/Chicago', 10));
+        $this->page->_UserId = 50;
+        $this->page->_DisplayGroupId = null;
+
+        $this->presenter->ChangeDisplayGroup();
+
+        $this->assertSame(['success' => true], $this->page->_JsonResponse);
+        $this->assertNull($user->DisplayGroupId());
+        $this->assertSame($user, $this->userRepo->_UpdatedUser);
+    }
+
+    public function testGroupAdminCannotClearPreferenceForGroupOutsideTheirScope(): void
+    {
+        $user = new FakeUser(50);
+        $user->WithGroups([new UserGroup(7, 'Operations')]);
+        $user->ChangeDisplayGroup(7);
+        $admin = new FakeUser(10);
+        $admin->WithOwnedGroups([new UserGroup(8, 'Sales', null, RoleLevel::GROUP_ADMIN)]);
+        $this->userRepo->_UserById[50] = $user;
+        $this->userRepo->_UserById[10] = $admin;
+        $this->fakeServer->SetUserSession(new FakeUserSession(false, 'America/Chicago', 10));
+        $this->page->_UserId = 50;
+        $this->page->_DisplayGroupId = null;
+
+        $this->presenter->ChangeDisplayGroup();
+
+        $this->assertSame(['success' => false], $this->page->_JsonResponse);
+        $this->assertSame(7, $user->DisplayGroupId());
+        $this->assertNull($this->userRepo->_UpdatedUser);
+    }
 }
 
 class FakeManageUsersPage extends FakeActionPageBase implements IManageUsersPage

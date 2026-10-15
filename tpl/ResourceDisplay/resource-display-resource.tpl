@@ -7,16 +7,21 @@
 
 <div id="resource-display" class="resource-display focus-display" data-timezone="{$Timezone|escape:'html'}"
     data-schedule-today="{$Today->Format('Y-m-d')}" data-now="{$Now->Timestamp()}">
-    <header class="focus-header container-fluid">
-        <div class="focus-brand-room">
-            <div class="focus-wordmark" aria-label="HelloMeet">Hello<span>Meet</span></div>
-            <div class="focus-room-details">
-                <h1>{$ResourceName|escape}</h1>
+    <header class="focus-brand-header container-fluid">
+        <div class="focus-wordmark" aria-label="HelloMeet">Hello<span>Meet</span></div>
+        <span class="focus-room-display-caption">{translate key=RoomDisplay}</span>
+    </header>
+
+    <div class="focus-room-row container-fluid">
+        <div class="focus-room-details">
+            {if $RoomLocation}<p class="focus-room-location"><i class="bi bi-geo-alt" aria-hidden="true"></i> {$RoomLocation|escape}</p>{/if}
+            <h1>{$ResourceName|escape}</h1>
+            {if $RoomCapacity || $RoomDescription}
                 <div class="focus-room-metadata">
-                    {if $RoomLocation}<span><i class="bi bi-geo-alt" aria-hidden="true"></i> {$RoomLocation|escape}</span>{/if}
                     {if $RoomCapacity}<span><i class="bi bi-people" aria-hidden="true"></i> {$RoomCapacity} {translate key=Seats}</span>{/if}
+                    {if $RoomDescription}<span>{$RoomDescription|escape}</span>{/if}
                 </div>
-            </div>
+            {/if}
         </div>
         <div class="focus-clock-block">
             <time class="focus-clock" id="room-clock" aria-label="{translate key=LocalTime}">--:--</time>
@@ -25,39 +30,26 @@
                 <span id="room-timezone">{$Timezone|escape}</span>
             </div>
         </div>
-    </header>
-
-    <div id="booking-date-placeholder"></div>
+    </div>
 
     <main class="container-fluid focus-main">
         <div class="row g-4 align-items-stretch">
-            <section class="col-12 col-xl-7" aria-labelledby="room-status-heading">
+            <section class="col-12 col-lg-7" aria-labelledby="room-status-heading">
                 <div class="focus-status-card shadow-sm" data-state="{if $CurrentReservation != null}booked{elseif $StartingSoon}starting-soon{elseif $NoMeetingsToday}empty-day{else}available{/if}">
                     <div class="focus-status-topline">
                         <span class="focus-status-dot" aria-hidden="true"></span>
                         <span id="room-status-heading" class="focus-status-label">
-                            {if $CurrentReservation != null}{translate key=RoomBooked}
-                            {elseif $StartingSoon}{translate key=StartingSoon}
-                            {elseif $NoMeetingsToday}{translate key=NoMeetingsToday}
-                            {else}{translate key=RoomAvailable}{/if}
+                            {if $CurrentReservation != null}{translate key=MeetingInProgress}
+                            {elseif $StartingSoon}{translate key=NextMeeting}
+                            {elseif $NoMeetingsToday}{translate key=NoMeetingsScheduled}
+                            {else}{translate key=RoomReadyForBooking}{/if}
                         </span>
                         <span class="focus-status-date">{formatdate date=$ReservationDate key=schedule_daily timezone=$Timezone}</span>
                     </div>
 
                     {if $activeReservation != null}
+                        <h2 class="focus-hero-word">{if $CurrentReservation != null}{translate key=RoomBooked}{elseif $StartingSoon}{translate key=StartingSoon}{else}{translate key=RoomAvailable}{/if}</h2>
                         <div class="focus-meeting-main">
-                            <div class="focus-meeting-copy">
-                                <p class="focus-eyebrow">{if $CurrentReservation != null}{translate key=CurrentMeeting}{else}{translate key=NextMeeting}{/if}</p>
-                                <h2>{$activeReservation.title|escape}</h2>
-                                <p class="focus-meeting-time">
-                                    {format_date date=$activeReservation.startDate key=res_popup_time timezone=$Timezone}
-                                    <span aria-hidden="true">–</span>
-                                    {format_date date=$activeReservation.endDate key=res_popup_time timezone=$Timezone}
-                                </p>
-                                {if $activeReservation.ownerName}
-                                    <p class="focus-meeting-owner">{translate key=HostedBy} {$activeReservation.ownerName|escape}</p>
-                                {/if}
-                            </div>
                             {if $activeReservation.group != null}
                                 <div class="focus-group-brand" aria-label="{translate key=HostedBy} {$activeReservation.group.name|escape}">
                                     {if $activeReservation.group.logoFileName}
@@ -69,41 +61,54 @@
                                     <span class="focus-group-name">{$activeReservation.group.name|escape}</span>
                                 </div>
                             {/if}
+                            <div class="focus-meeting-copy">
+                                <p class="focus-eyebrow">{if $CurrentReservation != null}{translate key=CurrentMeeting}{else}{translate key=NextMeeting}{/if}</p>
+                                <h3>{$activeReservation.title|escape}</h3>
+                                <p class="focus-meeting-time">
+                                    {format_date date=$activeReservation.startDate key=res_popup_time timezone=$Timezone}
+                                    <span aria-hidden="true">–</span>
+                                    {format_date date=$activeReservation.endDate key=res_popup_time timezone=$Timezone}
+                                </p>
+                                {if $activeReservation.ownerName}
+                                    <p class="focus-meeting-owner">{translate key=HostedBy} {$activeReservation.ownerName|escape}</p>
+                                {/if}
+                            </div>
                         </div>
                         <div class="focus-countdown-row">
-                            <span class="focus-countdown-label">{if $CurrentReservation != null}{translate key=MeetingEndsIn}{else}{translate key=MeetingStartsIn}{/if}</span>
-                            <strong class="focus-countdown" data-countdown-target="{if $CurrentReservation != null}{$activeReservation.endTimestamp}{else}{$activeReservation.startTimestamp}{/if}">--:--</strong>
+                            <div class="focus-countdown-copy">
+                                <strong class="focus-countdown" data-countdown-target="{if $CurrentReservation != null}{$activeReservation.endTimestamp}{else}{$activeReservation.startTimestamp}{/if}">--:--</strong>
+                                <span class="focus-countdown-label">{if $CurrentReservation != null}{translate key=MeetingEndsIn}{else}{translate key=MeetingStartsIn}{/if}</span>
+                            </div>
+                            {if $RequiresCheckin && $CheckinReservation != null}
+                                <form role="form" method="post" id="formCheckin"
+                                    action="{$smarty.server.SCRIPT_NAME}?action=checkin&rid={$PublicResourceId|escape:'url'}">
+                                    <input type="hidden" {formname key=REFERENCE_NUMBER} value="{$CheckinReferenceNumber|escape:'html'}" />
+                                    <button type="submit" id="checkin" class="btn focus-checkin-action" data-public-action="true">
+                                        <i class="bi bi-check-circle" aria-hidden="true"></i>
+                                        {translate key=CheckIn}
+                                    </button>
+                                </form>
+                            {elseif $CheckinEnabled && $CheckinConfirmationReservation != null}
+                                <p class="focus-checkin-confirmation" role="status">
+                                    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                                    {translate key=MeetingCheckedIn}
+                                </p>
+                            {/if}
                         </div>
                     {else}
+                        <h2 class="focus-hero-word">{if $NoMeetingsToday}{translate key=NoMeetingsToday}{else}{translate key=RoomAvailable}{/if}</h2>
                         <div class="focus-empty-state">
                             <div class="focus-empty-icon"><i class="bi bi-door-open" aria-hidden="true"></i></div>
-                            <h2>{if $NoMeetingsToday}{translate key=NoMeetingsToday}{else}{translate key=RoomAvailableNow}{/if}</h2>
+                            <h3>{if $NoMeetingsToday}{translate key=NoMeetingsToday}{else}{translate key=RoomAvailableNow}{/if}</h3>
                             <p>{if $NoMeetingsToday}{translate key=NoMeetingsScheduled}{else}{translate key=RoomReadyForBooking}{/if}</p>
                         </div>
                     {/if}
 
-                    {if $RequiresCheckin && $CheckinReservation != null}
-                        <form role="form" method="post" id="formCheckin"
-                            action="{$smarty.server.SCRIPT_NAME}?action=checkin&rid={$PublicResourceId|escape:'url'}">
-                            <input type="hidden" {formname key=REFERENCE_NUMBER} value="{$CheckinReferenceNumber|escape:'html'}" />
-                            <button type="submit" id="checkin" class="btn focus-checkin-action" data-public-action="true">
-                                <i class="bi bi-check-circle" aria-hidden="true"></i>
-                                {translate key=CheckIn}
-                                <span class="focus-checkin-time">{format_date date=$CheckinReservation.startDate key=res_popup_time timezone=$Timezone}</span>
-                            </button>
-                        </form>
-                        <p id="checkin-feedback" class="focus-checkin-feedback d-none" role="alert"></p>
-                    {elseif $CheckinEnabled && $CheckinConfirmationReservation != null}
-                        <p class="focus-checkin-confirmation" role="status">
-                            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                            {translate key=MeetingCheckedIn}
-                            <span>{$CheckinConfirmationReservation.title|escape} · {format_date date=$CheckinConfirmationReservation.startDate key=res_popup_time timezone=$Timezone}</span>
-                        </p>
-                    {/if}
+                    <p id="checkin-feedback" class="focus-checkin-feedback d-none" role="alert"></p>
                 </div>
             </section>
 
-            <aside class="col-12 col-xl-5" aria-labelledby="agenda-heading">
+            <aside class="col-12 col-lg-5" aria-labelledby="agenda-heading">
                 <div class="focus-agenda-card shadow-sm">
                     <div class="focus-agenda-heading">
                         <div>
@@ -126,12 +131,13 @@
                                         {if $reservation.ownerName}<span class="focus-agenda-owner">{$reservation.ownerName|escape}</span>{/if}
                                     </div>
                                     {if $reservation.group != null}
-                                        <div class="focus-agenda-brand" title="{$reservation.group.name|escape}">
+                                        <div class="focus-agenda-group">
                                             {if $reservation.group.logoFileName}
-                                                <img src="{$GroupLogoBaseUrl|escape:'html'}{$reservation.group.logoFileName|escape:'url'}" alt="" />
+                                                <img src="{$GroupLogoBaseUrl|escape:'html'}{$reservation.group.logoFileName|escape:'url'}" alt="" class="focus-agenda-logo" />
                                             {else}
-                                                <span aria-hidden="true">{$reservation.group.initials|escape}</span>
+                                                <span class="focus-agenda-initials" aria-hidden="true">{$reservation.group.initials|escape}</span>
                                             {/if}
+                                            <span class="focus-agenda-group-name">{$reservation.group.name|escape}</span>
                                         </div>
                                     {/if}
                                 </li>
@@ -162,6 +168,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{translate key=Close}"></button>
                         </div>
                         <div class="modal-body">
+                            <div id="booking-date-placeholder"></div>
                             <form role="form" method="post" id="formReserve" action="{$smarty.server.SCRIPT_NAME}?action=reserve&rid={$PublicResourceId|escape:'url'}">
                                 <div id="validationErrors" class="validationSummary alert alert-danger d-none"><ul></ul></div>
                                 <div class="focus-slot-table-wrap">

@@ -48,15 +48,20 @@ function ResourceDisplay(opts) {
   };
 
   ResourceDisplay.prototype.initDisplay = function (options) {
-    var manualDateOverride = false;
     var refreshInProgress = false;
-    var refreshRequested = false;
+    var availabilityRefreshInProgress = false;
+    var availabilityRefreshRequested = false;
+    var availabilityRetryTimer = null;
+    var availabilityRetryDelay = 5000;
+    var bookingSlotsTrusted = false;
     var nextRefreshTimer = null;
     var retryDelay = 5000;
-    var midnightRefreshPending = false;
     var refreshInterval = options.refreshInterval || 60000;
     var lastSuccessfulRefreshAt = null;
     var staleAfter = refreshInterval + 15000;
+    var retryAt = 0;
+    var midnightRefreshPending = false;
+    var publicDataTrusted = false;
 
     setConnectionStatus('connecting', options.connectingLabel);
     refreshResource();
@@ -67,12 +72,18 @@ function ResourceDisplay(opts) {
       pauseRefresh();
     });
 
-    elements.placeholder.on('hidden.bs.modal', '#reservation-box', function () {
-      resumeRefresh();
-      refreshResource();
+    elements.placeholder.on('shown.bs.modal', '#reservation-box', function () {
+      scheduleRefresh(refreshInterval);
     });
 
-    elements.placeholder.on('click', '#reserveCancel', function () {
+    elements.placeholder.on('hidden.bs.modal', '#reservation-box', function () {
+      elements.startDate.val('');
+      bookingSlotsTrusted = false;
+      availabilityRefreshRequested = false;
+      if (availabilityRetryTimer) {
+        window.clearTimeout(availabilityRetryTimer);
+        availabilityRetryTimer = null;
+      }
       resumeRefresh();
       refreshResource();
     });
@@ -82,6 +93,11 @@ function ResourceDisplay(opts) {
       event.stopPropagation();
 
       var validationErrors = $('#validationErrors');
+      if (!isBookingTrusted()) {
+        showBookingError(validationErrors, options.offlineLabel);
+        refreshResource();
+        return false;
+      }
       var beforeReserve = function () {
         validationErrors.addClass('d-none');
         showWait();
@@ -90,8 +106,6 @@ function ResourceDisplay(opts) {
         if (data.success) {
           validationErrors.find('ul').empty().addClass('d-none');
           $('#reservation-box').modal('hide');
-          resumeRefresh();
-          refreshResource();
         } else {
           var errors = data.errors || data.Messages || [];
           validationErrors
@@ -120,11 +134,7 @@ function ResourceDisplay(opts) {
       })
         .done(afterReserve)
         .fail(function () {
-          validationErrors
-            .find('ul')
-            .empty()
-            .append($('<li/>', { text: options.bookingFailedMessage }));
-          validationErrors.removeClass('d-none');
+          showBookingError(validationErrors, options.bookingFailedMessage);
           markDisplayStale();
           setConnectionStatus('offline', options.offlineLabel);
         })
@@ -146,9 +156,19 @@ function ResourceDisplay(opts) {
       });
 
     elements.startDate.on('change', function () {
-      manualDateOverride = !_.isEmpty(elements.startDate.val());
-      refreshResource();
+      refreshAvailabilitySlots();
     });
+
+    $(window)
+      .off('offline.resourceDisplay online.resourceDisplay')
+      .on('offline.resourceDisplay', function () {
+        markDisplayStale();
+        setConnectionStatus('offline', options.offlineLabel);
+      })
+      .on('online.resourceDisplay', function () {
+        setConnectionStatus('connecting', options.retryingLabel || options.connectingLabel);
+        refreshResource();
+      });
 
     function pauseRefresh() {
       refreshEnabled = false;
@@ -156,27 +176,130 @@ function ResourceDisplay(opts) {
         window.clearTimeout(nextRefreshTimer);
         nextRefreshTimer = null;
       }
+      scheduleRefresh(refreshInterval);
     }
 
     function resumeRefresh() {
       refreshEnabled = true;
+      if (nextRefreshTimer) {
+        window.clearTimeout(nextRefreshTimer);
+        nextRefreshTimer = null;
+      }
     }
 
     function refreshResource() {
-      if (!refreshEnabled) {
-        return;
-      }
       if (refreshInProgress) {
-        refreshRequested = true;
         return;
-      }
-
-      var requestUrl = options.url;
-      if (manualDateOverride && !_.isEmpty(elements.startDate.val())) {
-        requestUrl += '&sd=' + encodeURIComponent(elements.startDate.val());
       }
 
       refreshInProgress = true;
+      $.ajax({
+        type: 'GET',
+        url: options.url,
+        cache: false,
+        timeout: 20000,
+      })
+        .done(function (html) {
+          var displayUpdated = true;
+          if (refreshEnabled) {
+            if ($('<div/>').html(html).find('#resource-display').length) {
+              elements.placeholder.html(html);
+              moveBookingDateToolbar();
+              bindCurrentForms();
+              bookingSlotsTrusted = true;
+            } else {
+              elements.bookingDateToolbar.addClass('d-none').detach();
+              elements.placeholder.html(html);
+              displayUpdated = false;
+            }
+          } else {
+            displayUpdated = updatePublicDisplay(html);
+          }
+          if (!displayUpdated) {
+            refreshInProgress = false;
+            lastSuccessfulRefreshAt = Date.now();
+            publicDataTrusted = false;
+            scheduleRefresh(refreshInterval);
+            return;
+          }
+          refreshInProgress = false;
+          retryDelay = 5000;
+          retryAt = 0;
+          midnightRefreshPending = false;
+          lastSuccessfulRefreshAt = Date.now();
+          publicDataTrusted = true;
+          clearDisplayStale();
+          setConnectionStatus('online', options.onlineLabel);
+          updateLastUpdated();
+          updateClock();
+          if (!refreshEnabled && $('#formReserve').length && !bookingSlotsTrusted) {
+            refreshAvailabilitySlots();
+          }
+          scheduleRefresh(refreshInterval);
+        })
+        .fail(function () {
+          refreshInProgress = false;
+          retryAt = Date.now() + retryDelay;
+          markDisplayStale();
+          setConnectionStatus('offline', options.offlineLabel);
+          scheduleRefresh(retryDelay);
+          retryDelay = Math.min(retryDelay * 2, 60000);
+        });
+    }
+
+    function moveBookingDateToolbar() {
+      var bookingDatePlaceholder = $('#booking-date-placeholder');
+      if (!bookingDatePlaceholder.length || !elements.bookingDateToolbar.length) {
+        var dateToolbar = elements.bookingDateToolbar.addClass('d-none').detach();
+        $('#page-resource-display-resource').prepend(dateToolbar);
+        return;
+      }
+
+      bookingDatePlaceholder.append(elements.bookingDateToolbar.removeClass('d-none'));
+    }
+
+    function updatePublicDisplay(html) {
+      var freshDisplay = $('<div/>').html(html).find('#resource-display');
+      var currentDisplay = $('#resource-display');
+      if (!freshDisplay.length || !currentDisplay.length) {
+        elements.placeholder.html(html);
+        moveBookingDateToolbar();
+        return false;
+      }
+
+      currentDisplay.find('.focus-brand-header').replaceWith(freshDisplay.find('.focus-brand-header'));
+      currentDisplay.find('.focus-room-row').replaceWith(freshDisplay.find('.focus-room-row'));
+      currentDisplay.find('.focus-main > .row').replaceWith(freshDisplay.find('.focus-main > .row'));
+      currentDisplay.find('.focus-footer').replaceWith(freshDisplay.find('.focus-footer'));
+      currentDisplay.attr('data-timezone', freshDisplay.attr('data-timezone'));
+      currentDisplay.attr('data-schedule-today', freshDisplay.attr('data-schedule-today'));
+      currentDisplay.attr('data-now', freshDisplay.attr('data-now'));
+      bindCurrentForms();
+      return true;
+    }
+
+    function refreshAvailabilitySlots() {
+      if (!$('#reservation-box').length || !$('#formReserve').length) {
+        return;
+      }
+      if (availabilityRefreshInProgress) {
+        availabilityRefreshRequested = true;
+        return;
+      }
+      if (availabilityRetryTimer) {
+        window.clearTimeout(availabilityRetryTimer);
+        availabilityRetryTimer = null;
+      }
+
+      var requestUrl = options.url;
+      var selectedDate = elements.startDate.val();
+      if (!_.isEmpty(selectedDate)) {
+        requestUrl += '&sd=' + encodeURIComponent(selectedDate);
+      }
+
+      availabilityRefreshInProgress = true;
+      bookingSlotsTrusted = false;
+      $('#formReserve :submit').prop('disabled', true);
       $.ajax({
         type: 'GET',
         url: requestUrl,
@@ -184,41 +307,75 @@ function ResourceDisplay(opts) {
         timeout: 20000,
       })
         .done(function (html) {
-          if (!refreshEnabled) {
-            refreshInProgress = false;
+          var freshForm = $('<div/>').html(html).find('#formReserve');
+          var currentForm = $('#formReserve');
+          if (!freshForm.length || !currentForm.length) {
+            markDisplayStale();
+            setConnectionStatus('offline', options.offlineLabel);
             return;
           }
-          var bookingDateToolbar = elements.bookingDateToolbar.detach().removeClass('d-none');
-          elements.placeholder.html(html);
-          var bookingDatePlaceholder = $('#booking-date-placeholder');
-          if (bookingDatePlaceholder.length) {
-            bookingDatePlaceholder.append(bookingDateToolbar);
-          } else {
-            elements.placeholder.prepend(bookingDateToolbar);
+          if (String(elements.startDate.val() || '') !== String(selectedDate || '')) {
+            availabilityRefreshRequested = true;
+            return;
           }
-          refreshInProgress = false;
-          retryDelay = 5000;
-          lastSuccessfulRefreshAt = Date.now();
-          midnightRefreshPending = false;
-          setConnectionStatus('online', options.onlineLabel);
-          updateLastUpdated();
+
+          currentForm.find('.focus-slot-table-wrap').replaceWith(freshForm.find('.focus-slot-table-wrap'));
+          replaceSelectOptions(currentForm.find('#beginPeriod'), freshForm.find('#beginPeriod'));
+          replaceSelectOptions(currentForm.find('#endPeriod'), freshForm.find('#endPeriod'));
+          var refreshedDate = freshForm.find('input[name*="BEGIN_DATE"]').val();
+          if (refreshedDate) {
+            currentForm.find('input[name*="BEGIN_DATE"]').val(refreshedDate);
+          }
           bindCurrentForms();
-          updateClock();
-          if (refreshRequested) {
-            refreshRequested = false;
+          bookingSlotsTrusted = true;
+          availabilityRetryDelay = 5000;
+          clearDisplayStale();
+          if (!isPublicDataTrusted()) {
             refreshResource();
-          } else {
-            scheduleRefresh(refreshInterval);
           }
         })
         .fail(function () {
-          refreshInProgress = false;
           markDisplayStale();
           setConnectionStatus('offline', options.offlineLabel);
-          refreshRequested = false;
-          scheduleRefresh(retryDelay);
-          retryDelay = Math.min(retryDelay * 2, 60000);
+        })
+        .always(function () {
+          availabilityRefreshInProgress = false;
+          if (availabilityRefreshRequested) {
+            availabilityRefreshRequested = false;
+            refreshAvailabilitySlots();
+          } else if (!bookingSlotsTrusted && $('#reservation-box').length) {
+            availabilityRetryTimer = window.setTimeout(function () {
+              availabilityRetryTimer = null;
+              refreshAvailabilitySlots();
+            }, availabilityRetryDelay);
+            availabilityRetryDelay = Math.min(availabilityRetryDelay * 2, 60000);
+          }
         });
+    }
+
+    function replaceSelectOptions(currentSelect, refreshedSelect) {
+      if (!currentSelect.length || !refreshedSelect.length) {
+        return;
+      }
+
+      var previousValue = currentSelect.val();
+      currentSelect.html(refreshedSelect.html());
+      if (
+        previousValue != null &&
+        currentSelect.find('option').filter(function () {
+          return String(this.value) === String(previousValue);
+        }).length
+      ) {
+        currentSelect.val(previousValue);
+      }
+    }
+
+    function showBookingError(validationErrors, message) {
+      validationErrors
+        .find('ul')
+        .empty()
+        .append($('<li/>', { text: message || '' }));
+      validationErrors.removeClass('d-none');
     }
 
     function bindCurrentForms() {
@@ -228,6 +385,11 @@ function ResourceDisplay(opts) {
         checkinForm.on('submit.resourceDisplay', function (event) {
           event.preventDefault();
           event.stopImmediatePropagation();
+          if (!isPublicDataTrusted()) {
+            $('#checkin-feedback').text(options.offlineLabel).removeClass('d-none');
+            refreshResource();
+            return false;
+          }
           BeforeSerialize(checkinForm);
           showWait();
           $.ajax({
@@ -280,6 +442,10 @@ function ResourceDisplay(opts) {
       }
       nextRefreshTimer = window.setTimeout(function () {
         nextRefreshTimer = null;
+        if (Date.now() < retryAt && !refreshEnabled) {
+          scheduleRefresh(retryAt - Date.now());
+          return;
+        }
         refreshResource();
       }, delay);
     }
@@ -296,10 +462,11 @@ function ResourceDisplay(opts) {
     function markDisplayStale() {
       var display = $('#resource-display');
       if (display.length) {
+        publicDataTrusted = false;
         display.addClass('is-stale');
         display.find('.focus-status-card').attr('data-state', 'stale');
         display.find('.focus-status-label').text(options.offlineLabel || 'Connection lost');
-        display.find('[data-public-action], #formCheckin button, #formReserve :input').prop('disabled', true);
+        display.find('[data-public-action], #formCheckin :submit, #formReserve :submit').prop('disabled', true);
       } else {
         elements.placeholder.find('.focus-loading').text(options.offlineLabel || 'Connection lost');
       }
@@ -327,6 +494,9 @@ function ResourceDisplay(opts) {
       if (lastSuccessfulRefreshAt !== null && Date.now() - lastSuccessfulRefreshAt > staleAfter) {
         markDisplayStale();
         setConnectionStatus('offline', options.offlineLabel);
+        if (Date.now() >= retryAt) {
+          refreshResource();
+        }
       }
       try {
         clock.text(formatTime(new Date(), timezone, true));
@@ -349,12 +519,32 @@ function ResourceDisplay(opts) {
 
       var scheduleToday = String(root.data('schedule-today') || '');
       var localToday = dateInTimezone(new Date(), timezone);
-      if (scheduleToday && localToday !== scheduleToday && !midnightRefreshPending) {
+      if (scheduleToday && localToday !== scheduleToday && !midnightRefreshPending && Date.now() >= retryAt) {
         midnightRefreshPending = true;
-        manualDateOverride = false;
-        elements.startDate.val('');
         refreshResource();
       }
+    }
+
+    function isPublicDataTrusted() {
+      return (
+        publicDataTrusted &&
+        Date.now() - lastSuccessfulRefreshAt <= staleAfter &&
+        !(window.navigator && window.navigator.onLine === false)
+      );
+    }
+
+    function isBookingTrusted() {
+      return isPublicDataTrusted() && bookingSlotsTrusted;
+    }
+
+    function clearDisplayStale() {
+      var display = $('#resource-display');
+      if (!isPublicDataTrusted()) {
+        return;
+      }
+      display.removeClass('is-stale');
+      display.find('[data-public-action], #formCheckin :submit').prop('disabled', false);
+      display.find('#formReserve :submit').prop('disabled', !bookingSlotsTrusted);
     }
 
     function formatTime(date, timezone, includeSeconds) {

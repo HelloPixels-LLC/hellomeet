@@ -625,8 +625,8 @@
                         rolesUrl: '{$smarty.server.SCRIPT_NAME}',
                         submitUrl: '{$smarty.server.SCRIPT_NAME}',
                         saveRedirect: '{$smarty.server.SCRIPT_NAME}',
-                        logoSaveFailedMessage: '{translate key=GroupLogoSaveFailed|escape:"javascript"}',
-                        logoRemoveFailedMessage: '{translate key=GroupLogoRemoveFailed|escape:"javascript"}',
+                        logoSaveFailedMessage: '{{translate key=GroupLogoSaveFailed}|escape:'javascript'}',
+                        logoRemoveFailedMessage: '{{translate key=GroupLogoRemoveFailed}|escape:'javascript'}',
                         selectGroupUrl: '{$smarty.server.SCRIPT_NAME}?gid=',
                         actions: actions,
                         dataRequests: dataRequests
