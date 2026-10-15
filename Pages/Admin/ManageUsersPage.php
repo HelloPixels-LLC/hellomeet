@@ -109,6 +109,11 @@ interface IManageUsersPage extends IPageable, IActionPage
     public function GetUserGroup();
 
     /**
+     * @return int|null
+     */
+    public function GetDisplayGroupId();
+
+    /**
      * @param GroupItemView[] $groups
      */
     public function BindGroups($groups);
@@ -401,6 +406,12 @@ class ManageUsersPage extends ActionPage implements IManageUsersPage
     public function GetUserGroup()
     {
         return $this->GetForm(FormKeys::GROUP_ID);
+    }
+
+    public function GetDisplayGroupId()
+    {
+        $groupId = $this->GetForm(FormKeys::USER_DISPLAY_GROUP_ID);
+        return empty($groupId) ? null : (int)$groupId;
     }
 
     public function BindGroups($groups)

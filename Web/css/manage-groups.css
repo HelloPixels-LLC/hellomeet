@@ -1,0 +1,15 @@
+.group-logo-cell {
+  min-width: 14rem;
+}
+
+.group-logo-thumbnail {
+  display: block;
+  width: 6rem;
+  height: 3.25rem;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.group-logo-form .group-logo-file {
+  max-width: 17rem;
+}

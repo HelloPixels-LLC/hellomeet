@@ -213,4 +213,30 @@ class UserTest extends TestBase
         $this->assertFalse($user->IsGroupAdminFor([4, 100]));
         $this->assertFalse($user->IsGroupAdminFor([5, 100]));
     }
+
+    public function testPreferredDisplayGroupMustBeAMembership(): void
+    {
+        $user = new User();
+        $user->WithGroups([new UserGroup(4, 'Finance'), new UserGroup(9, 'Research')]);
+
+        $this->assertFalse($user->ChangeDisplayGroup(12));
+        $this->assertNull($user->DisplayGroupId());
+        $this->assertFalse($user->HasDisplayGroupChanged());
+        $this->assertTrue($user->ChangeDisplayGroup(9));
+        $this->assertSame(9, $user->DisplayGroupId());
+        $this->assertTrue($user->HasDisplayGroupChanged());
+    }
+
+    public function testRemovingPreferredGroupMembershipClearsPreference(): void
+    {
+        $user = new User();
+        $group = new UserGroup(4, 'Finance');
+        $user->WithGroups([$group]);
+        $this->assertTrue($user->ChangeDisplayGroup(4));
+
+        $user->ChangeGroups([]);
+
+        $this->assertNull($user->DisplayGroupId());
+        $this->assertTrue($user->HasDisplayGroupChanged());
+    }
 }

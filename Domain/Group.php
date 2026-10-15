@@ -6,6 +6,7 @@ class Group
     private $name;
     private $adminGroupId;
     private $isDefault = 0;
+    private $logoFileName;
 
     private $addedUsers = [];
     private $removedUsers = [];
@@ -78,6 +79,16 @@ class Group
     public function IsDefault()
     {
         return intval($this->isDefault);
+    }
+
+    public function LogoFileName()
+    {
+        return $this->logoFileName;
+    }
+
+    public function ChangeLogoFileName($fileName)
+    {
+        $this->logoFileName = empty($fileName) ? null : $fileName;
     }
 
     /**

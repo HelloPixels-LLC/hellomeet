@@ -488,6 +488,10 @@ class UserRepository implements IUserRepository, IAccountActivationRepository
         );
         $db->Execute($updateUserCommand);
 
+        if ($user->HasDisplayGroupChanged()) {
+            $db->Execute(new UpdateUserDisplayGroupCommand($userId, $user->DisplayGroupId()));
+        }
+
         $removedPermissions = $user->GetRemovedPermissions();
         foreach ($removedPermissions as $resourceId) {
             $db->Execute(new DeleteUserResourcePermission($userId, $resourceId));

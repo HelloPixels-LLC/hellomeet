@@ -105,6 +105,10 @@ class User
      */
     protected $groups = [];
 
+    protected $displayGroupId;
+
+    private $displayGroupChanged = false;
+
     /**
      * @var UserGroup[]
      */
@@ -126,6 +130,29 @@ class User
     public function Groups()
     {
         return $this->groups;
+    }
+
+    public function DisplayGroupId()
+    {
+        return $this->displayGroupId;
+    }
+
+    public function ChangeDisplayGroup($groupId)
+    {
+        if (empty($groupId)) {
+            $groupId = null;
+        } elseif (!$this->IsInGroup($groupId)) {
+            return false;
+        }
+
+        $this->displayGroupId = $groupId;
+        $this->displayGroupChanged = true;
+        return true;
+    }
+
+    public function HasDisplayGroupChanged()
+    {
+        return $this->displayGroupChanged;
     }
 
     /**
@@ -513,6 +540,7 @@ class User
         $user->isCalendarSubscriptionAllowed = $row[ColumnNames::ALLOW_CALENDAR_SUBSCRIPTION];
         $user->publicId = $row[ColumnNames::PUBLIC_ID];
         $user->defaultScheduleId = $row[ColumnNames::DEFAULT_SCHEDULE_ID];
+        $user->displayGroupId = $row[ColumnNames::USER_DISPLAY_GROUP_ID] ?? null;
 
         $user->attributes[UserAttribute::Phone] = $row[ColumnNames::PHONE_NUMBER];
         $user->attributes[UserAttribute::Position] = $row[ColumnNames::POSITION];
@@ -984,6 +1012,10 @@ class User
         }
 
         $this->WithGroups($groups);
+
+        if ($this->displayGroupId !== null && !$this->IsInGroup($this->displayGroupId)) {
+            $this->ChangeDisplayGroup(null);
+        }
     }
 
     /**

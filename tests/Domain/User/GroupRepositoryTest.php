@@ -78,12 +78,14 @@ class GroupRepositoryTest extends TestBase
         $groupName = 'gn';
         $groupAdminId = 1111;
         $isDefault = 1;
+        $logoFileName = 'group-logo-0123456789abcdef0123456789abcdef.png';
 
         $rows = [];
         $rows[] = [ColumnNames::GROUP_ID => $groupId,
             ColumnNames::GROUP_NAME => $groupName,
             ColumnNames::GROUP_ADMIN_GROUP_ID => $groupAdminId,
-            ColumnNames::GROUP_ISDEFAULT => $isDefault];
+            ColumnNames::GROUP_ISDEFAULT => $isDefault,
+            ColumnNames::GROUP_LOGO_FILENAME => $logoFileName];
 
         $groupUsers = [
             [ColumnNames::USER_ID => 1],
@@ -118,6 +120,7 @@ class GroupRepositoryTest extends TestBase
         $this->assertEquals($groupId, $group->Id());
         $this->assertEquals($groupName, $group->Name());
         $this->assertEquals($groupAdminId, $group->AdminGroupId());
+        $this->assertSame($logoFileName, $group->LogoFileName());
         $this->assertTrue($group->HasMember(1));
         $this->assertFalse($group->HasMember(3));
         $this->assertTrue(in_array(1, $group->AllowedResourceIds()));
@@ -213,6 +216,19 @@ class GroupRepositoryTest extends TestBase
 
         $updateGroupCommand = new UpdateGroupCommand($id, $newName, $groupAdminId, $isDefault);
         $this->assertTrue($this->db->ContainsCommand($updateGroupCommand));
+    }
+
+    public function testUpdatePersistsGroupLogoFilename()
+    {
+        $id = 2829;
+        $name = 'research';
+        $logoFileName = 'group-logo-0123456789abcdef0123456789abcdef.webp';
+        $group = new Group($id, $name, false);
+        $group->ChangeLogoFileName($logoFileName);
+
+        $this->repository->Update($group);
+
+        $this->assertTrue($this->db->ContainsCommand(new UpdateGroupCommand($id, $name, null, false, $logoFileName)));
     }
 
     public function testRemoveDeletesGroupFromDatabase()

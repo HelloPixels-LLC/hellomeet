@@ -25,6 +25,7 @@ class ManageUsersActions
     public const ChangeCredits = 'changeCredits';
     public const InviteUsers = 'inviteUsers';
     public const DeleteMultipleUsers = 'deleteMultipleUsers';
+    public const ChangeDisplayGroup = 'changeDisplayGroup';
 }
 
 interface IManageUsersPresenter
@@ -176,6 +177,7 @@ class ManageUsersPresenter extends ActionPresenter implements IManageUsersPresen
         $this->AddAction(ManageUsersActions::ChangeCredits, 'ChangeCredits');
         $this->AddAction(ManageUsersActions::InviteUsers, 'InviteUsers');
         $this->AddAction(ManageUsersActions::DeleteMultipleUsers, 'DeleteMultipleUsers');
+        $this->AddAction(ManageUsersActions::ChangeDisplayGroup, 'ChangeDisplayGroup');
     }
 
     public function PageLoad()
@@ -510,12 +512,72 @@ class ManageUsersPresenter extends ActionPresenter implements IManageUsersPresen
 
         $user = $this->userRepository->LoadById($userId);
 
+        if ($user->Id() == null) {
+            return ['groups' => [], 'displayGroups' => [], 'displayGroupId' => null, 'canChangeDisplayGroup' => false];
+        }
+
         $groups = [];
         foreach ($user->Groups() as $group) {
             $groups[] = $group->GroupId;
         }
 
-        return $groups;
+        $session = ServiceLocator::GetServer()->GetUserSession();
+        $administeredGroupIds = [];
+        $adminGroups = $this->groupViewRepository->GetList()->Results();
+        if ($session->IsAdmin) {
+            $administeredGroupIds = $groups;
+        } else {
+            foreach ($adminGroups as $adminGroup) {
+                $administeredGroupIds[] = $adminGroup->Id;
+            }
+        }
+
+        $displayGroups = [];
+        foreach ($adminGroups as $group) {
+            if (in_array($group->Id, $groups) && ($session->IsAdmin || in_array($group->Id, $administeredGroupIds))) {
+                $displayGroups[] = ['id' => $group->Id, 'name' => $group->Name];
+            }
+        }
+
+        return [
+            'groups' => $groups,
+            'displayGroups' => $displayGroups,
+            'displayGroupId' => $user->DisplayGroupId(),
+            'canChangeDisplayGroup' => $session->IsAdmin || count($displayGroups) > 0,
+        ];
+    }
+
+    public function ChangeDisplayGroup()
+    {
+        $session = ServiceLocator::GetServer()->GetUserSession();
+        $user = $this->userRepository->LoadById($this->page->GetUserId());
+        $groupId = $this->page->GetDisplayGroupId();
+        $administrator = $this->userRepository->LoadById($session->UserId);
+        $permissionGroupId = $groupId ?? $user->DisplayGroupId();
+
+        if ($user->Id() == null) {
+            $this->page->SetJsonResponse(['success' => false]);
+            return;
+        }
+
+        if (!$session->IsAdmin && $groupId == null && $user->DisplayGroupId() == null) {
+            $this->page->SetJsonResponse(['success' => true]);
+            return;
+        }
+
+        if (!$session->IsAdmin && ($permissionGroupId == null || !$administrator->IsGroupAdminFor($permissionGroupId))) {
+            Log::Error('ChangeDisplayGroup denied. UserId=%s, Target UserId=%s, GroupId=%s', $session->UserId, $this->page->GetUserId(), $groupId);
+            $this->page->SetJsonResponse(['success' => false]);
+            return;
+        }
+
+        if (!$user->ChangeDisplayGroup($groupId)) {
+            $this->page->SetJsonResponse(['success' => false]);
+            return;
+        }
+
+        $this->userRepository->Update($user);
+        $this->page->SetJsonResponse(['success' => true]);
     }
 
     public function ChangeColor()

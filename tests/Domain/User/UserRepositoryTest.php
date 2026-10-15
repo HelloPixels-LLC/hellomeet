@@ -298,6 +298,19 @@ class UserRepositoryTest extends TestBase
         $this->assertTrue($this->db->ContainsCommand($command));
     }
 
+    public function testPersistsChangedPreferredDisplayGroup(): void
+    {
+        $userId = 234;
+        $user = new User();
+        $user->WithId($userId);
+        $user->WithGroups([new UserGroup(8, 'Research')]);
+        $user->ChangeDisplayGroup(8);
+
+        (new UserRepository())->Update($user);
+
+        $this->assertTrue($this->db->ContainsCommand(new UpdateUserDisplayGroupCommand($userId, 8)));
+    }
+
     public function testAddsAndUpdatesUserPreferences()
     {
         $userId = 987;

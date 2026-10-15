@@ -4,6 +4,7 @@ require_once(ROOT_DIR . 'Pages/Admin/AdminPage.php');
 require_once(ROOT_DIR . 'Pages/IPageable.php');
 require_once(ROOT_DIR . 'Presenters/Admin/ManageGroupsPresenter.php');
 require_once(ROOT_DIR . 'Domain/Access/namespace.php');
+require_once(ROOT_DIR . 'lib/Application/Admin/ImageUploadDirectory.php');
 
 interface IManageGroupsPage extends IActionPage
 {
@@ -66,6 +67,11 @@ interface IManageGroupsPage extends IActionPage
      * @return string
      */
     public function GetGroupName();
+
+    /**
+     * @return UploadedFile|null
+     */
+    public function GetUploadedLogo();
 
     /**
      * @return int[]|array
@@ -173,6 +179,7 @@ class ManageGroupsPage extends ActionPage implements IManageGroupsPage
         $this->Set('CanChangeRoles', $this->CanChangeRoles);
         $this->Set('CanImportGroups', $this->CanImportGroups);
         $this->Set('CanExportGroups', $this->CanExportGroups);
+        $this->Set('GroupLogoBaseUrl', rtrim((new ImageUploadDirectory())->GetPath(), '/') . '/');
         $this->Display('Admin/Groups/manage_groups.tpl');
     }
 
@@ -233,6 +240,11 @@ class ManageGroupsPage extends ActionPage implements IManageGroupsPage
     public function GetGroupName()
     {
         return $this->GetForm(FormKeys::GROUP_NAME);
+    }
+
+    public function GetUploadedLogo()
+    {
+        return $this->server->GetFile(FormKeys::GROUP_LOGO);
     }
 
     public function BindRoles($roles)

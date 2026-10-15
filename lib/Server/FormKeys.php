@@ -97,6 +97,8 @@ class FormKeys
     public const GROUP = 'group';
     public const GROUP_ID = 'group_id';
     public const GROUP_NAME = 'group_name';
+    public const GROUP_LOGO = 'groupLogo';
+    public const USER_DISPLAY_GROUP_ID = 'displayGroupId';
     public const GROUP_ADMIN = 'group_admin';
     public const GROUP_IMPORT_FILE = 'GROUP_IMPORT_FILE';
     public const GUEST_INVITATION_LIST = 'guestInvitationList';

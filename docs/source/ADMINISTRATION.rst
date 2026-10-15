@@ -375,6 +375,21 @@ define roles within the application.
 Setting resource permissions for a group will grant access to all members of
 that group. Users can individually be granted additional resource permission.
 
+Group branding for room displays
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use the logo controls in Manage Groups to upload, replace, or remove a group's
+logo. PNG, JPEG, and WebP images up to 2 MiB are accepted. Logos are shown
+without cropping, so wide and square images both work.
+
+Public room displays identify the group of the reservation owner. A user who
+belongs to one group is represented by that group automatically. If a user
+belongs to several groups, choose the preferred display group from the user's
+Groups dialog in Manage Users. The preference must be one of the user's
+current memberships; when no valid preference is set, the display omits the
+group identity. Current memberships are used for existing and future
+reservations.
+
 Roles
 ~~~~~
 
@@ -631,8 +646,8 @@ the Live credentials to charge users and collect payments.
 Reservation Tablet View
 -----------------------
 
-HelloMeet provides a tablet-friendly view of a resource's current
-availability.
+HelloMeet provides a tablet-friendly Focus view of a resource's current
+availability, room-local clock, and upcoming agenda.
 
 A good use of this feature is mounting a tablet next to a resource to show
 real-time availability and allow on the spot reservations.
@@ -640,8 +655,11 @@ real-time availability and allow on the spot reservations.
 A resource must be set to be publicly available to use this view. To launch
 the tablet view, open the URL listed in Application Management > Resources.
 
-From here users can view the current availability, check in to their
-reservation, and book new reservations.
+From here users can view current and upcoming meetings, see group branding
+when permitted by reservation privacy settings, check in when the resource's
+check-in rules allow it, and book when Tablet View reservations are enabled.
+The display refreshes its schedule and reports when its connection is stale;
+booking and check-in actions are paused until the display receives fresh data.
 
 Reservation Monitor View
 ------------------------

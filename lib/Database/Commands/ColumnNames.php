@@ -55,6 +55,8 @@ class ColumnNames
     public const GROUP_ADMIN_GROUP_ID = 'admin_group_id';
     public const GROUP_ADMIN_GROUP_NAME = 'admin_group_name';
     public const GROUP_ISDEFAULT = 'isdefault';
+    public const GROUP_LOGO_FILENAME = 'logo_filename';
+    public const USER_DISPLAY_GROUP_ID = 'display_group_id';
 
     // RESOURCE_GROUPS //
     public const RESOURCE_GROUP_ID = 'resource_group_id';

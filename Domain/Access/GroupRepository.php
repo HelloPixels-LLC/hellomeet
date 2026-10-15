@@ -75,7 +75,16 @@ interface IGroupViewRepository
     public function GetPermissionList();
 }
 
-class GroupRepository implements IGroupRepository, IGroupViewRepository
+interface IGroupBrandingProvider
+{
+    /**
+     * @param int[] $ownerIds
+     * @return array|array[]
+     */
+    public function GetBrandingMemberships(array $ownerIds);
+}
+
+class GroupRepository implements IGroupRepository, IGroupViewRepository, IGroupBrandingProvider
 {
     /**
      * @var DomainCache
@@ -150,6 +159,7 @@ class GroupRepository implements IGroupRepository, IGroupViewRepository
         if ($row = $reader->GetRow()) {
             $group = new Group($row[ColumnNames::GROUP_ID], $row[ColumnNames::GROUP_NAME], $row[ColumnNames::GROUP_ISDEFAULT]);
             $group->WithGroupAdmin($row[ColumnNames::GROUP_ADMIN_GROUP_ID]);
+            $group->ChangeLogoFileName($row[ColumnNames::GROUP_LOGO_FILENAME] ?? null);
         }
         $reader->Free();
 
@@ -216,7 +226,13 @@ class GroupRepository implements IGroupRepository, IGroupViewRepository
             $db->Execute(new AddGroupRoleCommand($groupId, $roleId));
         }
 
-        $db->Execute(new UpdateGroupCommand($groupId, $group->Name(), $group->AdminGroupId(), $group->IsDefault()));
+        $db->Execute(new UpdateGroupCommand(
+            $groupId,
+            $group->Name(),
+            $group->AdminGroupId(),
+            $group->IsDefault(),
+            $group->LogoFileName()
+        ));
 
         $this->_cache->Add($groupId, $group);
     }
@@ -264,6 +280,22 @@ class GroupRepository implements IGroupRepository, IGroupViewRepository
 
         return $groups;
     }
+
+    public function GetBrandingMemberships(array $ownerIds)
+    {
+        if (empty($ownerIds)) {
+            return [];
+        }
+
+        $reader = ServiceLocator::GetDatabase()->Query(new GetGroupBrandingMembershipsCommand($ownerIds));
+        $memberships = [];
+        while ($row = $reader->GetRow()) {
+            $memberships[] = $row;
+        }
+        $reader->Free();
+
+        return $memberships;
+    }
 }
 
 class GroupUserView
@@ -297,7 +329,14 @@ class GroupItemView
         $adminName = isset($row[ColumnNames::GROUP_ADMIN_GROUP_NAME]) ? $row[ColumnNames::GROUP_ADMIN_GROUP_NAME] : null;
         $isDefault = intval($row[ColumnNames::GROUP_ISDEFAULT]);
         $roles = explode(',', $row[ColumnNames::GROUP_ROLE_LIST] ?? '');
-        return new GroupItemView($row[ColumnNames::GROUP_ID], $row[ColumnNames::GROUP_NAME], $adminName, $isDefault, $roles);
+        return new GroupItemView(
+            $row[ColumnNames::GROUP_ID],
+            $row[ColumnNames::GROUP_NAME],
+            $adminName,
+            $isDefault,
+            $roles,
+            $row[ColumnNames::GROUP_LOGO_FILENAME] ?? null
+        );
     }
 
     /**
@@ -354,6 +393,8 @@ class GroupItemView
      */
     public $Roles;
 
+    public $LogoFileName;
+
     /**
      * @return bool
      */
@@ -394,13 +435,14 @@ class GroupItemView
         return $this->IsGroupAdmin() || $this->IsScheduleAdmin() || $this->IsResourceAdmin();
     }
 
-    public function __construct($groupId, $groupName, $adminGroupName = null, $isDefault = 0, $roles = [])
+    public function __construct($groupId, $groupName, $adminGroupName = null, $isDefault = 0, $roles = [], $logoFileName = null)
     {
         $this->Id = $groupId;
         $this->Name = $groupName;
         $this->AdminGroupName = $adminGroupName;
         $this->IsDefault = $isDefault;
         $this->Roles = $roles;
+        $this->LogoFileName = $logoFileName;
     }
 }
 

@@ -1623,6 +1623,15 @@ class GetGroupByIdCommand extends SqlCommand
     }
 }
 
+class GetGroupBrandingMembershipsCommand extends SqlCommand
+{
+    public function __construct(array $ownerIds)
+    {
+        parent::__construct(Queries::GET_GROUP_BRANDING_MEMBERSHIPS);
+        $this->AddParameter(new Parameter(ParameterNames::USER_ID, $ownerIds));
+    }
+}
+
 class GetGroupResourcesId extends SqlCommand
 {
     public function __construct($groupId)
@@ -2652,13 +2661,24 @@ class UpdateBlackoutInstanceCommand extends SqlCommand
 
 class UpdateGroupCommand extends SqlCommand
 {
-    public function __construct($groupId, $groupName, $adminGroupId, $isDefault)
+    public function __construct($groupId, $groupName, $adminGroupId, $isDefault, $logoFileName = null)
     {
         parent::__construct(Queries::UPDATE_GROUP);
         $this->AddParameter(new Parameter(ParameterNames::GROUP_ID, $groupId));
         $this->AddParameter(new Parameter(ParameterNames::GROUP_NAME, $groupName));
         $this->AddParameter(new Parameter(ParameterNames::GROUP_ADMIN_ID, $adminGroupId));
         $this->AddParameter(new Parameter(ParameterNames::GROUP_ISDEFAULT, intval($isDefault)));
+        $this->AddParameter(new Parameter(ParameterNames::GROUP_LOGO_FILENAME, $logoFileName));
+    }
+}
+
+class UpdateUserDisplayGroupCommand extends SqlCommand
+{
+    public function __construct($userId, $displayGroupId)
+    {
+        parent::__construct(Queries::UPDATE_USER_DISPLAY_GROUP);
+        $this->AddParameter(new Parameter(ParameterNames::USER_ID, $userId));
+        $this->AddParameter(new Parameter(ParameterNames::DISPLAY_GROUP_ID, $displayGroupId));
     }
 }
 

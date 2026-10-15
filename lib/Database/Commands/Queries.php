@@ -596,6 +596,14 @@ class Queries
 		FROM `groups`
 		WHERE `group_id` = @groupid';
 
+    public const GET_GROUP_BRANDING_MEMBERSHIPS =
+        'SELECT `ug`.`user_id`, `g`.`group_id`, `g`.`name`, `g`.`logo_filename`, `u`.`display_group_id`
+         FROM `user_groups` `ug`
+         INNER JOIN `users` `u` ON `u`.`user_id` = `ug`.`user_id`
+         INNER JOIN `groups` `g` ON `g`.`group_id` = `ug`.`group_id`
+         WHERE `ug`.`user_id` IN (@userid)
+         ORDER BY `ug`.`user_id`, `g`.`group_id`';
+
     public const GET_GROUPS_I_CAN_MANAGE = 'SELECT `g`.`group_id`, `g`.`name`
 		FROM `groups` `g`
 		INNER JOIN `groups` `a` ON `g`.`admin_group_id` = `a`.`group_id`
@@ -1086,8 +1094,12 @@ class Queries
 
     public const UPDATE_GROUP =
         'UPDATE `groups`
-		SET `name` = @groupname, `admin_group_id` = @admin_group_id, `isdefault` = @isdefault
+		SET `name` = @groupname, `admin_group_id` = @admin_group_id, `isdefault` = @isdefault,
+		    `logo_filename` = @logo_filename
 		WHERE `group_id` = @groupid';
+
+    public const UPDATE_USER_DISPLAY_GROUP =
+        'UPDATE `users` SET `display_group_id` = @display_group_id WHERE `user_id` = @userid';
 
     public const UPDATE_LOGINDATA = 'UPDATE `users` SET `lastlogin` = @lastlogin, `language` = @language WHERE `user_id` = @userid';
 

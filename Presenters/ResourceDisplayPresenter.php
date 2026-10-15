@@ -6,6 +6,8 @@ require_once(ROOT_DIR . 'lib/Application/Authentication/namespace.php');
 require_once(ROOT_DIR . 'lib/Application/Schedule/namespace.php');
 require_once(ROOT_DIR . 'Domain/Access/namespace.php');
 require_once(ROOT_DIR . 'Pages/Ajax/IReservationSaveResultsView.php');
+require_once(ROOT_DIR . 'lib/Application/Reservation/PrivacyFilter.php');
+require_once(ROOT_DIR . 'lib/Application/Admin/ImageUploadDirectory.php');
 
 class ResourceDisplayPresenter extends ActionPresenter
 {
@@ -69,6 +71,12 @@ class ResourceDisplayPresenter extends ActionPresenter
      */
     private $termsOfServiceRepository;
 
+    /** @var IGroupBrandingProvider|null */
+    private $groupBrandingProvider;
+
+    /** @var IPrivacyFilter */
+    private $privacyFilter;
+
     public function __construct(
         IResourceDisplayPage $page,
         IResourceRepository $resourceRepository,
@@ -80,7 +88,9 @@ class ResourceDisplayPresenter extends ActionPresenter
         IGuestUserService $guestUserService,
         IAttributeService $attributeService,
         IReservationRepository $reservationRepository,
-        ITermsOfServiceRepository $termsOfServiceRepository
+        ITermsOfServiceRepository $termsOfServiceRepository,
+        ?IGroupBrandingProvider $groupBrandingProvider = null,
+        ?IPrivacyFilter $privacyFilter = null
     ) {
         parent::__construct($page);
         $this->page = $page;
@@ -94,6 +104,8 @@ class ResourceDisplayPresenter extends ActionPresenter
         $this->attributeService = $attributeService;
         $this->reservationRepository = $reservationRepository;
         $this->termsOfServiceRepository = $termsOfServiceRepository;
+        $this->groupBrandingProvider = $groupBrandingProvider;
+        $this->privacyFilter = $privacyFilter ?? new PrivacyFilter();
 
         parent::AddAction('login', 'Login');
         parent::AddAction('activate', 'Activate');
@@ -162,21 +174,20 @@ class ResourceDisplayPresenter extends ActionPresenter
         $now = Date::Now()->ToTimezone($timezone);
 
         $layout = $this->scheduleRepository->GetLayout($scheduleId, new ScheduleLayoutFactory($timezone));
-        $slots = $layout->GetLayout($now, true);
-        if (!empty($startDate)) {
-            $reservationDate = $startDate;
+        if ($startDate instanceof Date) {
+            $reservationDate = Date::Parse($startDate->Format('Y-m-d'), $timezone)->GetDate();
+        } elseif (is_string($startDate) && $startDate !== '') {
+            $reservationDate = Date::Parse($startDate, $timezone)->GetDate();
         } else {
-            $reservationDate = $now;
-            if ($slots[count($slots) - 1]->EndDate()->LessThanOrEqual($now)) {
-                $now = $now->AddDays(1)->GetDate();
-            }
+            $reservationDate = $now->GetDate();
         }
+        $slots = $layout->GetLayout($reservationDate, true);
 
         $reservationSearchRange = new DateRange($reservationDate->GetDate()->ToUtc(), $reservationDate->AddDays(1)->GetDate()->ToUtc());
         $reservations = $this->reservationService->GetReservations($reservationSearchRange, null, $timezone, $resource->GetResourceId());
 
         $attributes = $this->attributeService->GetReservationAttributes(
-            ServiceLocator::GetServer()->GetUserSession(),
+            new NullUserSession(),
             new ReservationView(),
             0,
             [$resource->GetResourceId()]
@@ -196,6 +207,10 @@ class ResourceDisplayPresenter extends ActionPresenter
         $dailyLayout = $this->dailyLayoutFactory->Create($reservations, $layout);
 
         $reservationList = $reservations->OnDateForResource($reservationDate, $resource->GetId());
+        $hasReservationsToday = count($reservationList) > 0;
+
+        $brandingByOwner = $this->ResolveOwnerBranding($reservationList);
+        $publicReservationsByReference = [];
 
         /** @var ReservationListItem|null $next */
         $next = null;
@@ -204,8 +219,8 @@ class ResourceDisplayPresenter extends ActionPresenter
         $upcoming = [];
 
         $current = null;
-        $requiresCheckin = false;
-        $checkinReferenceNumber = '';
+        $eligibleCurrentCheckin = null;
+        $eligibleUpcomingCheckin = null;
 
         /** @var ReservationListItem $r */
         foreach ($reservationList as $r) {
@@ -213,23 +228,42 @@ class ResourceDisplayPresenter extends ActionPresenter
                 $next = $r;
             }
 
-            if ($r->RequiresCheckin()) {
-                $requiresCheckin = true;
-                $checkinReferenceNumber = $r->ReferenceNumber();
-            }
-
             if ($r->CollidesWith($now)) {
                 $current = $r;
+            }
+
+            if ($resource->IsCheckInEnabled() && $r->RequiresCheckin()) {
+                if ($r->CollidesWith($now)) {
+                    $eligibleCurrentCheckin = $r;
+                } elseif ($r->StartDate()->GreaterThan($now) && $eligibleUpcomingCheckin == null) {
+                    $eligibleUpcomingCheckin = $r;
+                }
             }
 
             if ($r->StartDate()->GreaterThan($now)) {
                 $upcoming[] = $r;
             }
+
+            $publicReservationsByReference[$r->ReferenceNumber()] = $this->CreatePublicReservationData(
+                $r,
+                $brandingByOwner
+            );
         }
+
+        $checkinReservation = $eligibleCurrentCheckin ?? $eligibleUpcomingCheckin;
+        $requiresCheckin = $checkinReservation != null;
+        $checkinReferenceNumber = $checkinReservation == null ? '' : $checkinReservation->ReferenceNumber();
+
+        $current = $current == null ? null : $publicReservationsByReference[$current->ReferenceNumber()];
+        $next = $next == null ? null : $publicReservationsByReference[$next->ReferenceNumber()];
+        $upcoming = array_map(
+            static fn (ReservationListItem $reservation) => $publicReservationsByReference[$reservation->ReferenceNumber()],
+            $upcoming
+        );
 
         $this->SetTermsOfService();
         $this->page->SetIsAvailableNow($current == null);
-        $this->page->DisplayAvailability($dailyLayout, $now, $reservationDate->GetDate(), $current, $next, $upcoming, $requiresCheckin, $checkinReferenceNumber);
+        $this->page->DisplayAvailability($dailyLayout, $now, $reservationDate->GetDate(), $current, $next, $upcoming, $requiresCheckin, $checkinReferenceNumber, $hasReservationsToday);
     }
 
     public function Reserve()
@@ -243,9 +277,20 @@ class ResourceDisplayPresenter extends ActionPresenter
             return;
         }
 
-        $timezone = $this->page->GetTimezone();
         $resourceId = $this->page->GetResourceId();
         $email = $this->page->GetEmail();
+
+        $resource = $this->resourceRepository->LoadByPublicId($this->page->GetPublicResourceId());
+        if (!$resource->GetIsCalendarSubscriptionAllowed() || $resource->GetResourceId() != $resourceId) {
+            $resultCollector = new ReservationResultCollector();
+            $resultCollector->SetSaveSuccessfulMessage(false);
+            $resultCollector->SetErrors(['Unauthorized']);
+            $this->page->SetReservationSaveResults(false, $resultCollector);
+            return;
+        }
+
+        $schedule = $this->scheduleRepository->LoadById($resource->GetScheduleId());
+        $timezone = $schedule->GetTimezone();
 
         $reservationDate = Date::Parse($this->page->GetBeginDate(), $timezone)->Format('Y-m-d ');
         $date = DateRange::Create($reservationDate . $this->page->GetBeginTime(), $reservationDate . $this->page->GetEndTime(), $timezone);
@@ -254,19 +299,18 @@ class ResourceDisplayPresenter extends ActionPresenter
         if ($maxFutureDays == 0) {
             $maxFutureDays = 1;
         }
-        $maxDate = Date::Now()->ToTimezone($timezone)->AddDays($maxFutureDays + 1)->GetDate();
+        $requestedDate = Date::Parse($this->page->GetBeginDate(), $timezone)->GetDate();
+        $maxDate = Date::Now()->ToTimezone($timezone)->GetDate()->AddDays($maxFutureDays - 1);
 
         $resultCollector = new ReservationResultCollector();
 
-        if ($date->GetBegin()->GreaterThan($maxDate)) {
+        if ($requestedDate->GreaterThan($maxDate)) {
             $resultCollector->SetSaveSuccessfulMessage(false);
             $resultCollector->SetErrors(['Unauthorized']);
             $success = false;
         } else {
 
             $userSession = $this->guestUserService->CreateOrLoad($email);
-            $resource = $this->resourceRepository->LoadById($resourceId);
-
             $series = ReservationSeries::Create($userSession->UserId, $resource, Resources::GetInstance()->GetString('AdHocMeeting'), Resources::GetInstance()->GetString('AdHocMeeting'), $date, new RepeatNone(), $userSession);
 
             $series->AcceptTerms($this->page->GetTermsOfServiceAcknowledgement());
@@ -284,7 +328,47 @@ class ResourceDisplayPresenter extends ActionPresenter
     public function Checkin()
     {
         $resultCollector = new ReservationResultCollector();
-        $series = $this->reservationRepository->LoadByReferenceNumber($this->page->GetReferenceNumber());
+        $resource = $this->resourceRepository->LoadByPublicId($this->page->GetPublicResourceId());
+        if (!$resource->GetIsCalendarSubscriptionAllowed() || !$resource->IsCheckInEnabled()) {
+            $resultCollector->SetSaveSuccessfulMessage(false);
+            $resultCollector->SetErrors(['Unauthorized']);
+            $this->page->SetReservationCheckinResults(false, $resultCollector);
+            return;
+        }
+
+        $schedule = $this->scheduleRepository->LoadById($resource->GetScheduleId());
+        $timezone = $schedule->GetTimezone();
+        $now = Date::Now()->ToTimezone($timezone);
+        $today = $now->GetDate();
+        $range = new DateRange($today->ToUtc(), $today->AddDays(1)->ToUtc());
+        $reservations = $this->reservationService->GetReservations($range, null, $timezone, $resource->GetResourceId());
+        $eligibleCurrent = null;
+        $eligibleUpcoming = null;
+        foreach ($reservations->OnDateForResource($today, $resource->GetId()) as $reservation) {
+            if (!$reservation->RequiresCheckin()) {
+                continue;
+            }
+
+            if ($reservation->CollidesWith($now)) {
+                $eligibleCurrent = $reservation;
+                break;
+            }
+
+            if ($eligibleUpcoming == null && $reservation->StartDate()->GreaterThan($now)) {
+                $eligibleUpcoming = $reservation;
+            }
+        }
+
+        $eligibleReservation = $eligibleCurrent ?? $eligibleUpcoming;
+        $referenceNumber = $this->page->GetReferenceNumber();
+        if ($eligibleReservation == null || $eligibleReservation->ReferenceNumber() !== $referenceNumber) {
+            $resultCollector->SetSaveSuccessfulMessage(false);
+            $resultCollector->SetErrors(['Unauthorized']);
+            $this->page->SetReservationCheckinResults(false, $resultCollector);
+            return;
+        }
+
+        $series = $this->reservationRepository->LoadByReferenceNumber($referenceNumber);
 
         $userSession = new NullUserSession();
         $handler = $this->GetCheckinHandler($userSession);
@@ -342,6 +426,87 @@ class ResourceDisplayPresenter extends ActionPresenter
         if ($termsOfService != null && $termsOfService->AppliesToReservation()) {
             $this->page->SetTerms($termsOfService);
         }
+    }
+
+    /**
+     * @param ReservationListItem[] $reservations
+     * @return array<int, array{groupId: int, name: string, logoFileName: ?string, initials: string}>
+     */
+    private function ResolveOwnerBranding(array $reservations)
+    {
+        if ($this->groupBrandingProvider == null) {
+            return [];
+        }
+
+        $ownerIds = [];
+        foreach ($reservations as $reservation) {
+            $ownerId = (int)($reservation->ReservedItem()->OwnerId ?? 0);
+            if ($ownerId > 0) {
+                $ownerIds[$ownerId] = $ownerId;
+            }
+        }
+
+        if (empty($ownerIds)) {
+            return [];
+        }
+
+        $memberships = $this->groupBrandingProvider->GetBrandingMemberships(array_values($ownerIds));
+        $brandingByOwner = (new \LibreBooking\Application\Groups\GroupBrandingResolver())->resolve($memberships);
+        $hasLogo = false;
+        foreach ($brandingByOwner as $branding) {
+            if ($branding['logoFileName'] !== null) {
+                $hasLogo = true;
+                break;
+            }
+        }
+        if ($hasLogo) {
+            $logoStorage = new \LibreBooking\Application\Groups\GroupLogoStorage((new ImageUploadDirectory())->GetDirectory());
+            foreach ($brandingByOwner as &$branding) {
+                if ($branding['logoFileName'] !== null && !$logoStorage->exists($branding['logoFileName'])) {
+                    $branding['logoFileName'] = null;
+                }
+            }
+            unset($branding);
+        }
+
+        return $brandingByOwner;
+    }
+
+    /**
+     * Build a public-safe display record so hidden owner or meeting details
+     * cannot leak through group branding while the browser is shared.
+     *
+     * @param ReservationListItem $reservation
+     * @param array<int, array{groupId: int, name: string, logoFileName: ?string, initials: string}> $brandingByOwner
+     * @return array<string, mixed>
+     */
+    private function CreatePublicReservationData(ReservationListItem $reservation, array $brandingByOwner)
+    {
+        $item = $reservation->ReservedItem();
+        $view = new ReservationView();
+        $view->ReferenceNumber = $reservation->ReferenceNumber();
+        $view->OwnerId = $item->OwnerId ?? null;
+        $view->StartDate = $reservation->StartDate();
+        $view->EndDate = $reservation->EndDate();
+        $view->ResourceId = $reservation->ResourceId();
+
+        $publicSession = new NullUserSession();
+        $canViewDetails = $this->privacyFilter->CanViewDetails($publicSession, $view, $view->OwnerId);
+        $canViewOwner = $this->privacyFilter->CanViewUser($publicSession, $view, $view->OwnerId);
+        $ownerId = (int)($item->OwnerId ?? 0);
+        $showBranding = $canViewDetails && $canViewOwner && isset($brandingByOwner[$ownerId]);
+
+        return [
+            'startDate' => $reservation->StartDate(),
+            'endDate' => $reservation->EndDate(),
+            'startTimestamp' => $reservation->StartDate()->Timestamp(),
+            'endTimestamp' => $reservation->EndDate()->Timestamp(),
+            'title' => $canViewDetails ? ($reservation->GetTitle() ?: Resources::GetInstance()->GetString('NoTitleLabel')) : Resources::GetInstance()->GetString('Reserved'),
+            'ownerName' => $canViewOwner ? (string)$reservation->GetUserName() : null,
+            'group' => $showBranding ? $brandingByOwner[$ownerId] : null,
+            'checkedIn' => isset($item->CheckinDate) && $item->CheckinDate->ToString() !== '',
+            'referenceNumber' => $reservation->ReferenceNumber(),
+        ];
     }
 }
 

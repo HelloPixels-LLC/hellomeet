@@ -1,6 +1,7 @@
 <?php
 
 require_once(ROOT_DIR . 'Presenters/ResourceDisplayPresenter.php');
+require_once(ROOT_DIR . 'lib/Application/Admin/ImageUploadDirectory.php');
 
 interface IResourceDisplayPage extends IPage, IActionPage
 {
@@ -50,7 +51,7 @@ interface IResourceDisplayPage extends IPage, IActionPage
      * @param bool $requiresCheckin
      * @param string $checkinReferenceNumber
      */
-    public function DisplayAvailability(IDailyLayout $dailyLayout, Date $today, Date $reservationDate, $current, $next, $upcoming, $requiresCheckin, $checkinReferenceNumber);
+    public function DisplayAvailability(IDailyLayout $dailyLayout, Date $today, Date $reservationDate, $current, $next, $upcoming, $requiresCheckin, $checkinReferenceNumber, $hasReservationsToday);
 
     /**
      * @param bool $availableNow
@@ -125,7 +126,7 @@ interface IResourceDisplayPage extends IPage, IActionPage
     public function GetTermsOfServiceAcknowledgement();
 
     /**
-     * @return Date
+     * @return string|null
      */
     public function GetStartDate();
 
@@ -134,6 +135,8 @@ interface IResourceDisplayPage extends IPage, IActionPage
 
 class ResourceDisplayPage extends ActionPage implements IResourceDisplayPage, IRequestedResourcePage
 {
+    private const STARTING_SOON_MINUTES = 15;
+
     /**
      * @var ResourceDisplayPresenter
      */
@@ -164,7 +167,8 @@ class ResourceDisplayPage extends ActionPage implements IResourceDisplayPage, IR
             ),
             new AttributeService(new AttributeRepository(), new GuestPermissionService()),
             new ReservationRepository(),
-            new TermsOfServiceRepository()
+            new TermsOfServiceRepository(),
+            new GroupRepository()
         );
 
         $this->Set('AllowReservations', Configuration::Instance()->GetKey(ConfigKeys::TABLET_VIEW_ALLOW_RESERVATIONS, new BooleanConverter()));
@@ -242,23 +246,25 @@ class ResourceDisplayPage extends ActionPage implements IResourceDisplayPage, IR
 
     public function GetStartDate()
     {
-        $userTimezone = ServiceLocator::GetServer()->GetUserSession()->Timezone;
         $parsedDate = $this->GetQuerystring(QueryStringKeys::START_DATE);
         if (!empty($parsedDate)) {
-            $startDate = Date::Parse($parsedDate, $userTimezone);
-        } else {
-            $startDate = Date::Now()->ToTimezone($userTimezone);
+            return $parsedDate;
         }
-        return $startDate;
+
+        return null;
     }
 
     public function BindResource(BookableResource $resource)
     {
         $this->Set('ResourceName', $resource->GetName());
         $this->Set('ResourceId', $resource->GetId());
+        $this->Set('RoomLocation', $resource->GetLocation());
+        $this->Set('RoomDescription', $resource->GetDescription());
+        $this->Set('RoomCapacity', $resource->GetMaxParticipants());
+        $this->Set('CheckinEnabled', $resource->IsCheckInEnabled());
     }
 
-    public function DisplayAvailability(IDailyLayout $dailyLayout, Date $today, Date $reservationDate, $current, $next, $upcoming, $requiresCheckin, $checkinReferenceNumber)
+    public function DisplayAvailability(IDailyLayout $dailyLayout, Date $today, Date $reservationDate, $current, $next, $upcoming, $requiresCheckin, $checkinReferenceNumber, $hasReservationsToday)
     {
         $this->Set('TimeFormat', Resources::GetInstance()->GetDateFormat('period_time'));
         $this->Set('Today', $today);
@@ -272,6 +278,30 @@ class ResourceDisplayPage extends ActionPage implements IResourceDisplayPage, IR
         $this->Set('RequiresCheckin', $requiresCheckin);
         $this->Set('CheckinReferenceNumber', $checkinReferenceNumber);
         $this->Set('NoTitle', Resources::GetInstance()->GetString('NoTitleLabel'));
+        $startingSoon = $current == null && $next != null
+            && $next['startDate']->LessThanOrEqual($today->AddMinutes(self::STARTING_SOON_MINUTES));
+        $this->Set('StartingSoon', $startingSoon);
+        $this->Set('NoMeetingsToday', $current == null && !$hasReservationsToday);
+        $this->Set('GroupLogoBaseUrl', rtrim((new ImageUploadDirectory())->GetPath(), '/') . '/');
+        $this->Set('ReservationsAllowed', Configuration::Instance()->GetKey(ConfigKeys::TABLET_VIEW_ALLOW_RESERVATIONS, new BooleanConverter()));
+        $checkinReservation = null;
+        if ($requiresCheckin) {
+            foreach (array_merge([$current, $next], $upcoming) as $candidate) {
+                if ($candidate != null && $candidate['referenceNumber'] == $checkinReferenceNumber) {
+                    $checkinReservation = $candidate;
+                    break;
+                }
+            }
+        }
+        $this->Set('CheckinReservation', $checkinReservation);
+        $checkinConfirmation = null;
+        foreach (array_merge([$current, $next], $upcoming) as $candidate) {
+            if ($candidate != null && $candidate['checkedIn']) {
+                $checkinConfirmation = $candidate;
+                break;
+            }
+        }
+        $this->Set('CheckinConfirmationReservation', $checkinConfirmation);
         $this->Display('ResourceDisplay/resource-display-resource.tpl');
     }
 
@@ -288,7 +318,7 @@ class ResourceDisplayPage extends ActionPage implements IResourceDisplayPage, IR
     public function DisplayResourceShell()
     {
         $this->Set('PublicResourceId', $this->GetPublicResourceId());
-        $this->Set('InitialDate', $this->GetStartDate()->Format('Y-m-d H:i:s'));
+        $this->Set('InitialDate', Date::Now()->Format('Y-m-d H:i:s'));
         $futureDays = Configuration::Instance()->GetKey(ConfigKeys::PRIVACY_PUBLIC_FUTURE_DAYS, new IntConverter());
         if ($futureDays == 0) {
             $futureDays = 1;

@@ -8,28 +8,26 @@ function ResourceDisplay(opts) {
     resourceListBox: $('#resource-list-box'),
     activateResourceDisplayForm: $('#activateResourceDisplayForm'),
     placeholder: $('#placeholder'),
-    reservationPopup: $('#reservation-box-wrapper'),
-    reservationForm: $('#formReserve'),
     startDate: $('#availabilityStartDate'),
+    bookingDateToolbar: $('#booking-date-toolbar'),
   };
 
-  var _refreshEnabled = true;
+  var refreshEnabled = true;
 
   function populateResourceList(resources) {
-    $.each(resources, function (i, resource) {
-      elements.resourceList.append('<option value="' + resource.id + '">' + resource.name + '</option>');
+    $.each(resources || [], function (i, resource) {
+      elements.resourceList.append($('<option/>', { value: resource.id, text: resource.name }));
     });
-
     elements.resourceListBox.removeClass('no-show');
   }
 
   function activateResourceDisplay(resourceId) {
-    $('#waitModal').modal('show');
+    $('#wait-modal').modal('show');
     ajaxPost(elements.activateResourceDisplayForm, null, null, function (data) {
       if (data.location) {
         window.location = data.location;
       } else {
-        $('#waitModal').modal('hide');
+        $('#wait-modal').modal('hide');
       }
     });
   }
@@ -44,62 +42,64 @@ function ResourceDisplay(opts) {
           elements.loginBox.addClass('no-show');
           populateResourceList(data.resources);
         }
-
         hideWait();
       });
     });
   };
 
-  ResourceDisplay.prototype.initDisplay = function (opts) {
-    var url = opts.url;
+  ResourceDisplay.prototype.initDisplay = function (options) {
+    var manualDateOverride = false;
+    var refreshInProgress = false;
+    var refreshRequested = false;
+    var nextRefreshTimer = null;
+    var retryDelay = 5000;
+    var midnightRefreshPending = false;
+    var refreshInterval = options.refreshInterval || 60000;
+    var lastSuccessfulRefreshAt = null;
+    var staleAfter = refreshInterval + 15000;
 
+    setConnectionStatus('connecting', options.connectingLabel);
     refreshResource();
+    updateClock();
+    window.setInterval(updateClock, 1000);
 
-    setInterval(refreshResource, 60000);
-
-    elements.placeholder.on('click', '.reservePrompt', function (e) {
-      var emailAddress = $('#emailAddress');
-      if (_.isEmpty(emailAddress.val())) {
-        emailAddress.closest('.input-group').addClass('has-error');
-        return;
-      }
-
-      elements.reservationForm.submit();
-    });
-
-    elements.placeholder.on('click', '#reservePopup', function (e) {
+    elements.placeholder.on('click', '#reservePopup', function () {
       pauseRefresh();
     });
 
-    elements.placeholder.on('click', '#reserveCancel', function (e) {
+    elements.placeholder.on('hidden.bs.modal', '#reservation-box', function () {
       resumeRefresh();
       refreshResource();
     });
 
-    elements.placeholder.on('submit', '#formReserve', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
+    elements.placeholder.on('click', '#reserveCancel', function () {
+      resumeRefresh();
+      refreshResource();
+    });
 
+    elements.placeholder.on('submit', '#formReserve', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      var validationErrors = $('#validationErrors');
       var beforeReserve = function () {
-        $('#validationErrors').addClass('d-none');
+        validationErrors.addClass('d-none');
         showWait();
       };
-
       var afterReserve = function (data) {
-        var validationErrors = $('#validationErrors');
         if (data.success) {
           validationErrors.find('ul').empty().addClass('d-none');
+          $('#reservation-box').modal('hide');
           resumeRefresh();
           refreshResource();
-          $('#reservation-box').modal('hide');
         } else {
-          var errors = data.errors ? data.errors : data.Messages;
+          var errors = data.errors || data.Messages || [];
           validationErrors
             .find('ul')
             .empty()
-            .html(
+            .append(
               $.map(errors, function (item) {
-                return '<li>' + item + '</li>';
+                return $('<li/>', { text: item });
               })
             );
           validationErrors.removeClass('d-none');
@@ -107,33 +107,38 @@ function ResourceDisplay(opts) {
         hideWait();
       };
 
-      ajaxPost($('#formReserve'), null, beforeReserve, afterReserve);
+      var reserveForm = $('#formReserve');
+      BeforeSerialize(reserveForm);
+      beforeReserve();
+      $.ajax({
+        type: 'POST',
+        url: reserveForm.attr('action'),
+        data: reserveForm.serialize(),
+        dataType: 'json',
+        cache: false,
+        timeout: 20000,
+      })
+        .done(afterReserve)
+        .fail(function () {
+          validationErrors
+            .find('ul')
+            .empty()
+            .append($('<li/>', { text: options.bookingFailedMessage }));
+          validationErrors.removeClass('d-none');
+          markDisplayStale();
+          setConnectionStatus('offline', options.offlineLabel);
+        })
+        .always(hideWait);
     });
 
-    elements.placeholder.on('click', '.slot', function (e) {
-      var slot = $(e.target);
-      var begin = $('#beginPeriod');
-      begin.val(slot.data('begin'));
-      begin.trigger('change');
-    });
-
-    elements.placeholder.on('click', '#checkin', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-
-      var beforeCheckin = function () {
-        showWait();
-      };
-
-      var afterCheckin = function () {
-        refreshResource(hideWait);
-      };
-
-      ajaxPost($('#formCheckin'), null, beforeCheckin, afterCheckin);
+    elements.placeholder.on('click', '.slot.reservable', function (event) {
+      var slot = $(event.target).closest('.slot');
+      $('#beginPeriod').val(slot.data('begin')).trigger('change');
+      $('#endPeriod').val(slot.data('end'));
     });
 
     elements.placeholder
-      .on('mouseenter', '.reservable', function (e) {
+      .on('mouseenter', '.reservable', function () {
         $(this).addClass('hilite');
       })
       .on('mouseleave', '.reservable', function () {
@@ -141,82 +146,286 @@ function ResourceDisplay(opts) {
       });
 
     elements.startDate.on('change', function () {
-      showWait();
-      refreshResource(hideWait);
+      manualDateOverride = !_.isEmpty(elements.startDate.val());
+      refreshResource();
     });
 
-    var beginIndex = 0;
-
     function pauseRefresh() {
-      _refreshEnabled = false;
+      refreshEnabled = false;
+      if (nextRefreshTimer) {
+        window.clearTimeout(nextRefreshTimer);
+        nextRefreshTimer = null;
+      }
     }
 
     function resumeRefresh() {
-      _refreshEnabled = true;
+      refreshEnabled = true;
     }
 
-    function refreshResource(next) {
-      if (!next) {
-        next = function () {};
+    function refreshResource() {
+      if (!refreshEnabled) {
+        return;
       }
-      if (!_refreshEnabled) {
-        return next();
-      }
-      var startDate = elements.startDate.val();
-      if (!_.isEmpty(startDate)) {
-        url = opts.url + '&sd=' + startDate;
+      if (refreshInProgress) {
+        refreshRequested = true;
+        return;
       }
 
-      ajaxGet(url, null, function (data) {
-        if (!_refreshEnabled) {
-          return;
-        }
-        elements.placeholder.html(data);
+      var requestUrl = options.url;
+      if (manualDateOverride && !_.isEmpty(elements.startDate.val())) {
+        requestUrl += '&sd=' + encodeURIComponent(elements.startDate.val());
+      }
 
-        var formCheckin = $('#formCheckin');
-        formCheckin.unbind('submit');
-
-        ConfigureAsyncForm(formCheckin, null, afterCheckin, null, {
-          onBeforeSubmit: showWait,
-          onBeforeSerialize: beforeCheckin,
-        });
-
-        var begin = $('#beginPeriod');
-        var end = $('#endPeriod');
-        beginIndex = begin.find('option:selected').index();
-
-        begin.unbind('change');
-        begin.on('change', function () {
-          var newIndex = begin.find('option:selected').index();
-          var currentEnd = end.find('option:selected').index();
-          var newSelectedEnd = newIndex - beginIndex + currentEnd;
-          var totalNumberOfEnds = end.find('option').length - 1;
-          if (newSelectedEnd < 0) {
-            newSelectedEnd = 0;
+      refreshInProgress = true;
+      $.ajax({
+        type: 'GET',
+        url: requestUrl,
+        cache: false,
+        timeout: 20000,
+      })
+        .done(function (html) {
+          if (!refreshEnabled) {
+            refreshInProgress = false;
+            return;
           }
-          if (newSelectedEnd > totalNumberOfEnds) {
-            newSelectedEnd = totalNumberOfEnds;
+          var bookingDateToolbar = elements.bookingDateToolbar.detach().removeClass('d-none');
+          elements.placeholder.html(html);
+          var bookingDatePlaceholder = $('#booking-date-placeholder');
+          if (bookingDatePlaceholder.length) {
+            bookingDatePlaceholder.append(bookingDateToolbar);
+          } else {
+            elements.placeholder.prepend(bookingDateToolbar);
           }
-          end.prop('selectedIndex', newSelectedEnd);
-          beginIndex = newIndex;
+          refreshInProgress = false;
+          retryDelay = 5000;
+          lastSuccessfulRefreshAt = Date.now();
+          midnightRefreshPending = false;
+          setConnectionStatus('online', options.onlineLabel);
+          updateLastUpdated();
+          bindCurrentForms();
+          updateClock();
+          if (refreshRequested) {
+            refreshRequested = false;
+            refreshResource();
+          } else {
+            scheduleRefresh(refreshInterval);
+          }
+        })
+        .fail(function () {
+          refreshInProgress = false;
+          markDisplayStale();
+          setConnectionStatus('offline', options.offlineLabel);
+          refreshRequested = false;
+          scheduleRefresh(retryDelay);
+          retryDelay = Math.min(retryDelay * 2, 60000);
         });
+    }
 
-        if (opts.allowAutocomplete) {
-          $('#emailAddress').unbind();
-          $('#emailAddress').userAutoComplete(opts.userAutocompleteUrl, function (ui) {
-            $('#emailAddress').val(ui.item.data.Email);
-          });
-        }
-        next();
+    function bindCurrentForms() {
+      var checkinForm = $('#formCheckin');
+      if (checkinForm.length) {
+        checkinForm.off('submit.resourceDisplay');
+        checkinForm.on('submit.resourceDisplay', function (event) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          BeforeSerialize(checkinForm);
+          showWait();
+          $.ajax({
+            type: 'POST',
+            url: checkinForm.attr('action'),
+            data: checkinForm.serialize(),
+            dataType: 'json',
+            cache: false,
+            timeout: 20000,
+          })
+            .done(function (response) {
+              if (response && response.success) {
+                refreshResource();
+              } else {
+                $('#checkin-feedback').text(options.checkinFailedMessage).removeClass('d-none');
+              }
+            })
+            .fail(function () {
+              markDisplayStale();
+              setConnectionStatus('offline', options.offlineLabel);
+            })
+            .always(hideWait);
+          return false;
+        });
+      }
+
+      var begin = $('#beginPeriod');
+      var end = $('#endPeriod');
+      var beginIndex = begin.find('option:selected').index();
+      begin.off('change.resourceDisplay').on('change.resourceDisplay', function () {
+        var newIndex = begin.find('option:selected').index();
+        var endIndex = end.find('option:selected').index();
+        var adjustedEndIndex = Math.max(0, Math.min(end.find('option').length - 1, endIndex + newIndex - beginIndex));
+        end.prop('selectedIndex', adjustedEndIndex);
+        beginIndex = newIndex;
       });
 
-      function beforeCheckin() {
-        $('#referenceNumber').val($('td[data-checkin="1"]').attr('data-refnum'));
+      if (options.allowAutocomplete) {
+        var email = $('#emailAddress');
+        email.off('focus.resourceDisplay keyup.resourceDisplay');
+        email.userAutoComplete(options.userAutocompleteUrl, function (ui) {
+          email.val(ui.item.data.Email);
+        });
+      }
+    }
+
+    function scheduleRefresh(delay) {
+      if (nextRefreshTimer) {
+        window.clearTimeout(nextRefreshTimer);
+      }
+      nextRefreshTimer = window.setTimeout(function () {
+        nextRefreshTimer = null;
+        refreshResource();
+      }, delay);
+    }
+
+    function setConnectionStatus(state, label) {
+      var status = $('#connection-status');
+      if (!status.length) {
+        return;
+      }
+      status.attr('data-state', state);
+      status.find('.connection-message').text(label || '');
+    }
+
+    function markDisplayStale() {
+      var display = $('#resource-display');
+      if (display.length) {
+        display.addClass('is-stale');
+        display.find('.focus-status-card').attr('data-state', 'stale');
+        display.find('.focus-status-label').text(options.offlineLabel || 'Connection lost');
+        display.find('[data-public-action], #formCheckin button, #formReserve :input').prop('disabled', true);
+      } else {
+        elements.placeholder.find('.focus-loading').text(options.offlineLabel || 'Connection lost');
+      }
+    }
+
+    function updateLastUpdated() {
+      var root = $('#resource-display');
+      var timezone = root.data('timezone');
+      var lastUpdated = $('#last-updated');
+      if (!lastUpdated.length) {
+        return;
+      }
+      lastUpdated.text(formatTime(new Date(), timezone, false));
+    }
+
+    function updateClock() {
+      var root = $('#resource-display');
+      if (!root.length) {
+        return;
       }
 
-      function afterCheckin(data) {
-        refreshResource(hideWait);
+      var timezone = root.data('timezone');
+      var clock = $('#room-clock');
+      var date = $('#room-date');
+      if (lastSuccessfulRefreshAt !== null && Date.now() - lastSuccessfulRefreshAt > staleAfter) {
+        markDisplayStale();
+        setConnectionStatus('offline', options.offlineLabel);
       }
+      try {
+        clock.text(formatTime(new Date(), timezone, true));
+        date.text(
+          new Intl.DateTimeFormat(undefined, {
+            timeZone: timezone,
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+          }).format(new Date())
+        );
+      } catch {
+        clock.text(new Date().toLocaleTimeString());
+        date.text(new Date().toLocaleDateString());
+      }
+
+      updateCountdowns();
+      updateDurations();
+
+      var scheduleToday = String(root.data('schedule-today') || '');
+      var localToday = dateInTimezone(new Date(), timezone);
+      if (scheduleToday && localToday !== scheduleToday && !midnightRefreshPending) {
+        midnightRefreshPending = true;
+        manualDateOverride = false;
+        elements.startDate.val('');
+        refreshResource();
+      }
+    }
+
+    function formatTime(date, timezone, includeSeconds) {
+      return new Intl.DateTimeFormat(undefined, {
+        timeZone: timezone,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: includeSeconds ? '2-digit' : undefined,
+        hour12: false,
+      }).format(date);
+    }
+
+    function dateInTimezone(date, timezone) {
+      var parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).formatToParts(date);
+      var values = {};
+      $.each(parts, function (index, part) {
+        values[part.type] = part.value;
+      });
+      return values.year + '-' + values.month + '-' + values.day;
+    }
+
+    function updateCountdowns() {
+      $('.focus-countdown[data-countdown-target]').each(function () {
+        var countdown = $(this);
+        var remaining = Math.max(0, Math.floor(Number(countdown.data('countdown-target')) - Date.now() / 1000));
+        var hours = Math.floor(remaining / 3600);
+        var minutes = Math.floor((remaining % 3600) / 60);
+        var seconds = remaining % 60;
+        var text = (hours > 0 ? hours + ':' + pad(minutes) : minutes) + ':' + pad(seconds);
+        countdown.text(text);
+
+        if (remaining === 0) {
+          var label = $('#resource-display').find('.focus-countdown-label');
+          label.text(
+            $('#resource-display').find('.focus-status-card').data('state') === 'booked'
+              ? options.endsNowLabel
+              : options.startsNowLabel
+          );
+          if (!countdown.data('refreshQueued')) {
+            countdown.data('refreshQueued', true);
+            window.setTimeout(refreshResource, 1200);
+          }
+        }
+      });
+    }
+
+    function updateDurations() {
+      $('.focus-agenda-item').each(function () {
+        var row = $(this);
+        var seconds = Math.max(0, Number(row.data('end-ts')) - Number(row.data('start-ts')));
+        var totalMinutes = Math.floor(seconds / 60);
+        var hours = Math.floor(totalMinutes / 60);
+        var minutes = totalMinutes % 60;
+        var duration = '';
+        if (hours > 0) {
+          duration += hours + ' ' + options.durationHoursLabel;
+        }
+        if (minutes > 0 || duration === '') {
+          duration += (duration ? ' ' : '') + minutes + ' ' + options.durationMinutesLabel;
+        }
+        row.find('.focus-duration').text(duration);
+      });
+    }
+
+    function pad(number) {
+      return number < 10 ? '0' + number : String(number);
     }
   };
 
@@ -228,16 +437,15 @@ function ResourceDisplay(opts) {
     $('#wait-modal').modal('hide');
   }
 
-  elements.loginButton.click(function (e) {
-    e.preventDefault();
+  elements.loginButton.click(function (event) {
+    event.preventDefault();
     showWait();
     elements.loginForm.submit();
   });
 
   elements.resourceList.on('change', function () {
     var resourceId = $(this).val();
-
-    if (resourceId != '') {
+    if (resourceId !== '') {
       activateResourceDisplay(resourceId);
     }
   });

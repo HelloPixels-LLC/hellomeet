@@ -77,6 +77,10 @@ class ResourceDisplayPresenterTest extends TestBase
      */
     private $termsOfServiceRepository;
 
+    private $groupBrandingProvider;
+
+    private $privacyFilter;
+
     public function setUp(): void
     {
         parent::setup();
@@ -94,6 +98,8 @@ class ResourceDisplayPresenterTest extends TestBase
         $this->attributeService = new FakeAttributeService();
         $this->reservationRepository = new FakeReservationRepository();
         $this->termsOfServiceRepository = new FakeTermsOfServiceRepository();
+        $this->groupBrandingProvider = new TestGroupBrandingProvider();
+        $this->privacyFilter = new FakePrivacyFilter();
 
         $this->presenter = new ResourceDisplayPresenter(
             $this->page,
@@ -106,7 +112,9 @@ class ResourceDisplayPresenterTest extends TestBase
             $this->guestUserService,
             $this->attributeService,
             $this->reservationRepository,
-            $this->termsOfServiceRepository
+            $this->termsOfServiceRepository,
+            $this->groupBrandingProvider,
+            $this->privacyFilter
         );
     }
 
@@ -162,8 +170,8 @@ class ResourceDisplayPresenterTest extends TestBase
 
         $this->presenter->DisplayResource(1, null);
 
-        $this->assertEquals([$nextItem], $this->page->_UpcomingReservations);
-        $this->assertEquals($nextItem, $this->page->_NextReservation);
+        $this->assertSame('referencenumber', $this->page->_UpcomingReservations[0]['referenceNumber']);
+        $this->assertSame('referencenumber', $this->page->_NextReservation['referenceNumber']);
     }
 
     public function testAsksForNextCheckin()
@@ -231,7 +239,20 @@ class ResourceDisplayPresenterTest extends TestBase
         $this->presenter->DisplayResource(1, null);
 
         $this->assertEquals(false, $this->page->_AvailableNow);
-        $this->assertEquals($currentItem, $this->page->_CurrentReservation);
+        $this->assertSame('referencenumber', $this->page->_CurrentReservation['referenceNumber']);
+    }
+
+    public function testPastMeetingsKeepTheDateFromBeingTreatedAsEmpty(): void
+    {
+        Date::_SetNow(new Date('2018-03-07 11:28', 'UTC'));
+        $this->setupStandardExpectations();
+        $now = Date::Now()->ToTimezone('America/Chicago');
+        $past = new TestReservationItemView(1, $now->SubtractMinutes(60), $now->SubtractMinutes(30), 1, 'past');
+        $this->reservationService->_ReservationListing->_Reservations = [new ReservationListItem($past)];
+
+        $this->presenter->DisplayResource('public-room', null);
+
+        $this->assertTrue($this->page->_HasReservationsToday);
     }
 
     public function testWhenNotEnabledToDisplay()
@@ -244,7 +265,7 @@ class ResourceDisplayPresenterTest extends TestBase
         $this->assertTrue($this->page->_DisplayNotEnabledMessage);
     }
 
-    public function testWhenTheLastSlotIsAlreadyPast_GoToTomorrow()
+    public function testKeepsRoomDisplayOnScheduleLocalDateAfterHours()
     {
         Date::_SetNow(new Date('2016-03-07 18:28', 'UTC'));
         $now = Date::Now();
@@ -265,7 +286,7 @@ class ResourceDisplayPresenterTest extends TestBase
 
         $this->presenter->reservationCreateHandler = $this->reservationCreateHandler;
         $this->presenter->DisplayResource($publicId, null);
-        $expectedDate = $now->ToTimezone($timezone)->GetDate()->AddDays(1);
+        $expectedDate = $now->ToTimezone($timezone)->GetDate();
 
         $this->assertEquals(new DailyLayout(
             $this->reservationService->_ReservationListing,
@@ -288,8 +309,12 @@ class ResourceDisplayPresenterTest extends TestBase
         $this->guestUserService->_UserSession = $userAccount;
         $this->reservationCreateHandler->_Success = true;
 
-        $resource = new FakeBookableResource(122);
+        $resource = new FakeBookableResource(292);
+        $resource->EnableSubscription();
+        $resource->SetScheduleId(10);
         $this->resourceRepository->_Resource = $resource;
+        $this->scheduleRepository->_Schedule = new FakeSchedule(10);
+        $this->scheduleRepository->_Schedule->SetTimezone('America/New_York');
 
         $begin = Date::Parse('2016-03-11 08:00', $this->page->_Timezone);
         $end = Date::Parse('2016-03-11 17:00', $this->page->_Timezone);
@@ -321,8 +346,12 @@ class ResourceDisplayPresenterTest extends TestBase
         $this->reservationCreateHandler->_Success = false;
         $this->reservationCreateHandler->_Errors = ['one', 'two'];
 
-        $resource = new FakeBookableResource(122);
+        $resource = new FakeBookableResource(292);
+        $resource->EnableSubscription();
+        $resource->SetScheduleId(10);
         $this->resourceRepository->_Resource = $resource;
+        $this->scheduleRepository->_Schedule = new FakeSchedule(10);
+        $this->scheduleRepository->_Schedule->SetTimezone('America/New_York');
 
         $this->presenter->reservationCreateHandler = $this->reservationCreateHandler;
 
@@ -330,6 +359,76 @@ class ResourceDisplayPresenterTest extends TestBase
 
         $this->assertEquals(false, $this->page->_ReservationCreatedSuccessfully);
         $this->assertEquals($this->reservationCreateHandler->_Errors, $this->page->_ResultCollector->Errors);
+    }
+
+    public function testBookingActionRejectsAResourceWithoutPublicAccess(): void
+    {
+        $this->page->_ResourceId = 1;
+        $this->resourceRepository->_Resource = new FakeBookableResource(1);
+        $this->presenter->reservationCreateHandler = $this->reservationCreateHandler;
+
+        $this->presenter->Reserve();
+
+        $this->assertFalse($this->page->_ReservationCreatedSuccessfully);
+        $this->assertNull($this->reservationCreateHandler->_LastSeries);
+    }
+
+    public function testBookingActionEnforcesConfiguredPublicFutureDays(): void
+    {
+        Date::_SetNow(new Date('2016-03-11 13:46', 'UTC'));
+        $this->fakeConfig->SetKey(ConfigKeys::PRIVACY_PUBLIC_FUTURE_DAYS, 1);
+        $this->page->_BeginDate = '2016-03-12';
+        $this->page->_BeginTime = '08:00';
+        $this->page->_EndTime = '09:00';
+        $this->page->_ResourceId = 292;
+        $this->page->_PublicResourceId = 'public-room';
+        $resource = new FakeBookableResource(292);
+        $resource->EnableSubscription();
+        $resource->SetScheduleId(10);
+        $this->resourceRepository->_Resource = $resource;
+        $this->scheduleRepository->_Schedule = new FakeSchedule(10);
+        $this->scheduleRepository->_Schedule->SetTimezone('America/New_York');
+        $this->presenter->reservationCreateHandler = $this->reservationCreateHandler;
+
+        $this->presenter->Reserve();
+
+        $this->assertFalse($this->page->_ReservationCreatedSuccessfully);
+        $this->assertNull($this->reservationCreateHandler->_LastSeries);
+    }
+
+    public function testBookingActionHonorsDisabledTabletReservationsSetting(): void
+    {
+        $this->fakeConfig->SetKey(ConfigKeys::TABLET_VIEW_ALLOW_RESERVATIONS, false);
+        $this->presenter->reservationCreateHandler = $this->reservationCreateHandler;
+
+        $this->presenter->Reserve();
+
+        $this->assertFalse($this->page->_ReservationCreatedSuccessfully);
+        $this->assertNull($this->reservationCreateHandler->_LastSeries);
+    }
+
+    public function testCheckinActionRejectsAResourceWithoutPublicAccess(): void
+    {
+        $this->resourceRepository->_Resource = new FakeBookableResource(1);
+        $this->presenter->reservationCheckinHandler = $this->reservationCheckinHandler;
+
+        $this->presenter->Checkin();
+
+        $this->assertFalse($this->page->_ReservationCheckedInSuccessfully);
+        $this->assertNull($this->reservationCheckinHandler->_LastSeries);
+    }
+
+    public function testCheckinActionHonorsDisabledRoomSetting(): void
+    {
+        $resource = new FakeBookableResource(1);
+        $resource->EnableSubscription();
+        $this->resourceRepository->_Resource = $resource;
+        $this->presenter->reservationCheckinHandler = $this->reservationCheckinHandler;
+
+        $this->presenter->Checkin();
+
+        $this->assertFalse($this->page->_ReservationCheckedInSuccessfully);
+        $this->assertNull($this->reservationCheckinHandler->_LastSeries);
     }
 
     private function setupStandardExpectations($requiresCheckin = false, $checkinMin = 0)
@@ -351,6 +450,12 @@ class ResourceDisplayPresenterTest extends TestBase
 
     public function testChecksInAnonymously()
     {
+        Date::_SetNow(new Date('2018-03-07 11:28', 'UTC'));
+        $this->setupStandardExpectations(true, 30);
+        $this->page->_PublicResourceId = 'public-room';
+        $item = new TestReservationItemView(1, Date::Now()->ToTimezone('America/Chicago')->SubtractMinutes(5), Date::Now()->ToTimezone('America/Chicago')->AddMinutes(30), 1, '123');
+        $item->_RequiresCheckin = true;
+        $this->reservationService->_ReservationListing->_Reservations = [new ReservationListItem($item)];
         $this->page->_CheckinReferenceNumber = '123';
         $series = new TestHelperExistingReservationSeries();
         $this->reservationRepository->_Series = $series;
@@ -364,6 +469,95 @@ class ResourceDisplayPresenterTest extends TestBase
         $this->assertTrue($series->_WasCheckedIn);
         $this->assertEquals(new NullUserSession(), $series->_CheckedInBy);
         $this->assertEquals($this->reservationCheckinHandler->_Success, $this->page->_ReservationCheckedInSuccessfully);
+    }
+
+    public function testBatchesUniqueReservationOwnersAndUsesOwnerInsteadOfBooker(): void
+    {
+        Date::_SetNow(new Date('2018-03-07 11:28', 'UTC'));
+        $this->setupStandardExpectations();
+        $now = Date::Now()->ToTimezone('America/Chicago');
+        $this->groupBrandingProvider->_MembershipRows = [[
+            'user_id' => 31,
+            'group_id' => 9,
+            'name' => 'Research Team',
+            'logo_filename' => null,
+            'display_group_id' => null,
+        ]];
+
+        $first = new TestReservationItemView(1, $now->AddMinutes(20), $now->AddMinutes(50), 1, 'first');
+        $first->OwnerId = 31;
+        $first->UserId = 82;
+        $first->Title = 'Research review';
+        $second = new TestReservationItemView(2, $now->AddMinutes(60), $now->AddMinutes(90), 1, 'second');
+        $second->OwnerId = 31;
+        $second->UserId = 83;
+        $this->reservationService->_ReservationListing->_Reservations = [
+            new ReservationListItem($first),
+            new ReservationListItem($second),
+        ];
+
+        $this->presenter->DisplayResource('public-room', null);
+
+        $this->assertSame([[31]], $this->groupBrandingProvider->_OwnerIdBatches);
+        $this->assertSame(9, $this->page->_UpcomingReservations[0]['group']['groupId']);
+        $this->assertSame('Research review', $this->page->_UpcomingReservations[0]['title']);
+        $this->assertInstanceOf(NullUserSession::class, $this->privacyFilter->_LastViewDetailsUserSession);
+        $this->assertSame(31, $this->privacyFilter->_LastViewDetailsReservation->OwnerId);
+    }
+
+    public function testSuppressesGroupBrandingWhenPublicMeetingDetailsAreHidden(): void
+    {
+        Date::_SetNow(new Date('2018-03-07 11:28', 'UTC'));
+        $this->setupStandardExpectations();
+        $this->privacyFilter->_CanViewDetails = false;
+        $this->groupBrandingProvider->_MembershipRows = [[
+            'user_id' => 31,
+            'group_id' => 9,
+            'name' => 'Research Team',
+            'logo_filename' => null,
+            'display_group_id' => null,
+        ]];
+        $item = new TestReservationItemView(1, Date::Now()->ToTimezone('America/Chicago')->AddMinutes(20), Date::Now()->ToTimezone('America/Chicago')->AddMinutes(50), 1, 'private');
+        $item->OwnerId = 31;
+        $item->Title = 'Confidential meeting';
+        $this->reservationService->_ReservationListing->_Reservations = [new ReservationListItem($item)];
+
+        $this->presenter->DisplayResource('public-room', null);
+
+        $this->assertNull($this->page->_UpcomingReservations[0]['group']);
+        $this->assertSame(Resources::GetInstance()->GetString('Reserved'), $this->page->_UpcomingReservations[0]['title']);
+    }
+
+    public function testPrefersCurrentEligibleCheckinOverTheNextMeeting(): void
+    {
+        Date::_SetNow(new Date('2018-03-07 11:28', 'UTC'));
+        $this->setupStandardExpectations(true, 30);
+        $now = Date::Now()->ToTimezone('America/Chicago');
+        $upcoming = new TestReservationItemView(2, $now->AddMinutes(5), $now->AddMinutes(45), 1, 'upcoming-ref');
+        $upcoming->_RequiresCheckin = true;
+        $current = new TestReservationItemView(1, $now->SubtractMinutes(5), $now->AddMinutes(25), 1, 'current-ref');
+        $current->_RequiresCheckin = true;
+        $this->reservationService->_ReservationListing->_Reservations = [
+            new ReservationListItem($upcoming),
+            new ReservationListItem($current),
+        ];
+
+        $this->presenter->DisplayResource('public-room', null);
+
+        $this->assertTrue($this->page->_RequiresCheckIn);
+        $this->assertSame('current-ref', $this->page->_CheckinReferenceNumber);
+    }
+}
+
+class TestGroupBrandingProvider implements IGroupBrandingProvider
+{
+    public array $_MembershipRows = [];
+    public array $_OwnerIdBatches = [];
+
+    public function GetBrandingMemberships(array $ownerIds)
+    {
+        $this->_OwnerIdBatches[] = $ownerIds;
+        return $this->_MembershipRows;
     }
 }
 
@@ -389,6 +583,7 @@ class TestResourceDisplayPage extends FakePageBase implements IResourceDisplayPa
     public $_ReservationCreatedSuccessfully;
     public $_ReservationCheckedInSuccessfully;
     public $_Today;
+    public $_HasReservationsToday = false;
 
     /**
      * @var ReservationResultCollector
@@ -435,7 +630,7 @@ class TestResourceDisplayPage extends FakePageBase implements IResourceDisplayPa
 
     public function GetResourceId()
     {
-        return '';
+        return $this->_ResourceId;
     }
 
     public function DisplayLogin()
@@ -483,7 +678,7 @@ class TestResourceDisplayPage extends FakePageBase implements IResourceDisplayPa
         return $this->_PublicResourceId;
     }
 
-    public function DisplayAvailability(IDailyLayout $dailyLayout, Date $today, Date $reservationDate, $current, $next, $upcoming, $requiresCheckin, $checkinReferenceNumber)
+    public function DisplayAvailability(IDailyLayout $dailyLayout, Date $today, Date $reservationDate, $current, $next, $upcoming, $requiresCheckin, $checkinReferenceNumber, $hasReservationsToday)
     {
         $this->_DailyLayout = $dailyLayout;
         $this->_CurrentReservation = $current;
@@ -492,6 +687,7 @@ class TestResourceDisplayPage extends FakePageBase implements IResourceDisplayPa
         $this->_RequiresCheckIn = $requiresCheckin;
         $this->_CheckinReferenceNumber = $checkinReferenceNumber;
         $this->_Today = $today;
+        $this->_HasReservationsToday = $hasReservationsToday;
     }
 
     public function BindResource(BookableResource $resource)

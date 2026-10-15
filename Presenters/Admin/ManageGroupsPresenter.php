@@ -6,6 +6,7 @@ require_once(ROOT_DIR . 'lib/Application/Authentication/namespace.php');
 require_once(ROOT_DIR . 'lib/Application/Admin/GroupImportCsv.php');
 require_once(ROOT_DIR . 'lib/Application/Admin/CsvImportResult.php');
 require_once(ROOT_DIR . 'lib/Application/Admin/ResourcePermissionService.php');
+require_once(ROOT_DIR . 'lib/Application/Admin/ImageUploadDirectory.php');
 require_once(ROOT_DIR . 'Pages/Admin/ManageGroupsPage.php');
 
 class ManageGroupsActions
@@ -25,6 +26,8 @@ class ManageGroupsActions
     public const ResourceGroups = 'resourceGroups';
     public const ScheduleGroups = 'scheduleGroups';
     public const Import = 'import';
+    public const GroupLogo = 'groupLogo';
+    public const RemoveGroupLogo = 'removeGroupLogo';
 }
 
 class ManageGroupsPresenter extends ActionPresenter
@@ -91,6 +94,8 @@ class ManageGroupsPresenter extends ActionPresenter
         $this->AddAction(ManageGroupsActions::ResourceGroups, 'ChangeResourceGroups');
         $this->AddAction(ManageGroupsActions::ScheduleGroups, 'ChangeScheduleGroups');
         $this->AddAction(ManageGroupsActions::Import, 'Import');
+        $this->AddAction(ManageGroupsActions::GroupLogo, 'UploadGroupLogo');
+        $this->AddAction(ManageGroupsActions::RemoveGroupLogo, 'RemoveGroupLogo');
     }
 
     public function PageLoad()
@@ -286,6 +291,71 @@ class ManageGroupsPresenter extends ActionPresenter
         $this->groupRepository->Update($group);
     }
 
+    public function UploadGroupLogo()
+    {
+        $group = $this->GetAuthorizedGroupForLogoChange();
+        $upload = $this->page->GetUploadedLogo();
+        if ($group == null || $upload == null || $upload->IsError()) {
+            $this->page->SetJsonResponse(['success' => false, 'message' => Resources::GetInstance()->GetString('InvalidGroupLogo')]);
+            return;
+        }
+
+        $storage = new \LibreBooking\Application\Groups\GroupLogoStorage((new ImageUploadDirectory())->GetDirectory());
+        try {
+            $newFileName = $storage->store($upload->TemporaryName());
+        } catch (\Throwable $exception) {
+            Log::Error('Could not upload group logo for group %s. %s', $group->Id(), $exception->getMessage());
+            $this->page->SetJsonResponse(['success' => false, 'message' => Resources::GetInstance()->GetString('InvalidGroupLogo')]);
+            return;
+        }
+
+        $oldFileName = $group->LogoFileName();
+        $group->ChangeLogoFileName($newFileName);
+        try {
+            $this->groupRepository->Update($group);
+        } catch (\Throwable $exception) {
+            $storage->delete($newFileName);
+            Log::Error('Could not save group logo for group %s. %s', $group->Id(), $exception->getMessage());
+            $this->page->SetJsonResponse(['success' => false, 'message' => Resources::GetInstance()->GetString('InvalidGroupLogo')]);
+            return;
+        }
+
+        $storage->delete($oldFileName);
+        $imageUrl = rtrim((new ImageUploadDirectory())->GetPath(), '/') . '/' . rawurlencode($newFileName);
+        $this->page->SetJsonResponse(['success' => true, 'fileName' => $newFileName, 'url' => $imageUrl]);
+    }
+
+    public function RemoveGroupLogo()
+    {
+        $group = $this->GetAuthorizedGroupForLogoChange();
+        if ($group == null) {
+            $this->page->SetJsonResponse(['success' => false]);
+            return;
+        }
+
+        $oldFileName = $group->LogoFileName();
+        $group->ChangeLogoFileName(null);
+        $this->groupRepository->Update($group);
+        (new \LibreBooking\Application\Groups\GroupLogoStorage((new ImageUploadDirectory())->GetDirectory()))->delete($oldFileName);
+        $this->page->SetJsonResponse(['success' => true]);
+    }
+
+    private function GetAuthorizedGroupForLogoChange()
+    {
+        $groupId = $this->page->GetGroupId();
+        if (empty($groupId)) {
+            return null;
+        }
+
+        $group = $this->groupRepository->LoadById($groupId);
+        if ($group == null || $group->Id() != $groupId) {
+            Log::Error('Group logo update denied for inaccessible group %s', $groupId);
+            return null;
+        }
+
+        return $group;
+    }
+
     public function DeleteGroup()
     {
         $groupId = $this->page->GetGroupId();
@@ -293,7 +363,9 @@ class ManageGroupsPresenter extends ActionPresenter
         Log::Debug('Deleting groupId: %s', $groupId);
 
         $group = $this->groupRepository->LoadById($groupId);
+        $logoFileName = $group->LogoFileName();
         $this->groupRepository->Remove($group);
+        (new \LibreBooking\Application\Groups\GroupLogoStorage((new ImageUploadDirectory())->GetDirectory()))->delete($logoFileName);
     }
 
     public function ChangeGroupAdmin()

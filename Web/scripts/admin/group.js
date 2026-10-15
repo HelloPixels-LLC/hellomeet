@@ -93,6 +93,8 @@ function GroupManagement(opt) {
     groupList.on('click', '.changeAdminSchedules', () => changeAdminSchedules());
     groupList.on('click', '.delete', () => deleteGroup());
     groupList.on('click', '.roles', () => changeRoles());
+    groupList.on('submit', '.group-logo-form', uploadGroupLogo);
+    groupList.on('click', '.remove-group-logo', removeGroupLogo);
 
     //user selection for group
     browseUserDialog.on('click', '.add', (e) => {
@@ -285,6 +287,67 @@ function GroupManagement(opt) {
 
   var setActiveId = function (button) {
     activeId = button.parents('tr').data('group-id');
+  };
+
+  var uploadGroupLogo = function (e) {
+    e.preventDefault();
+    var form = e.currentTarget;
+    var file = $(form).find('.group-logo-file')[0];
+    if (!file || !file.files || file.files.length === 0) {
+      return;
+    }
+
+    var formData = new FormData(form);
+    var csrf = $('#csrf_token');
+    if (csrf.length && csrf.attr('name')) {
+      formData.append(csrf.attr('name'), csrf.val());
+    }
+
+    $.ajax({
+      url: options.submitUrl + '?action=' + options.actions.groupLogo,
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      dataType: 'json',
+    })
+      .done(function (result) {
+        if (result && result.success) {
+          window.location.reload();
+        } else {
+          alert((result && result.message) || options.logoSaveFailedMessage);
+        }
+      })
+      .fail(function () {
+        alert(options.logoSaveFailedMessage);
+      });
+  };
+
+  var removeGroupLogo = function (e) {
+    e.preventDefault();
+    var groupId = $(e.currentTarget).data('group-id');
+    var data = { group_id: groupId };
+    var csrf = $('#csrf_token');
+    if (csrf.length && csrf.attr('name')) {
+      data[csrf.attr('name')] = csrf.val();
+    }
+
+    $.ajax({
+      url: options.submitUrl + '?action=' + options.actions.removeGroupLogo + '&gid=' + encodeURIComponent(groupId),
+      type: 'POST',
+      data: data,
+      dataType: 'json',
+    })
+      .done(function (result) {
+        if (result && result.success) {
+          window.location.reload();
+        } else {
+          alert(options.logoRemoveFailedMessage);
+        }
+      })
+      .fail(function () {
+        alert(options.logoRemoveFailedMessage);
+      });
   };
 
   //change group details

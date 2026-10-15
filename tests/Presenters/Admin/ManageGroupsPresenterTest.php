@@ -90,6 +90,21 @@ class ManageGroupsPresenterTest extends TestBase
         $this->assertEquals([3, 6], $actualView);
     }
 
+    public function testGroupLogoUploadRejectsGroupsOutsideRepositoryScope(): void
+    {
+        $this->page->_GroupId = 7;
+        $this->groupRepository
+            ->expects($this->once())
+            ->method('LoadById')
+            ->with(7)
+            ->willReturn(Group::null());
+        $this->groupRepository->expects($this->never())->method('Update');
+
+        $this->presenter->UploadGroupLogo();
+
+        $this->assertFalse($this->page->_JsonResponse['success']);
+    }
+
     public function testChangePermissionsRejectsResourcesOutsideAdminScope()
     {
         // Admin can manage resources [1, 2]
@@ -262,6 +277,7 @@ class FakeManageGroupsPage extends FakeActionPageBase implements IManageGroupsPa
     public $_Exported = false;
     /** @var string[]|null */
     public ?array $_AllowedResourceIds = null;
+    public $_JsonResponse;
 
     public function GetGroupId()
     {
@@ -288,6 +304,7 @@ class FakeManageGroupsPage extends FakeActionPageBase implements IManageGroupsPa
 
     public function SetJsonResponse($response)
     {
+        $this->_JsonResponse = $response;
     }
 
     public function GetUserId()
@@ -315,6 +332,11 @@ class FakeManageGroupsPage extends FakeActionPageBase implements IManageGroupsPa
     public function GetGroupName()
     {
         return '';
+    }
+
+    public function GetUploadedLogo()
+    {
+        return null;
     }
 
     public function GetRoleIds()

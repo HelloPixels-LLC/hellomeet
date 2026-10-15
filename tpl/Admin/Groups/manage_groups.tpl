@@ -1,4 +1,4 @@
-{include file='globalheader.tpl' DataTable=true}
+{include file='globalheader.tpl' DataTable=true cssFiles='css/manage-groups.css'}
 
 <div id="page-manage-groups" class="admin-page">
     <div class="border-bottom mb-3 clearfix">
@@ -53,6 +53,7 @@
                 <thead>
                     <tr>
                         <th>{translate key='GroupName'}</th>
+                        <th>{translate key='GroupLogo'}</th>
                         <th>{translate key='GroupMembers'}</th>
                         <th>{translate key='Permissions'}</th>
                         {if $CanChangeRoles}
@@ -67,6 +68,29 @@
                     {foreach from=$groups item=group}
                         <tr data-group-id="{$group->Id}" data-group-default="{$group->IsDefault}">
                             <td class="dataGroupName">{$group->Name}</td>
+                            <td class="group-logo-cell">
+                                {if $group->LogoFileName}
+                                    <img class="group-logo-thumbnail" src="{$GroupLogoBaseUrl}{$group->LogoFileName|escape}"
+                                        alt="{translate key='GroupLogo'}" loading="lazy" />
+                                {else}
+                                    <span class="text-muted small">{translate key='NoGroupLogo'}</span>
+                                {/if}
+                                <form class="group-logo-form mt-1" method="post" enctype="multipart/form-data"
+                                    action="{$smarty.server.SCRIPT_NAME}?gid={$group->Id}&amp;action={ManageGroupsActions::GroupLogo}">
+                                    <input type="hidden" {formname key=GROUP_ID} value="{$group->Id}" />
+                                    <label class="visually-hidden" for="groupLogo{$group->Id}">{translate key='GroupLogo'}</label>
+                                    <input type="file" id="groupLogo{$group->Id}" {formname key=GROUP_LOGO}
+                                        accept="image/png,image/jpeg,image/webp" class="form-control form-control-sm group-logo-file"
+                                        aria-label="{translate key='GroupLogo'}" />
+                                    <button type="submit" class="btn btn-sm btn-outline-primary mt-1">
+                                        {if $group->LogoFileName}{translate key='Replace'}{else}{translate key='Upload'}{/if}
+                                    </button>
+                                    {if $group->LogoFileName}
+                                        <button type="button" class="btn btn-sm btn-outline-danger mt-1 remove-group-logo"
+                                            data-group-id="{$group->Id}">{translate key='Remove'}</button>
+                                    {/if}
+                                </form>
+                            </td>
                             <td><a href="#" class="update members link-primary">{translate key='Manage'}</a></td>
                             <td><a href="#" class="update permissions link-primary">{translate key='Change'}</a></td>
                             {if $CanChangeRoles}
@@ -579,7 +603,9 @@
                 adminGroups: '{ManageGroupsActions::AdminGroups}',
                 resourceGroups: '{ManageGroupsActions::ResourceGroups}',
                 scheduleGroups: '{ManageGroupsActions::ScheduleGroups}',
-                importGroups: '{ManageGroupsActions::Import}'
+                importGroups: '{ManageGroupsActions::Import}',
+                groupLogo: '{ManageGroupsActions::GroupLogo}',
+                removeGroupLogo: '{ManageGroupsActions::RemoveGroupLogo}'
             };
 
             var dataRequests = {
@@ -599,6 +625,8 @@
                         rolesUrl: '{$smarty.server.SCRIPT_NAME}',
                         submitUrl: '{$smarty.server.SCRIPT_NAME}',
                         saveRedirect: '{$smarty.server.SCRIPT_NAME}',
+                        logoSaveFailedMessage: '{translate key=GroupLogoSaveFailed|escape:"javascript"}',
+                        logoRemoveFailedMessage: '{translate key=GroupLogoRemoveFailed|escape:"javascript"}',
                         selectGroupUrl: '{$smarty.server.SCRIPT_NAME}?gid=',
                         actions: actions,
                         dataRequests: dataRequests

@@ -758,6 +758,7 @@ class FakeManageUsersPage extends FakeActionPageBase implements IManageUsersPage
      * @var int
      */
     public $_UserGroup;
+    public $_DisplayGroupId;
     public $_JsonResponse;
     public $_ReservationColor = '';
     public $_Value = '';
@@ -881,6 +882,11 @@ class FakeManageUsersPage extends FakeActionPageBase implements IManageUsersPage
     public function GetUserGroup()
     {
         return $this->_UserGroup;
+    }
+
+    public function GetDisplayGroupId()
+    {
+        return $this->_DisplayGroupId;
     }
 
     public function BindGroups($groups)

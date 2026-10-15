@@ -667,6 +667,19 @@
                     <div id="removedGroups">
                     </div>
 
+                    <div class="mt-3">
+                        <label for="displayGroupId" class="form-label">{translate key=PreferredDisplayGroup}</label>
+                        <form id="displayGroupForm" method="post" ajaxAction="{ManageUsersActions::ChangeDisplayGroup}">
+                            <select id="displayGroupId" class="form-select"
+                                data-automatic-label="{translate key=AutomaticGroupSelection|escape:'html'}"
+                                data-unavailable-label="{translate key=CurrentDisplayGroupUnavailable|escape:'html'}"
+                                {formname key=USER_DISPLAY_GROUP_ID}>
+                                <option value="">{translate key=AutomaticGroupSelection}</option>
+                            </select>
+                            <div class="form-text" id="displayGroupHelp">{translate key=PreferredDisplayGroupHelp}</div>
+                        </form>
+                    </div>
+
                     <form id="addGroupForm" method="post" ajaxAction="addUser">
                         <input type="hidden" id="addGroupId" {formname key=GROUP_ID} />
                         <input type="hidden" id="addGroupUserId" {formname key=USER_ID} />
@@ -754,6 +767,7 @@
                 filterUrl: '{$smarty.server.SCRIPT_NAME}?{QueryStringKeys::ACCOUNT_STATUS}=',
                 actions: actions,
                 manageReservationsUrl: '{$ManageReservationsUrl}',
+                displayGroupSaveFailedMessage: '{translate key=DisplayGroupSaveFailed|escape:"javascript"}',
             };
 
             var userManagement = new UserManagement(userOptions);

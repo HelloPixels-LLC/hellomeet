@@ -25,6 +25,8 @@ function UserManagement(opts) {
     groupList: $('#groupList'),
     addGroupForm: $('#addGroupForm'),
     removeGroupForm: $('#removeGroupForm'),
+    displayGroupForm: $('#displayGroupForm'),
+    displayGroupId: $('#displayGroupId'),
     groupCount: $('#groupCount'),
 
     colorDialog: $('#colorDialog'),
@@ -155,6 +157,10 @@ function UserManagement(opts) {
       elements.groupCount.text(++count);
 
       $(this).appendTo(elements.addedGroups);
+    });
+
+    elements.displayGroupId.on('change', function () {
+      elements.displayGroupForm.submit();
     });
 
     // Handle click to set all resources to "Full Access"
@@ -348,6 +354,15 @@ function UserManagement(opts) {
     ConfigureAsyncForm(elements.importUsersForm, defaultSubmitCallback(elements.importUsersForm), importHandler);
     ConfigureAsyncForm(elements.addGroupForm, changeGroupUrlCallback(elements.addGroupForm), function () {});
     ConfigureAsyncForm(elements.removeGroupForm, changeGroupUrlCallback(elements.removeGroupForm), function () {});
+    ConfigureAsyncForm(
+      elements.displayGroupForm,
+      defaultSubmitCallback(elements.displayGroupForm),
+      function (response) {
+        if (!response || response.success !== true) {
+          window.alert(opts.displayGroupSaveFailedMessage);
+        }
+      }
+    );
     ConfigureAsyncForm(elements.invitationForm, defaultSubmitCallback(elements.invitationForm), inviteHandler);
     ConfigureAsyncForm(elements.deleteMultipleUserForm, defaultSubmitCallback(elements.deleteMultipleUserForm));
   };
@@ -425,7 +440,8 @@ function UserManagement(opts) {
 
     var user = getActiveUser();
     var data = { dr: 'groups', uid: user.id };
-    $.get(opts.groupsUrl, data, function (groupIds) {
+    $.get(opts.groupsUrl, data, function (groupData) {
+      var groupIds = groupData.groups || [];
       elements.groupList.find('.group-item').clone().appendTo(elements.removedGroups);
 
       var count = 0;
@@ -437,6 +453,30 @@ function UserManagement(opts) {
       });
 
       elements.groupCount.text(count);
+
+      var availableGroups = {};
+      elements.displayGroupId.empty();
+      elements.displayGroupId.append(
+        $('<option/>', { value: '', text: elements.displayGroupId.data('automatic-label') })
+      );
+      $.each(groupData.displayGroups || [], function (index, group) {
+        availableGroups[group.id] = true;
+        elements.displayGroupId.append($('<option/>', { value: group.id, text: group.name }));
+      });
+
+      if (groupData.displayGroupId && !availableGroups[groupData.displayGroupId]) {
+        elements.displayGroupId.append(
+          $('<option/>', {
+            value: groupData.displayGroupId,
+            text: elements.displayGroupId.data('unavailable-label'),
+            disabled: true,
+            selected: true,
+          })
+        );
+      } else {
+        elements.displayGroupId.val(groupData.displayGroupId || '');
+      }
+      elements.displayGroupId.prop('disabled', !groupData.canChangeDisplayGroup);
     });
 
     elements.groupsDialog.modal('show');

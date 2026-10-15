@@ -89,6 +89,8 @@ class ParameterNames
     public const GROUP_NAME = '@groupname';
     public const GROUP_ADMIN_ID = '@admin_group_id';
     public const GROUP_ISDEFAULT = '@isdefault';
+    public const GROUP_LOGO_FILENAME = '@logo_filename';
+    public const DISPLAY_GROUP_ID = '@display_group_id';
 
     public const HOMEPAGE_ID = '@homepageid';
 
