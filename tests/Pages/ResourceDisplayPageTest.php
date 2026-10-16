@@ -41,6 +41,32 @@ class ResourceDisplayPageTest extends TestBase
         $this->assertSame('', $page->GetPassword());
     }
 
+    public function testPublicDisplaySeparatesScheduleTodayFromSelectedBookingDate(): void
+    {
+        Date::_SetNow(new Date('2016-03-07 18:28', 'UTC'));
+        $now = Date::Now()->ToTimezone('America/Chicago');
+        $today = $now->GetDate();
+        $bookingDate = Date::Parse('2035-05-06', 'America/Chicago')->GetDate();
+        $page = new TestableResourceDisplayPage();
+
+        $page->DisplayAvailability(
+            $this->createMock(IDailyLayout::class),
+            $now,
+            $bookingDate,
+            null,
+            null,
+            [],
+            false,
+            '',
+            false
+        );
+
+        $variables = $page->TemplateVariables();
+        $this->assertEquals($today, $variables['Today']);
+        $this->assertEquals($now, $variables['Now']);
+        $this->assertEquals($bookingDate, $variables['ReservationDate']);
+    }
+
     /**
      * @return array<string, array{0:string}>
      */
@@ -63,5 +89,22 @@ class ResourceDisplayPageTest extends TestBase
         $serverProperty->setValue($page, new Server());
 
         return $page;
+    }
+}
+
+class TestableResourceDisplayPage extends ResourceDisplayPage
+{
+    public function __construct()
+    {
+        $this->smarty = new \Smarty\Smarty();
+    }
+
+    protected function Display($templateName)
+    {
+    }
+
+    public function TemplateVariables(): array
+    {
+        return $this->smarty->getTemplateVars();
     }
 }

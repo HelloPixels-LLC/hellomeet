@@ -202,14 +202,15 @@ function ResourceDisplay(opts) {
         .done(function (html) {
           var displayUpdated = true;
           if (refreshEnabled) {
+            var bookingDateToolbar = elements.bookingDateToolbar.detach();
             if ($('<div/>').html(html).find('#resource-display').length) {
               elements.placeholder.html(html);
-              moveBookingDateToolbar();
+              moveBookingDateToolbar(bookingDateToolbar);
               bindCurrentForms();
               bookingSlotsTrusted = true;
             } else {
-              elements.bookingDateToolbar.addClass('d-none').detach();
               elements.placeholder.html(html);
+              moveBookingDateToolbar(bookingDateToolbar);
               displayUpdated = false;
             }
           } else {
@@ -247,29 +248,34 @@ function ResourceDisplay(opts) {
         });
     }
 
-    function moveBookingDateToolbar() {
+    function moveBookingDateToolbar(dateToolbar) {
       var bookingDatePlaceholder = $('#booking-date-placeholder');
-      if (!bookingDatePlaceholder.length || !elements.bookingDateToolbar.length) {
-        var dateToolbar = elements.bookingDateToolbar.addClass('d-none').detach();
-        $('#page-resource-display-resource').prepend(dateToolbar);
+      var toolbar = dateToolbar || elements.bookingDateToolbar;
+      if (!toolbar.length) {
         return;
       }
 
-      bookingDatePlaceholder.append(elements.bookingDateToolbar.removeClass('d-none'));
+      if (!bookingDatePlaceholder.length) {
+        $('#page-resource-display-resource').prepend(toolbar.addClass('d-none'));
+        return;
+      }
+
+      bookingDatePlaceholder.append(toolbar.removeClass('d-none'));
     }
 
     function updatePublicDisplay(html) {
       var freshDisplay = $('<div/>').html(html).find('#resource-display');
       var currentDisplay = $('#resource-display');
       if (!freshDisplay.length || !currentDisplay.length) {
+        var bookingDateToolbar = elements.bookingDateToolbar.detach();
         elements.placeholder.html(html);
-        moveBookingDateToolbar();
+        moveBookingDateToolbar(bookingDateToolbar);
         return false;
       }
 
-      currentDisplay.find('.focus-brand-header').replaceWith(freshDisplay.find('.focus-brand-header'));
+      currentDisplay.find('.focus-top').replaceWith(freshDisplay.find('.focus-top'));
       currentDisplay.find('.focus-room-row').replaceWith(freshDisplay.find('.focus-room-row'));
-      currentDisplay.find('.focus-main > .row').replaceWith(freshDisplay.find('.focus-main > .row'));
+      currentDisplay.find('.focus-content').replaceWith(freshDisplay.find('.focus-content'));
       currentDisplay.find('.focus-footer').replaceWith(freshDisplay.find('.focus-footer'));
       currentDisplay.attr('data-timezone', freshDisplay.attr('data-timezone'));
       currentDisplay.attr('data-schedule-today', freshDisplay.attr('data-schedule-today'));
@@ -322,9 +328,9 @@ function ResourceDisplay(opts) {
           currentForm.find('.focus-slot-table-wrap').replaceWith(freshForm.find('.focus-slot-table-wrap'));
           replaceSelectOptions(currentForm.find('#beginPeriod'), freshForm.find('#beginPeriod'));
           replaceSelectOptions(currentForm.find('#endPeriod'), freshForm.find('#endPeriod'));
-          var refreshedDate = freshForm.find('input[name*="BEGIN_DATE"]').val();
+          var refreshedDate = freshForm.find('#reservationBeginDate').val();
           if (refreshedDate) {
-            currentForm.find('input[name*="BEGIN_DATE"]').val(refreshedDate);
+            currentForm.find('#reservationBeginDate').val(refreshedDate);
           }
           bindCurrentForms();
           bookingSlotsTrusted = true;
@@ -466,6 +472,17 @@ function ResourceDisplay(opts) {
         display.addClass('is-stale');
         display.find('.focus-status-card').attr('data-state', 'stale');
         display.find('.focus-status-label').text(options.offlineLabel || 'Connection lost');
+        display.find('.focus-hero-word').text(options.unavailableLabel || 'Status unavailable.');
+        display.find('.focus-meeting').text(options.reconnectingMessage || 'Reconnecting to the room schedule…');
+        var lastUpdated = $('#last-updated').text();
+        display
+          .find('.focus-time')
+          .text(lastUpdated ? (options.lastUpdatedAtLabel || 'Last updated at') + ' ' + lastUpdated : '');
+        display.find('.focus-countdown').empty();
+        display
+          .find('.focus-countdown-label')
+          .text(options.liveAvailabilityLabel || 'Live availability will return when connected.');
+        display.find('.focus-host, #formCheckin, .focus-checkin-confirmation').addClass('d-none');
         display.find('[data-public-action], #formCheckin :submit, #formReserve :submit').prop('disabled', true);
       } else {
         elements.placeholder.find('.focus-loading').text(options.offlineLabel || 'Connection lost');
@@ -499,16 +516,25 @@ function ResourceDisplay(opts) {
         }
       }
       try {
-        clock.text(formatTime(new Date(), timezone, true));
+        clock.text(formatTime(new Date(), timezone, false));
         date.text(
           new Intl.DateTimeFormat(undefined, {
             timeZone: timezone,
             weekday: 'long',
             month: 'long',
             day: 'numeric',
-            year: 'numeric',
           }).format(new Date())
         );
+        var timeZone = $('#room-timezone');
+        var parts = new Intl.DateTimeFormat(undefined, {
+          timeZone: timezone,
+          timeZoneName: 'shortOffset',
+        }).formatToParts(new Date());
+        var offset = $.grep(parts, function (part) {
+          return part.type === 'timeZoneName';
+        })[0];
+        var location = String(timezone).split('/').pop().replace(/_/g, ' ');
+        timeZone.text(location + (offset ? ' · ' + offset.value : ''));
       } catch {
         clock.text(new Date().toLocaleTimeString());
         date.text(new Date().toLocaleDateString());
@@ -516,6 +542,7 @@ function ResourceDisplay(opts) {
 
       updateCountdowns();
       updateDurations();
+      updateMeetingTimes(timezone);
 
       var scheduleToday = String(root.data('schedule-today') || '');
       var localToday = dateInTimezone(new Date(), timezone);
@@ -575,10 +602,16 @@ function ResourceDisplay(opts) {
       $('.focus-countdown[data-countdown-target]').each(function () {
         var countdown = $(this);
         var remaining = Math.max(0, Math.floor(Number(countdown.data('countdown-target')) - Date.now() / 1000));
-        var hours = Math.floor(remaining / 3600);
-        var minutes = Math.floor((remaining % 3600) / 60);
-        var seconds = remaining % 60;
-        var text = (hours > 0 ? hours + ':' + pad(minutes) : minutes) + ':' + pad(seconds);
+        var totalMinutes = Math.ceil(remaining / 60);
+        var hours = Math.floor(totalMinutes / 60);
+        var minutes = totalMinutes % 60;
+        var text = '';
+        if (hours > 0) {
+          text = hours + ' ' + options.durationHoursLabel;
+        }
+        if (minutes > 0 || text === '') {
+          text += (text ? ' ' : '') + minutes + ' ' + options.durationMinutesLabel;
+        }
         countdown.text(text);
 
         if (remaining === 0) {
@@ -596,6 +629,20 @@ function ResourceDisplay(opts) {
       });
     }
 
+    function updateMeetingTimes(timezone) {
+      $('.focus-time [data-time-timestamp]').each(function () {
+        var time = $(this);
+        time.text(formatTime(new Date(Number(time.data('time-timestamp')) * 1000), timezone, false));
+      });
+
+      $('.focus-event-time[data-start-ts]').each(function () {
+        var time = $(this);
+        var start = formatTime(new Date(Number(time.data('start-ts')) * 1000), timezone, false);
+        var end = formatTime(new Date(Number(time.data('end-ts')) * 1000), timezone, false);
+        time.text(start + ' – ' + end);
+      });
+    }
+
     function updateDurations() {
       $('.focus-agenda-item').each(function () {
         var row = $(this);
@@ -605,17 +652,17 @@ function ResourceDisplay(opts) {
         var minutes = totalMinutes % 60;
         var duration = '';
         if (hours > 0) {
-          duration += hours + ' ' + options.durationHoursLabel;
+          duration += hours + ' ' + (hours === 1 ? options.durationHourWordLabel : options.durationHoursWordLabel);
         }
         if (minutes > 0 || duration === '') {
-          duration += (duration ? ' ' : '') + minutes + ' ' + options.durationMinutesLabel;
+          duration +=
+            (duration ? ' ' : '') +
+            minutes +
+            ' ' +
+            (minutes === 1 ? options.durationMinuteWordLabel : options.durationMinutesWordLabel);
         }
         row.find('.focus-duration').text(duration);
       });
-    }
-
-    function pad(number) {
-      return number < 10 ? '0' + number : String(number);
     }
   };
 

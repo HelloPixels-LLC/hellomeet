@@ -292,7 +292,7 @@ class ResourceDisplayPresenterTest extends TestBase
             $this->reservationService->_ReservationListing,
             $this->scheduleRepository->_Layout
         ), $this->page->_DailyLayout);
-        $this->assertEquals($expectedDate, $this->page->_Today);
+        $this->assertEquals($expectedDate, $this->page->_Today->GetDate());
     }
 
     public function testWhenBookingSucceeds()

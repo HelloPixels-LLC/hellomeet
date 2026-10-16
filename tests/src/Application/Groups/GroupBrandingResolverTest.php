@@ -28,6 +28,15 @@ class GroupBrandingResolverTest extends TestBase
         $this->assertSame('group-logo-0123456789abcdef0123456789abcdef.webp', $resolved[17]['logoFileName']);
     }
 
+    public function testSingleCurrentMembershipIgnoresStalePreference(): void
+    {
+        $resolved = $this->resolver->resolve([
+            $this->membership(22, 12, 'Operations', null, 99),
+        ]);
+
+        $this->assertSame(12, $resolved[22]['groupId']);
+    }
+
     public function testUsesAValidPreferredGroupForMultipleMemberships(): void
     {
         $resolved = $this->resolver->resolve([
@@ -46,6 +55,7 @@ class GroupBrandingResolverTest extends TestBase
             $this->membership(17, 4, 'Finance', null, null),
             $this->membership(17, 9, 'Research', null, null),
             $this->membership(22, 12, 'Operations', null, 99),
+            $this->membership(22, 13, 'Facilities', null, 99),
         ]);
 
         $this->assertArrayNotHasKey(17, $resolved);

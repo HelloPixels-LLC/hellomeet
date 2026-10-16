@@ -267,9 +267,9 @@ class ResourceDisplayPage extends ActionPage implements IResourceDisplayPage, IR
     public function DisplayAvailability(IDailyLayout $dailyLayout, Date $today, Date $reservationDate, $current, $next, $upcoming, $requiresCheckin, $checkinReferenceNumber, $hasReservationsToday)
     {
         $this->Set('TimeFormat', Resources::GetInstance()->GetDateFormat('period_time'));
-        $this->Set('Today', $today);
+        $this->Set('Today', $today->GetDate());
         $this->Set('ReservationDate', $reservationDate);
-        $this->Set('Now', Date::Now());
+        $this->Set('Now', $today);
         $this->Set('DailyLayout', $dailyLayout);
         $this->Set('SlotLabelFactory', new SlotLabelFactory(new NullUserSession()));
         $this->Set('CurrentReservation', $current);

@@ -34,7 +34,7 @@ class GroupLogoStorageTest extends TestBase
     {
         $source = $this->directory . DIRECTORY_SEPARATOR . 'upload.tmp';
         file_put_contents($source, base64_decode(
-            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC',
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAADElEQVQImWP4z8AAAAMBAQCc479ZAAAAAElFTkSuQmCC',
             true
         ));
 

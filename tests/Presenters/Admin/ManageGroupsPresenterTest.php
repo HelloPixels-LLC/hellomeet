@@ -218,7 +218,7 @@ class ManageGroupsPresenterTest extends TestBase
     {
         $source = $this->logoDirectory . DIRECTORY_SEPARATOR . 'source.png';
         file_put_contents($source, base64_decode(
-            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC',
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAADElEQVQImWP4z8AAAAMBAQCc479ZAAAAAElFTkSuQmCC',
             true
         ));
         return $source;

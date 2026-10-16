@@ -344,6 +344,11 @@ abstract class GroupControllerPageFacade implements IManageGroupsPage
         return null;
     }
 
+    public function GetUploadedLogo(): ?UploadedFile
+    {
+        return null;
+    }
+
     public function GetRoleIds(): array
     {
         return [];

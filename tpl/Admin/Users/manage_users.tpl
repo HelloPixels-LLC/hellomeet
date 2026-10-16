@@ -730,7 +730,8 @@
     {jsfile src="admin/user.js"}
     {vendor_js src="jquery-form/3.09/jquery.form-3.09.min.js"}
 
-    <script type="text/javascript">
+{capture assign=displayGroupSaveFailedMessage}{translate key=DisplayGroupSaveFailed}{/capture}
+<script type="text/javascript">
         function setUpEditables() {
             $.fn.editable.defaults.mode = 'popup';
             $.fn.editable.defaults.toggle = 'manual';
@@ -767,7 +768,7 @@
                 filterUrl: '{$smarty.server.SCRIPT_NAME}?{QueryStringKeys::ACCOUNT_STATUS}=',
                 actions: actions,
                 manageReservationsUrl: '{$ManageReservationsUrl}',
-                displayGroupSaveFailedMessage: '{{translate key=DisplayGroupSaveFailed}|escape:'javascript'}',
+                displayGroupSaveFailedMessage: '{$displayGroupSaveFailedMessage|escape:"javascript"}',
             };
 
             var userManagement = new UserManagement(userOptions);

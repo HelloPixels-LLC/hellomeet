@@ -47,6 +47,8 @@
       window.BeforeSerialize = function () {};
       window.userAutoComplete = function () {};
       window.resourceDisplayRequests = [];
+      window.completedPublicReads = 0;
+      window.lastReserveData = null;
       window.failNextPublicRead = false;
       window.bookingEnabled = true;
       window.clockOffset = 0;
@@ -77,25 +79,30 @@
             : '<option value="09:00">09:00</option><option value="09:30">09:30</option>';
         var beginDate = dateKind === 'future' ? '2035-05-06' : todayUtc();
         var status =
-          '<div class="row g-4"><section class="col-12 col-lg-7"><div class="focus-status-card" data-state="booked">' +
-          '<div class="focus-status-topline"><span class="focus-status-dot"></span><span class="focus-status-label">Booked</span></div>' +
-          '<h2 class="focus-hero-word">Booked</h2><div class="focus-meeting-main">' +
-          '<div class="focus-group-brand"><span class="focus-group-initials">OP</span><span class="focus-group-name">Operations</span></div>' +
-          '<div class="focus-meeting-copy"><p class="focus-eyebrow">Current meeting</p><h3>Fixture meeting</h3></div></div></div></section>' +
-          '<aside class="col-12 col-lg-5"><div class="focus-agenda-card"><ol class="focus-agenda-list"><li class="focus-agenda-item">' +
-          '<div class="focus-agenda-time"><strong>12:00</strong></div><div class="focus-agenda-details"><h3>Agenda item</h3>' +
-          '<div class="focus-agenda-group"><span class="focus-agenda-initials">OP</span><span class="focus-agenda-group-name">Operations</span></div>' +
-          '</div></li></ol></div></aside></div>';
+          '<section class="focus-current focus-status-card" data-state="booked">' +
+          '<div class="focus-status"><span class="focus-status-dot"></span><span class="focus-status-label">Meeting in progress</span></div>' +
+          '<h2 class="focus-hero-word">Booked.</h2><div class="focus-host">' +
+          '<div class="focus-host-logo focus-host-initials">OP</div><div class="focus-host-copy"><div class="focus-host-label">Hosted by</div><div class="focus-host-name">Operations</div></div></div>' +
+          '<h3 class="focus-meeting">Fixture meeting</h3><p class="focus-time">09:00 – 09:30</p>' +
+          '<div class="focus-countdown-row"><div><strong class="focus-countdown" data-countdown-target="' + (Math.floor(Date.now() / 1000) + 1800) + '">30 min</strong>' +
+          '<span class="focus-countdown-label">until this meeting ends</span></div></div></section>' +
+          '<aside class="focus-agenda"><div class="focus-agenda-heading"><h2>Up next</h2><span>Today</span></div>' +
+          '<ol class="focus-agenda-list"><li class="focus-agenda-item" data-start-ts="' + (Math.floor(Date.now() / 1000) + 3600) + '" data-end-ts="' + (Math.floor(Date.now() / 1000) + 5400) + '">' +
+          '<div class="focus-event-top"><span class="focus-event-time">10:00 – 10:30</span><span class="focus-next-tag">Next</span></div>' +
+          '<h3 class="focus-agenda-title">Agenda item</h3><span class="focus-duration">30 minutes</span>' +
+          '<div class="focus-event-host"><span class="focus-event-initials">OP</span><span class="focus-event-host-name">Operations</span></div></li></ol></aside>';
+        var bookingButton = showBooking
+          ? '<button type="button" id="reservePopup" class="focus-book-link" data-bs-toggle="modal" data-bs-target="#reservation-box" data-public-action="true">Book this room ↗</button>'
+          : '';
         var booking = showBooking
-          ? '<div class="focus-booking-row"><button type="button" id="reservePopup" class="btn focus-book-button" data-bs-toggle="modal" data-bs-target="#reservation-box" data-public-action="true">Book</button></div>' +
-            '<div class="modal fade" id="reservation-box" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-fullscreen"><div class="modal-content">' +
+          ? '<div class="modal fade" id="reservation-box" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-fullscreen"><div class="modal-content">' +
             '<div class="modal-header"><h2 class="modal-title">Book room</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>' +
             '<div class="modal-body"><div id="booking-date-placeholder"></div><form id="formReserve" action="/reserve" method="post">' +
             '<div id="validationErrors" class="d-none"><ul></ul></div><div class="focus-slot-table-wrap"><table class="focus-slot-table"><tbody><tr><td class="slot reservable" data-begin="09:00" data-end="09:30">09:00</td></tr></tbody></table></div>' +
-            '<select id="beginPeriod" name="BEGIN_PERIOD">' +
+            '<select id="beginPeriod" name="beginPeriod">' +
             beginOptions +
-            '</select><select id="endPeriod" name="END_PERIOD"><option value="09:30">09:30</option><option value="10:00">10:00</option></select>' +
-            '<input type="hidden" name="BEGIN_DATE" value="' +
+            '</select><select id="endPeriod" name="endPeriod"><option value="09:30">09:30</option><option value="10:00">10:00</option></select>' +
+            '<input type="hidden" id="reservationBeginDate" name="beginDate" value="' +
             beginDate +
             '" /><input type="email" id="emailAddress" required />' +
             '<input type="text" id="requiredAttribute" required /><input type="checkbox" id="termsAndConditionsAcknowledgement" />' +
@@ -107,13 +114,12 @@
           '" data-now="' +
           Math.floor(Date.now() / 1000) +
           '">' +
-          '<header class="focus-brand-header"><div class="focus-wordmark">Hello<span>Meet</span></div></header>' +
-          '<div class="focus-room-row"><div class="focus-room-details"><p class="focus-room-location">Fixture location</p><h1>Fixture room today</h1></div></div>' +
-          '<main class="container-fluid focus-main">' +
-          status +
-          booking +
-          '</main>' +
-          '<footer class="focus-footer"><span id="connection-status"><span class="connection-message"></span></span><time id="last-updated"></time></footer></div>';
+          '<header class="focus-top"><div class="focus-brand"><span class="focus-brand-mark"></span>hellomeet</div><span class="focus-room-display-caption">Room display</span></header>' +
+          '<div class="focus-room-row"><div class="focus-room-details"><div class="focus-room-location">Fixture location</div><h1>Fixture room today</h1></div>' +
+          '<div class="focus-clock"><time id="room-clock" class="focus-clock-time">--:--</time><div class="focus-clock-date" id="room-date">Today</div><div class="focus-clock-zone" id="room-timezone">UTC</div></div></div>' +
+          '<main class="focus-content">' + status + '</main>' +
+          '<footer class="focus-footer"><span id="connection-status" class="focus-connection-status" data-state="online"><span class="focus-connection-dot"></span><span class="connection-message">Updated just now</span><time id="last-updated" class="visually-hidden"></time></span>' +
+          '<div class="focus-footer-actions"><span>Availability follows room bookings</span>' + bookingButton + '</div></footer>' + booking + '</div>';
         return display;
       }
 
@@ -129,8 +135,10 @@
               request.reject();
             } else {
               request.resolve(renderResource(window.bookingEnabled, 'today'));
+              window.completedPublicReads += 1;
             }
           } else {
+            window.lastReserveData = settings.data;
             request.resolve({ success: true });
           }
         }, 0);
@@ -179,10 +187,18 @@
           onlineLabel: 'Connected',
           offlineLabel: 'Connection lost',
           retryingLabel: 'Retrying',
-          durationHoursLabel: 'hours',
-          durationMinutesLabel: 'minutes',
+          durationHoursLabel: 'hr',
+          durationMinutesLabel: 'min',
+          durationHourWordLabel: 'hour',
+          durationHoursWordLabel: 'hours',
+          durationMinuteWordLabel: 'minute',
+          durationMinutesWordLabel: 'minutes',
           startsNowLabel: 'Starting now',
           endsNowLabel: 'Ending now',
+          unavailableLabel: 'Status unavailable.',
+          reconnectingMessage: 'Reconnecting to the room schedule…',
+          lastUpdatedAtLabel: 'Last updated at',
+          liveAvailabilityLabel: 'Live availability will return when connected.',
           bookingFailedMessage: 'Booking failed',
           checkinFailedMessage: 'Check-in failed',
         });
@@ -191,17 +207,25 @@
           return $('#reservation-box').length === 1;
         });
 
-        var statusColumn = document.querySelector('.focus-main .col-lg-7').getBoundingClientRect();
-        var agendaColumn = document.querySelector('.focus-main .col-lg-5').getBoundingClientRect();
-        if (window.innerWidth >= 992) {
+        var statusColumn = document.querySelector('.focus-current').getBoundingClientRect();
+        var agendaColumn = document.querySelector('.focus-agenda').getBoundingClientRect();
+        if (window.innerWidth > 780) {
           assert(
-            Math.abs(statusColumn.top - agendaColumn.top) < 2 && agendaColumn.left > statusColumn.right,
+            Math.abs(statusColumn.top - agendaColumn.top) < 2 && agendaColumn.left >= statusColumn.right - 1,
             'At landscape tablet width, the status and agenda columns sit side by side.'
+          );
+          assert(
+            agendaColumn.left - statusColumn.right >= 8,
+            'At landscape tablet width, the status panel and agenda have a visible gutter.'
           );
         } else {
           assert(
-            agendaColumn.top > statusColumn.bottom,
+            agendaColumn.top >= statusColumn.bottom - 1,
             'At narrow portrait width, the agenda stacks below the status panel.'
+          );
+          assert(
+            agendaColumn.top - statusColumn.bottom >= 8,
+            'At narrow portrait width, the status panel and agenda have visible vertical spacing.'
           );
         }
 
@@ -209,6 +233,15 @@
           $('#booking-date-toolbar').parent().attr('id') === 'booking-date-placeholder',
           'The date picker belongs inside the booking modal.'
         );
+        window.dispatchEvent(new Event('online'));
+        await waitFor(function () {
+          return window.completedPublicReads >= 2;
+        });
+        window.dispatchEvent(new Event('online'));
+        await waitFor(function () {
+          return window.completedPublicReads >= 3;
+        });
+
         var modal = document.getElementById('reservation-box');
         document.getElementById('reservePopup').click();
         await new Promise(function (resolve) {
@@ -281,13 +314,30 @@
         assert($('#emailAddress').val() === 'person@example.test', 'Recovery preserves entered form values.');
         assert(document.getElementById('reservation-box') === modal, 'Recovery does not rebuild the open modal.');
 
-        bootstrap.Modal.getOrCreateInstance(modal).hide();
+        $('#formReserve').trigger('submit');
         await waitFor(function () {
-          return !$('#reservation-box').length;
+          return window.lastReserveData !== null;
+        });
+        assert(
+          window.lastReserveData.indexOf('beginDate=2035-05-06') >= 0,
+          'The reservation POST submits the selected booking date using the real beginDate form key.'
+        );
+        await waitFor(function () {
+          return (
+            $('#reservation-box').length === 1 &&
+            document.getElementById('reservation-box') !== modal &&
+            !$('#reservation-box').hasClass('show')
+          );
+        });
+        await waitFor(function () {
+          return document.querySelector('.modal-backdrop') === null;
         });
         assert($('#availabilityStartDate').val() === '', 'Closing the modal clears the selected future date.');
+        var lastPublicRead = window.resourceDisplayRequests.filter(function (request) {
+          return request.type === 'GET' && request.url.indexOf('&sd=') < 0;
+        }).pop();
         assert(
-          window.resourceDisplayRequests[window.resourceDisplayRequests.length - 1].url.indexOf('&sd=') < 0,
+          lastPublicRead && lastPublicRead.url.indexOf('&sd=') < 0,
           'The public view refresh returns to schedule-local today.'
         );
 

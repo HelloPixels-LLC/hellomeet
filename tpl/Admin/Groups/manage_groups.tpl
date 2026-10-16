@@ -585,7 +585,9 @@
     {vendor_js src="jquery-form/3.09/jquery.form-3.09.min.js"}
 
 
-    <script type="text/javascript">
+{capture assign=groupLogoSaveFailedMessage}{translate key=GroupLogoSaveFailed}{/capture}
+{capture assign=groupLogoRemoveFailedMessage}{translate key=GroupLogoRemoveFailed}{/capture}
+<script type="text/javascript">
         $(document).ready(function() {
 
             var actions = {
@@ -625,8 +627,8 @@
                         rolesUrl: '{$smarty.server.SCRIPT_NAME}',
                         submitUrl: '{$smarty.server.SCRIPT_NAME}',
                         saveRedirect: '{$smarty.server.SCRIPT_NAME}',
-                        logoSaveFailedMessage: '{{translate key=GroupLogoSaveFailed}|escape:'javascript'}',
-                        logoRemoveFailedMessage: '{{translate key=GroupLogoRemoveFailed}|escape:'javascript'}',
+                        logoSaveFailedMessage: '{$groupLogoSaveFailedMessage|escape:"javascript"}',
+                        logoRemoveFailedMessage: '{$groupLogoRemoveFailedMessage|escape:"javascript"}',
                         selectGroupUrl: '{$smarty.server.SCRIPT_NAME}?gid=',
                         actions: actions,
                         dataRequests: dataRequests
