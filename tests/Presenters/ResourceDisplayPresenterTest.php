@@ -127,7 +127,7 @@ class ResourceDisplayPresenterTest extends TestBase
 
         $publicId = 'publicId';
         $resource = new FakeBookableResource(1);
-        $resource->EnableSubscription();
+        $resource->EnableDisplay();
         $resource->SetScheduleId($scheduleId);
         $this->resourceRepository->_Resource = $resource;
         $schedule = new FakeSchedule($scheduleId);
@@ -218,6 +218,7 @@ class ResourceDisplayPresenterTest extends TestBase
 
         $this->assertEquals(true, $this->page->_AvailableNow);
         $this->assertEquals(false, $this->page->_RequiresCheckIn);
+        $this->assertFalse($this->resourceRepository->_Resource->GetIsCalendarSubscriptionAllowed());
     }
 
     public function testDisplaysUnavailable()
@@ -255,14 +256,38 @@ class ResourceDisplayPresenterTest extends TestBase
         $this->assertTrue($this->page->_HasReservationsToday);
     }
 
-    public function testWhenNotEnabledToDisplay()
+    public function testCalendarSubscriptionAloneDoesNotEnableRoomDisplay()
     {
         $resource = new FakeBookableResource(1);
+        $resource->EnableSubscription();
         $this->resourceRepository->_Resource = $resource;
 
         $this->presenter->DisplayResource('whatever', null);
 
         $this->assertTrue($this->page->_DisplayNotEnabledMessage);
+    }
+
+    public function testCalendarOnlyResourceCannotUseRoomDisplayOrActions(): void
+    {
+        $resource = new FakeBookableResource(1);
+        $resource->EnableSubscription();
+        $resource->SetCheckin(true, 30);
+        $this->resourceRepository->_Resource = $resource;
+
+        $this->presenter->DisplayResource('calendar-only', null);
+        $this->assertTrue($this->page->_DisplayNotEnabledMessage);
+
+        $this->page->_ResourceId = 1;
+        $this->page->_PublicResourceId = 'calendar-only';
+        $this->presenter->reservationCreateHandler = $this->reservationCreateHandler;
+        $this->presenter->Reserve();
+        $this->assertFalse($this->page->_ReservationCreatedSuccessfully);
+        $this->assertNull($this->reservationCreateHandler->_LastSeries);
+
+        $this->presenter->reservationCheckinHandler = $this->reservationCheckinHandler;
+        $this->presenter->Checkin();
+        $this->assertFalse($this->page->_ReservationCheckedInSuccessfully);
+        $this->assertNull($this->reservationCheckinHandler->_LastSeries);
     }
 
     public function testKeepsRoomDisplayOnScheduleLocalDateAfterHours()
@@ -274,7 +299,7 @@ class ResourceDisplayPresenterTest extends TestBase
 
         $publicId = 'publicId';
         $resource = new FakeBookableResource(1);
-        $resource->EnableSubscription();
+        $resource->EnableDisplay();
         $resource->SetScheduleId($scheduleId);
         $this->resourceRepository->_Resource = $resource;
         $schedule = new FakeSchedule($scheduleId);
@@ -310,7 +335,7 @@ class ResourceDisplayPresenterTest extends TestBase
         $this->reservationCreateHandler->_Success = true;
 
         $resource = new FakeBookableResource(292);
-        $resource->EnableSubscription();
+        $resource->EnableDisplay();
         $resource->SetScheduleId(10);
         $this->resourceRepository->_Resource = $resource;
         $this->scheduleRepository->_Schedule = new FakeSchedule(10);
@@ -347,7 +372,7 @@ class ResourceDisplayPresenterTest extends TestBase
         $this->reservationCreateHandler->_Errors = ['one', 'two'];
 
         $resource = new FakeBookableResource(292);
-        $resource->EnableSubscription();
+        $resource->EnableDisplay();
         $resource->SetScheduleId(10);
         $this->resourceRepository->_Resource = $resource;
         $this->scheduleRepository->_Schedule = new FakeSchedule(10);
@@ -383,7 +408,7 @@ class ResourceDisplayPresenterTest extends TestBase
         $this->page->_ResourceId = 292;
         $this->page->_PublicResourceId = 'public-room';
         $resource = new FakeBookableResource(292);
-        $resource->EnableSubscription();
+        $resource->EnableDisplay();
         $resource->SetScheduleId(10);
         $this->resourceRepository->_Resource = $resource;
         $this->scheduleRepository->_Schedule = new FakeSchedule(10);
@@ -421,7 +446,7 @@ class ResourceDisplayPresenterTest extends TestBase
     public function testCheckinActionHonorsDisabledRoomSetting(): void
     {
         $resource = new FakeBookableResource(1);
-        $resource->EnableSubscription();
+        $resource->EnableDisplay();
         $this->resourceRepository->_Resource = $resource;
         $this->presenter->reservationCheckinHandler = $this->reservationCheckinHandler;
 
@@ -436,7 +461,7 @@ class ResourceDisplayPresenterTest extends TestBase
         $timezone = 'America/Chicago';
         $scheduleId = 10;
         $resource = new FakeBookableResource(1);
-        $resource->EnableSubscription();
+        $resource->EnableDisplay();
         $resource->SetCheckin($requiresCheckin, $checkinMin);
         $resource->SetScheduleId($scheduleId);
         $this->resourceRepository->_Resource = $resource;

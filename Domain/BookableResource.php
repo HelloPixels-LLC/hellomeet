@@ -1294,7 +1294,7 @@ class BookableResource implements IBookableResource
      */
     public function GetIsDisplayEnabled()
     {
-        return !empty($this->_publicId);
+        return !empty($this->_isDisplayAllowed) && !empty($this->_publicId);
     }
 
     /**

@@ -161,7 +161,7 @@ class ResourceDisplayPresenter extends ActionPresenter
     {
         $resource = $this->resourceRepository->LoadByPublicId($resourcePublicId);
 
-        if (!$resource->GetIsCalendarSubscriptionAllowed()) {
+        if (!$resource->GetIsDisplayEnabled()) {
             $this->page->DisplayNotEnabled();
             return;
         }
@@ -281,7 +281,7 @@ class ResourceDisplayPresenter extends ActionPresenter
         $email = $this->page->GetEmail();
 
         $resource = $this->resourceRepository->LoadByPublicId($this->page->GetPublicResourceId());
-        if (!$resource->GetIsCalendarSubscriptionAllowed() || $resource->GetResourceId() != $resourceId) {
+        if (!$resource->GetIsDisplayEnabled() || $resource->GetResourceId() != $resourceId) {
             $resultCollector = new ReservationResultCollector();
             $resultCollector->SetSaveSuccessfulMessage(false);
             $resultCollector->SetErrors(['Unauthorized']);
@@ -329,7 +329,7 @@ class ResourceDisplayPresenter extends ActionPresenter
     {
         $resultCollector = new ReservationResultCollector();
         $resource = $this->resourceRepository->LoadByPublicId($this->page->GetPublicResourceId());
-        if (!$resource->GetIsCalendarSubscriptionAllowed() || !$resource->IsCheckInEnabled()) {
+        if (!$resource->GetIsDisplayEnabled() || !$resource->IsCheckInEnabled()) {
             $resultCollector->SetSaveSuccessfulMessage(false);
             $resultCollector->SetErrors(['Unauthorized']);
             $this->page->SetReservationCheckinResults(false, $resultCollector);
